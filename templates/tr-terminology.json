@@ -1,0 +1,515 @@
+{
+  "_readme": [
+    "Turkish academic term-unity glossary for scripts/tr_style_check.py.",
+    "Each entry is ONE concept and the competing spellings a Turkish manuscript",
+    "tends to alternate between. The checker never picks a winner for you: it",
+    "reports that two variants of one concept coexist, with counts, and leaves",
+    "the choice to the author. Term unity is a decision; only the inconsistency",
+    "is a defect.",
+    "",
+    "'en' lists English forms of the same concept. An English form used ONCE is",
+    "the standard first-mention parenthetical and is never flagged; used",
+    "repeatedly alongside the Turkish term, it is the same inconsistency.",
+    "",
+    "This file is copied into every project by /new-project. Edit YOUR project's",
+    "copy: terminology is domain-specific, and a glossary that fits a machine",
+    "learning thesis will misfire on a clinical one. Delete concepts you do not",
+    "use rather than living with noise.",
+    "",
+    "'tr_ambiguous' lists Turkish variants that are ALSO ordinary words. They",
+    "are recorded here so the entry stays complete, and they are never counted:",
+    "'özellik' means a property of anything long before it means an ML feature,",
+    "and a review that writes 'çalışmaların özellikleri' three times has not",
+    "drifted in its terminology. Counting them reported term drift in a draft",
+    "whose terminology never drifted, and a warning that fires on correct prose",
+    "is a warning nobody reads. The cost is real and accepted: a manuscript that",
+    "genuinely alternates between 'öznitelik' and 'özellik' is not caught. Move",
+    "a word back into 'tr' if your domain uses it unambiguously."
+  ],
+  "concepts": [
+    {
+      "concept": "dataset",
+      "tr": [
+        "veri seti",
+        "veri kümesi"
+      ],
+      "en": [
+        "dataset"
+      ]
+    },
+    {
+      "concept": "training",
+      "tr": [
+        "eğitim",
+        "öğretim"
+      ],
+      "en": [
+        "training"
+      ]
+    },
+    {
+      "concept": "learning rate",
+      "tr": [
+        "öğrenme oranı",
+        "öğrenme hızı",
+        "öğrenme katsayısı"
+      ],
+      "en": [
+        "learning rate"
+      ]
+    },
+    {
+      "concept": "overfitting",
+      "tr": [
+        "aşırı öğrenme",
+        "aşırı uyum",
+        "aşırı uydurma"
+      ],
+      "en": [
+        "overfitting"
+      ]
+    },
+    {
+      "concept": "underfitting",
+      "tr": [
+        "yetersiz öğrenme",
+        "eksik uyum"
+      ],
+      "en": [
+        "underfitting"
+      ]
+    },
+    {
+      "concept": "accuracy",
+      "tr": [
+        "doğruluk",
+        "kesinlik oranı",
+        "isabet"
+      ],
+      "en": [
+        "accuracy"
+      ]
+    },
+    {
+      "concept": "precision",
+      "tr": [
+        "kesinlik",
+        "duyarlık"
+      ],
+      "en": [
+        "precision"
+      ]
+    },
+    {
+      "concept": "recall",
+      "tr": [
+        "duyarlılık",
+        "geri çağırma"
+      ],
+      "en": [
+        "recall"
+      ],
+      "tr_ambiguous": [
+        "anma"
+      ]
+    },
+    {
+      "concept": "feature",
+      "tr": [
+        "öznitelik"
+      ],
+      "en": [
+        "feature"
+      ],
+      "tr_ambiguous": [
+        "özellik",
+        "nitelik"
+      ]
+    },
+    {
+      "concept": "label",
+      "tr": [
+        "etiket",
+        "sınıf etiketi"
+      ],
+      "en": [
+        "label"
+      ]
+    },
+    {
+      "concept": "model",
+      "tr": [
+        "model"
+      ],
+      "en": []
+    },
+    {
+      "concept": "neural network",
+      "tr": [
+        "yapay sinir ağı",
+        "sinir ağı",
+        "nöral ağ"
+      ],
+      "en": [
+        "neural network"
+      ]
+    },
+    {
+      "concept": "convolutional neural network",
+      "tr": [
+        "evrişimli sinir ağı",
+        "evrişimsel sinir ağı",
+        "konvolüsyonel sinir ağı"
+      ],
+      "en": [
+        "convolutional neural network"
+      ]
+    },
+    {
+      "concept": "deep neural network",
+      "tr": [
+        "derin sinir ağı"
+      ],
+      "en": [
+        "deep neural network"
+      ]
+    },
+    {
+      "concept": "deep learning",
+      "tr": [
+        "derin öğrenme"
+      ],
+      "en": [
+        "deep learning"
+      ]
+    },
+    {
+      "concept": "machine learning",
+      "tr": [
+        "makine öğrenmesi",
+        "makine öğrenimi",
+        "yapay öğrenme"
+      ],
+      "en": [
+        "machine learning"
+      ]
+    },
+    {
+      "concept": "classification",
+      "tr": [
+        "sınıflandırma",
+        "sınıflama"
+      ],
+      "en": [
+        "classification"
+      ]
+    },
+    {
+      "concept": "regression",
+      "tr": [
+        "bağlanım",
+        "regresyon"
+      ],
+      "en": [
+        "regression"
+      ]
+    },
+    {
+      "concept": "clustering",
+      "tr": [
+        "kümeleme",
+        "öbekleme"
+      ],
+      "en": [
+        "clustering"
+      ]
+    },
+    {
+      "concept": "cross-validation",
+      "tr": [
+        "çapraz doğrulama",
+        "çapraz geçerleme"
+      ],
+      "en": [
+        "cross-validation",
+        "cross validation"
+      ]
+    },
+    {
+      "concept": "hyperparameter",
+      "tr": [
+        "hiperparametre",
+        "üst parametre"
+      ],
+      "en": [
+        "hyperparameter"
+      ]
+    },
+    {
+      "concept": "baseline",
+      "tr": [
+        "temel model",
+        "başlangıç modeli",
+        "taban model"
+      ],
+      "en": [
+        "baseline"
+      ]
+    },
+    {
+      "concept": "performance",
+      "tr": [
+        "başarım",
+        "performans"
+      ],
+      "en": [
+        "performance"
+      ]
+    },
+    {
+      "concept": "evaluation",
+      "tr": [
+        "değerlendirme",
+        "başarım ölçümü"
+      ],
+      "en": [
+        "evaluation"
+      ]
+    },
+    {
+      "concept": "validation set",
+      "tr": [
+        "doğrulama kümesi",
+        "geçerleme kümesi",
+        "doğrulama seti"
+      ],
+      "en": [
+        "validation set"
+      ]
+    },
+    {
+      "concept": "test set",
+      "tr": [
+        "test kümesi",
+        "sınama kümesi",
+        "test seti"
+      ],
+      "en": [
+        "test set"
+      ]
+    },
+    {
+      "concept": "sample",
+      "tr": [
+        "örneklem",
+        "örnek"
+      ],
+      "en": [
+        "sample"
+      ]
+    },
+    {
+      "concept": "variable",
+      "tr": [
+        "değişken"
+      ],
+      "en": [
+        "variable"
+      ]
+    },
+    {
+      "concept": "significance",
+      "tr": [
+        "anlamlılık",
+        "önemlilik"
+      ],
+      "en": [
+        "significance"
+      ]
+    },
+    {
+      "concept": "confidence interval",
+      "tr": [
+        "güven aralığı",
+        "güvenirlik aralığı"
+      ],
+      "en": [
+        "confidence interval"
+      ]
+    },
+    {
+      "concept": "correlation",
+      "tr": [
+        "ilişki",
+        "korelasyon",
+        "bağıntı"
+      ],
+      "en": [
+        "correlation"
+      ]
+    },
+    {
+      "concept": "reliability",
+      "tr": [
+        "güvenirlik",
+        "güvenilirlik"
+      ],
+      "en": [
+        "reliability"
+      ]
+    },
+    {
+      "concept": "validity",
+      "tr": [
+        "geçerlik",
+        "geçerlilik"
+      ],
+      "en": [
+        "validity"
+      ]
+    },
+    {
+      "concept": "questionnaire",
+      "tr": [
+        "anket",
+        "soru formu",
+        "ölçek"
+      ],
+      "en": [
+        "questionnaire"
+      ]
+    },
+    {
+      "concept": "participant",
+      "tr": [
+        "katılımcı",
+        "denek"
+      ],
+      "en": [
+        "participant"
+      ]
+    },
+    {
+      "concept": "literature",
+      "tr": [
+        "alanyazın",
+        "literatür",
+        "yazın"
+      ],
+      "en": [
+        "literature"
+      ]
+    },
+    {
+      "concept": "method",
+      "tr": [
+        "yöntem",
+        "metot",
+        "metod"
+      ],
+      "en": [
+        "method"
+      ]
+    },
+    {
+      "concept": "approach",
+      "tr": [
+        "yaklaşım"
+      ],
+      "en": [
+        "approach"
+      ]
+    },
+    {
+      "concept": "finding",
+      "tr": [
+        "bulgu"
+      ],
+      "en": [
+        "finding"
+      ]
+    },
+    {
+      "concept": "limitation",
+      "tr": [
+        "sınırlılık",
+        "kısıt",
+        "sınırlama"
+      ],
+      "en": [
+        "limitation"
+      ]
+    },
+    {
+      "concept": "framework",
+      "tr": [
+        "çerçeve",
+        "yapı"
+      ],
+      "en": [
+        "framework"
+      ]
+    },
+    {
+      "concept": "algorithm",
+      "tr": [
+        "algoritma"
+      ],
+      "en": [
+        "algorithm"
+      ]
+    },
+    {
+      "concept": "optimization",
+      "tr": [
+        "eniyileme",
+        "optimizasyon"
+      ],
+      "en": [
+        "optimization"
+      ]
+    },
+    {
+      "concept": "preprocessing",
+      "tr": [
+        "ön işleme",
+        "önişleme"
+      ],
+      "en": [
+        "preprocessing"
+      ]
+    },
+    {
+      "concept": "normalization",
+      "tr": [
+        "normalleştirme",
+        "normalizasyon",
+        "ölçekleme"
+      ],
+      "en": [
+        "normalization"
+      ]
+    },
+    {
+      "concept": "imbalance",
+      "tr": [
+        "dengesizlik",
+        "sınıf dengesizliği"
+      ],
+      "en": [
+        "imbalance"
+      ]
+    },
+    {
+      "concept": "interpretability",
+      "tr": [
+        "yorumlanabilirlik",
+        "açıklanabilirlik"
+      ],
+      "en": [
+        "interpretability",
+        "explainability"
+      ]
+    }
+  ]
+}

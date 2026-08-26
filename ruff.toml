@@ -1,0 +1,45 @@
+# Ruff — the static half of "every claim is bound to something that fails".
+#
+# The suite already answers "does this behave?". A linter answers what tests
+# structurally cannot: is there code here that CANNOT be right — an import that
+# resolves to nothing, a variable assigned and never read, an `except` clause
+# that drops its own cause. Those survive a green test run precisely because
+# nothing executes them.
+#
+# SELECTION CRITERION, stated once so the ignore list below is not read as
+# convenience: a rule is enabled if violating it can indicate a DEFECT, and
+# disabled if it can only indicate a TASTE. That is the same line the kit draws
+# for its users in tr_style_check.py — flag the inconsistency, never the
+# preference — applied to its own source. A linter with 872 standing violations
+# is not a gate; it is a thing you learn to scroll past, and it teaches the
+# author to scroll past the one finding that mattered.
+#
+# There is deliberately no `ruff format` step either: reflowing ~250 KB of
+# prose-dense docstrings would bury the review history they carry, and that
+# history is load-bearing (see _shell_write_sink.py's header).
+
+line-length = 100
+target-version = "py310"          # the floor requirements.txt and CI test against
+extend-exclude = ["docs", "web", "test-run", "project-template"]
+
+[lint]
+# E,W  pycodestyle — the syntax-adjacent half (E7 comparisons, E9 syntax errors)
+# F    pyflakes    — undefined names, unused imports/variables, f-string bugs
+# B    flake8-bugbear — mutable defaults, `raise` that loses its cause, dead loop vars
+select = ["E", "W", "F", "B"]
+
+# Formatting-family rules, excluded by the criterion above — none of them can
+# fail in a way that changes what the code does:
+ignore = [
+    "E501",  # line length: 872 hits at 79 cols, 56 at 120. A convention, visible
+             # in every file already, not a check.
+    "E402",  # `sys.path.insert(...)` then `from lib_common import …` is how every
+             # script and hook resolves its siblings without being a package.
+             # The import is deliberately not at the top; that IS the mechanism.
+    "E702",  # `p_st = sub.add_parser("set-status"); p_st.add_argument("rec_id")` —
+             # the argparse wiring blocks keep one subcommand on one line on
+             # purpose, which is what makes a 20-subcommand CLI readable at all.
+    "E731",  # an assigned lambda in a parser's local scope reads better than a
+             # def four lines above its only use.
+    "E741",  # `for l in lines` in a two-line list comprehension.
+]

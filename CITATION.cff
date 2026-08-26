@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+title: "Scholar-Kit: Akademik Makale ve Tez Üretim Kiti for Claude Code"
+message: "If you use Scholar-Kit in your research, please cite it."
+type: software
+authors:
+  - family-names: "Türkan"
+    given-names: "Mehmet"
+repository-code: "https://github.com/mtvrkan/scholar-kit"
+url: "https://scholar.mtvrkan.com"
+license: MIT
+version: 1.0.0
+date-released: 2026-08-26
+abstract: >-
+  An end-to-end academic research, paper and thesis production kit for Claude
+  Code, built for Turkish and English scholarly writing as equal first-class
+  targets. Specialist subagents handle read-heavy work in their own contexts; a
+  deterministic Python tool layer performs the checks that must not depend on
+  model judgement; project state lives on disk behind write-protecting hooks.
+  Its central discipline is zero-fabrication citation: bibliographic data comes
+  only from DOI content negotiation, every empirical claim binds to an evidence
+  card, and phase gates block drafting before outline approval, review before
+  citation verification passes, and formatting before major issues reach zero.
+  Beyond citation existence, the kit checks whether a verified citation is being
+  used to say more than its source does (claim-strength ladder), scans for the
+  seven AI-research failure modes catalogued by Lu et al. (2026), and measures
+  its own deterministic checkers against labelled gold sets on every test run.
+keywords:
+  - academic-writing
+  - literature-review
+  - systematic-review
+  - citation-verification
+  - research-integrity
+  - thesis
+  - claude-code
+  - turkish-academic-writing
+# DOI: intentionally absent. A DOI is minted by archiving a tagged release
+# (e.g. via Zenodo's GitHub integration); writing one here before that archive
+# exists would be a fabricated identifier — precisely the defect class this kit
+# is built to prevent. After the first archived release, add:
+#   doi: "10.5281/zenodo.XXXXXXX"
+# and add the same value to `identifiers:` below.

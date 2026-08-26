@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "scholar-kit",
+  "displayName": "Scholar-Kit",
+  "version": "1.0.0",
+  "description": "End-to-end academic research, paper and thesis production for Claude Code — Turkish and English as equal first-class targets. Zero-fabrication citation discipline, evidence-card chain, claim-strength auditing, and a 7-mode AI-research failure-mode scan.",
+  "author": {
+    "name": "Mehmet Türkan"
+  },
+  "homepage": "https://github.com/mtvrkan/scholar-kit",
+  "repository": "https://github.com/mtvrkan/scholar-kit",
+  "license": "MIT",
+  "keywords": [
+    "academic-writing",
+    "literature-review",
+    "systematic-review",
+    "citation-verification",
+    "research-integrity",
+    "thesis",
+    "turkish-academic-writing"
+  ],
+  "skills": "./.claude/skills/",
+  "hooks": "./.claude-plugin/hooks.json",
+  "agents": [
+    "./.claude/agents/citation-verifier.md",
+    "./.claude/agents/data-scientist.md",
+    "./.claude/agents/dataset-scout.md",
+    "./.claude/agents/format-engineer.md",
+    "./.claude/agents/literature-scout.md",
+    "./.claude/agents/methodology-advisor.md",
+    "./.claude/agents/qa-auditor.md",
+    "./.claude/agents/reviewer-critic.md",
+    "./.claude/agents/source-analyst.md",
+    "./.claude/agents/style-auditor.md"
+  ]
+}

@@ -1,0 +1,27 @@
+* text=auto eol=lf
+*.docx binary
+*.png binary
+*.pdf binary
+*.sh text eol=lf
+*.py text eol=lf
+
+# Dev-provenance docs stay in the repo but are excluded from release archives
+# (`git archive`) — ~240KB of internal review history, not needed to run the kit.
+DECISIONS.md export-ignore
+
+# The website — source and built output — is 1.3 MB of the 7.8 MB tracked here
+# and is of no use to anyone installing the kit. It stays on this branch rather
+# than moving to its own, and the reason is worth writing down: twenty-six of
+# the site's tests derive their expectations from the KIT (how many tools are in
+# scripts/, how many hooks are registered, which version CITATION.cff declares),
+# so a site branch would have to carry the kit too. It would not separate the
+# two, it would duplicate one of them and add a permanent obligation to merge
+# and rebuild before the site's own suite could pass again — for 17% of a
+# checkout. `export-ignore` gets the same bytes out of `git archive`, which is
+# what "Download ZIP" and every release tarball are, at the cost of one line
+# each and no ongoing sync.
+#
+# It does NOT shrink a `git clone`. Nothing but a branch split would, and that
+# is the trade being declined here rather than overlooked.
+web/    export-ignore
+docs/   export-ignore

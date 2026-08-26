@@ -1,0 +1,17 @@
+{
+  "name": "scholar-kit-site",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Source for scholar.mtvrkan.com. Build output is committed to ../docs, which GitHub Pages serves.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && node postbuild.mjs",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "devDependencies": {
+    "astro": "^7.2.7",
+    "esbuild": "^0.28.2"
+  }
+}

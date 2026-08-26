@@ -1,0 +1,56 @@
+# Coverage configuration — and the reason it exists at all.
+#
+# Most of this suite drives the scripts as SUBPROCESSES, because that is the
+# contract being tested: a CLI that emits JSON. Coverage started in the pytest
+# process cannot see into those children, so the collector reported what the
+# tests *imported* rather than what they *exercised* — skill_routing_eval.py
+# read 0% while a dozen tests ran it end to end, and registry_db.py read 17%
+# while being one of the most exercised modules in the repo.
+#
+# CI's comment used to argue that the number therefore understates the truth by
+# an unknown margin, and left it there. That was an accurate description of a
+# measurement problem and not a fix for one. This file is the fix: with
+# COVERAGE_PROCESS_START pointing here, pytest-cov's .pth hook starts coverage
+# inside every child process too, each writes its own data file, and the parent
+# combines them.
+#
+# The margin is still not zero — a child killed by a signal writes nothing —
+# but the figure now describes the suite instead of describing the instrument.
+
+[run]
+# Every child writes .coverage.<host>.<pid>.<random>; the parent combines them.
+# Without this the second process to finish would truncate the first one's data.
+parallel = true
+
+# include, not source: `source = scripts` is resolved against each process's
+# CURRENT DIRECTORY, and the children deliberately run inside a tmp_path so
+# they cannot touch the repo. These glob patterns are matched against absolute
+# filenames instead, so they hold wherever the child is started from — and they
+# keep the tracer off stdlib and site-packages, which is what stops
+# whole-process measurement from slowing the suite down.
+include =
+    */scripts/*.py
+    */.claude/hooks/*.py
+
+[paths]
+# tests/test_first_run.py copies the whole kit into a tmp directory and runs it
+# there, which is the point of that suite — a fresh install, not the working
+# tree. Without this remapping the copy reports as a SECOND set of files, so
+# the same module appears twice: once well covered, once barely. Both halves
+# are the same source; combine them.
+scripts =
+    scripts/
+    */scholar-firstrun*/scripts/
+hooks =
+    .claude/hooks/
+    */scholar-firstrun*/.claude/hooks/
+
+[report]
+# Same two directories, stated again: [run] governs what is traced, [report]
+# what is printed, and a file can be traced by a child yet outside the report's
+# scope. Keeping them identical is what makes the combined number mean one thing.
+include =
+    */scripts/*.py
+    */.claude/hooks/*.py
+exclude_also =
+    if __name__ == .__main__.:

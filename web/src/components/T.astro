@@ -1,0 +1,12 @@
+---
+/**
+ * One bilingual string, rendered as both languages with CSS deciding which is
+ * visible. Both are in the HTML on purpose: the toggle is instant and needs no
+ * navigation, and a crawler indexes the page in both languages.
+ *
+ * `set:html` because these strings legitimately carry <code>, <em> and <strong>.
+ */
+interface Props { tr: string; en: string; }
+const { tr, en } = Astro.props;
+---
+<span class="tr" lang="tr" set:html={tr} /><span class="en" lang="en" set:html={en} />

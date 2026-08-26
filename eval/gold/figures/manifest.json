@@ -1,0 +1,360 @@
+{
+  "task": "figures",
+  "entrypoint": "figure_check",
+  "description": "Labeled cases for figure_check.py — figure/table existence, numbering and caption lint. Four defects per kind: a figure the prose mentions but never embeds, an embedded figure nothing refers to, a number used twice, and a gap in the sequence; plus a figure embedded without a caption in analysis/captions.md. The negatives are the shapes that look broken and are not: a range mention (Figures 1-3), the same figure referred to several times, and a fenced code block that happens to contain image syntax.",
+  "thresholds": {
+    "precision": 0.95,
+    "recall": 0.95
+  },
+  "cases": [
+    {
+      "id": "001-figure-mentioned-but-never-embedded",
+      "comment": "The defect that survives to print most often: a figure is promised in the prose and the image was never added.",
+      "drafts": {
+        "bulgular.md": "Figure 1 shows the class balance.\n\n![Figure 2. ROC curves.](figures/roc.pdf)\n\nFigure 2 compares the models.\n"
+      },
+      "expect": [
+        {
+          "check": "missing",
+          "kind": "figures",
+          "num": "1"
+        }
+      ]
+    },
+    {
+      "id": "002-figure-embedded-but-never-referred-to",
+      "comment": "The mirror defect, and the one reviewers flag: an unreferenced figure is either dead weight or a prose sentence that got deleted.",
+      "drafts": {
+        "bulgular.md": "![Figure 1. Class balance.](figures/balance.pdf)\n\n![Figure 2. ROC curves.](figures/roc.pdf)\n\nFigure 1 shows the class balance.\n"
+      },
+      "expect": [
+        {
+          "check": "orphaned",
+          "kind": "figures",
+          "num": "2"
+        }
+      ]
+    },
+    {
+      "id": "003-duplicate-figure-number",
+      "drafts": {
+        "bulgular.md": "![Figure 1. Class balance.](figures/balance.pdf)\n\n![Figure 1. ROC curves.](figures/roc.pdf)\n\nFigure 1 is discussed below.\n"
+      },
+      "expect": [
+        {
+          "check": "duplicate_number",
+          "kind": "figures",
+          "num": "1"
+        }
+      ]
+    },
+    {
+      "id": "004-gap-in-the-figure-sequence",
+      "comment": "Figure 2 was cut and nothing was renumbered — the classic result of a late revision.",
+      "drafts": {
+        "bulgular.md": "![Figure 1. Class balance.](figures/balance.pdf)\n\n![Figure 3. Calibration.](figures/cal.pdf)\n\nFigure 1 and Figure 3 are discussed below.\n"
+      },
+      "expect": [
+        {
+          "check": "sequence_gap",
+          "kind": "figures",
+          "num": 2
+        }
+      ]
+    },
+    {
+      "id": "005-table-mentioned-but-never-embedded",
+      "comment": "Tables run through the same four checks as figures, on a different embed syntax, and were worth asserting separately.",
+      "drafts": {
+        "bulgular.md": "**Table 1. Model comparison.**\n\nTable 1 reports the scores and Table 2 the ablation.\n"
+      },
+      "expect": [
+        {
+          "check": "missing",
+          "kind": "tables",
+          "num": "2"
+        }
+      ]
+    },
+    {
+      "id": "006-duplicate-table-number",
+      "drafts": {
+        "bulgular.md": "**Table 1. Model comparison.**\n\n**Table 1. Ablation.**\n\nTable 1 reports the scores.\n"
+      },
+      "expect": [
+        {
+          "check": "duplicate_number",
+          "kind": "tables",
+          "num": "1"
+        }
+      ]
+    },
+    {
+      "id": "007-embedded-figure-absent-from-captions",
+      "comment": "captions.md is what the build reads for figure captions; a figure missing from it ships without one.",
+      "analysis": {
+        "captions.md": "## Figure: `figures/balance.pdf` / `.png`\n\nClass balance of the cohort.\n"
+      },
+      "drafts": {
+        "bulgular.md": "![Figure 1. Class balance.](figures/balance.pdf)\n\n![Figure 2. ROC curves.](figures/roc.pdf)\n\nFigure 1 and Figure 2 are discussed below.\n"
+      },
+      "expect": [
+        {
+          "check": "uncaptioned",
+          "kind": "figures",
+          "name": "Figure 2 (roc)"
+        }
+      ]
+    },
+    {
+      "id": "101-clean-figures-and-tables",
+      "comment": "NEGATIVE. Everything embedded is referred to, everything referred to is embedded, numbering is contiguous. This is what a finished Results section looks like and it must be silent.",
+      "drafts": {
+        "bulgular.md": "![Figure 1. Class balance.](figures/balance.pdf)\n\n![Figure 2. ROC curves.](figures/roc.pdf)\n\n**Table 1. Model comparison.**\n\nFigure 1 shows the balance, Figure 2 the ROC curves, and Table 1 the scores.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "102-range-mention",
+      "comment": "NEGATIVE. 'Figures 1-3' refers to three figures in one phrase. Read as a single mention of a figure named '1-3', all three read as orphaned and the checker fires hardest on well-written prose.",
+      "drafts": {
+        "bulgular.md": "![Figure 1. A.](figures/a.pdf)\n\n![Figure 2. B.](figures/b.pdf)\n\n![Figure 3. C.](figures/c.pdf)\n\nFigures 1-3 summarise the comparison.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "103-repeated-mentions-of-one-figure",
+      "comment": "NEGATIVE. Referring to the same figure in three places is normal writing, not a duplicate. Only a repeated EMBED is a duplicate.",
+      "drafts": {
+        "bulgular.md": "![Figure 1. Class balance.](figures/balance.pdf)\n\nFigure 1 shows the imbalance. As Figure 1 makes clear, the positive rate is low. We return to Figure 1 in the discussion.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "104-image-syntax-inside-a-code-fence",
+      "comment": "NEGATIVE. A fenced snippet demonstrating the markdown embed syntax is documentation, not an embedded figure.",
+      "drafts": {
+        "yontem.md": "Embed a figure like this:\n\n```markdown\n![Figure 9. Example.](figures/example.pdf)\n```\n\nNo figures appear in this section.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "105-lettered-subfigure",
+      "comment": "NEGATIVE. Figure 2a and 2b are subfigures of one number, not a gap between 2 and 3.",
+      "drafts": {
+        "bulgular.md": "![Figure 1. A.](figures/a.pdf)\n\n![Figure 2a. B left.](figures/b1.pdf)\n\n![Figure 2b. B right.](figures/b2.pdf)\n\nFigure 1, Figure 2a and Figure 2b are discussed below.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "106-no-captions-file",
+      "comment": "NEGATIVE. Before /analyze-data runs there is no captions.md. Reporting every figure as uncaptioned then would make the check noise from the first draft onward.",
+      "drafts": {
+        "bulgular.md": "![Figure 1. Class balance.](figures/balance.pdf)\n\nFigure 1 shows the balance.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "107-empty-project",
+      "comment": "NEGATIVE. No drafts at all.",
+      "expect": []
+    },
+    {
+      "id": "015-table-printed-before-a-lower-number",
+      "comment": "A complete, gapless, uniquely-numbered set can still be numbered wrongly. Every pre-existing check passes on this input; only order catches it.",
+      "drafts": {
+        "bulgular.md": "**Table 5. Characteristics.**\n\nTable 5, Table 6, Table 7 and Table 7b are discussed.\n\n**Table 7b. Convergence.**\n\n**Table 6. Risk of bias.**\n\n**Table 7. Applicability.**\n"
+      },
+      "expect": [
+        {
+          "check": "out_of_order",
+          "kind": "tables",
+          "num": "6"
+        }
+      ]
+    },
+    {
+      "id": "016-one-displaced-caption-is-not-a-cascade",
+      "comment": "Measured against the running peak, not the previous label: one displaced caption reports each caption it displaces, and nothing else. Consecutive numbers, so no sequence gap rides along and the case measures only what it names.",
+      "drafts": {
+        "bulgular.md": "Table 1, Table 2, Table 3 and Table 4 are discussed.\n\n**Table 4. Late.**\n\n**Table 1. First.**\n\n**Table 2. Second.**\n\n**Table 3. Third.**\n"
+      },
+      "expect": [
+        {
+          "check": "out_of_order",
+          "kind": "tables",
+          "num": "1"
+        },
+        {
+          "check": "out_of_order",
+          "kind": "tables",
+          "num": "2"
+        },
+        {
+          "check": "out_of_order",
+          "kind": "tables",
+          "num": "3"
+        }
+      ]
+    },
+    {
+      "id": "017-ascending-order-across-files-is-not-a-finding",
+      "comment": "Reading order across files is not knowable from filenames, so the check is per-file: a higher number in an alphabetically earlier file stays clean. Consecutive numbers, so no sequence gap rides along.",
+      "drafts": {
+        "a-bulgular.md": "Table 2 is discussed.\n\n**Table 2. Higher number, earlier file.**\n",
+        "z-ek.md": "Table 1 is discussed.\n\n**Table 1. Lower number, later file.**\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "018-sub-label-after-its-base-is-ordered",
+      "comment": "3 then 3a then 4 is correct numbering; the base integer never decreases. Flagging it would make every sub-lettered table a finding.",
+      "drafts": {
+        "bulgular.md": "Table 3, Table 3a and Table 4 are discussed.\n\n**Table 3. Base.**\n\n**Table 3a. Sub.**\n\n**Table 4. Next.**\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "019-out-of-order-figures-too",
+      "comment": "The rule is not table-specific; a figure printed before a lower-numbered one is the same defect.",
+      "drafts": {
+        "bulgular.md": "Figure 1 and Figure 2 are discussed.\n\n![Figure 2. Second.](figures/b.png)\n\n![Figure 1. First.](figures/a.png)\n"
+      },
+      "expect": [
+        {
+          "check": "out_of_order",
+          "kind": "figures",
+          "num": "1"
+        }
+      ]
+    },
+    {
+      "id": "020-degenerate-range-both-ends-equal",
+      "comment": "A global renumbering pass turns 'Table 6-7' into 'Table 7-7'. The old code dropped a hi<=lo range silently, so a broken reference contributed no mention and nothing was ever reported missing for it — the one dangling reference the script could not see.",
+      "drafts": {
+        "yontem.md": "**Table 6. A.**\n\n**Table 7. B.**\n\nTable 6, Table 7 and Table 7-7 are derived from these.\n"
+      },
+      "expect": [
+        {
+          "check": "degenerate_range",
+          "kind": "tables",
+          "text": "Table 7-7"
+        }
+      ]
+    },
+    {
+      "id": "021-descending-range",
+      "comment": "The other shape of the same defect — and it shows the damage: because the broken range contributes no mention at all, both tables it was supposed to refer to become orphaned. That cascade is the reason a silently dropped range is worse than a wrong one.",
+      "drafts": {
+        "yontem.md": "**Table 1. A.**\n\n**Table 2. B.**\n\nSee Tables 2-1.\n"
+      },
+      "expect": [
+        {
+          "check": "degenerate_range",
+          "kind": "tables",
+          "text": "Tables 2-1"
+        },
+        {
+          "check": "orphaned",
+          "kind": "tables",
+          "num": "1"
+        },
+        {
+          "check": "orphaned",
+          "kind": "tables",
+          "num": "2"
+        }
+      ]
+    },
+    {
+      "id": "022-ordinary-range-is-not-degenerate",
+      "comment": "An ascending range is the normal case and must stay silent, or every 'Figures 1-3' becomes a finding.",
+      "drafts": {
+        "bulgular.md": "Figures 1-3 are discussed.\n\n![Figure 1. A.](a.png)\n\n![Figure 2. B.](b.png)\n\n![Figure 3. C.](c.png)\n"
+      },
+      "expect": []
+    }
+  ],
+  "mutations": [
+    {
+      "id": "missing-detection-removed",
+      "breaks": "A figure the prose promises but never embeds stops being reported — the defect most likely to reach a reviewer.",
+      "replace": [
+        [
+          "missing = sorted(mentioned - embedded_nums, key=_base_int)",
+          "missing = []"
+        ]
+      ]
+    },
+    {
+      "id": "orphan-detection-removed",
+      "breaks": "An embedded figure nothing refers to stops being reported.",
+      "replace": [
+        [
+          "orphaned = sorted(embedded_nums - mentioned, key=_base_int)",
+          "orphaned = []"
+        ]
+      ]
+    },
+    {
+      "id": "duplicate-detection-removed",
+      "breaks": "Two figures sharing a number stop being reported, so the build silently renders one caption twice.",
+      "replace": [
+        [
+          "duplicates = [{\"num\": n, \"locations\": v} for n, v in embedded.items() if len(v) > 1]",
+          "duplicates = []"
+        ]
+      ]
+    },
+    {
+      "id": "sequence-gap-detection-removed",
+      "breaks": "A cut figure that left a hole in the numbering stops being reported.",
+      "replace": [
+        [
+          "gaps = [n for n in range(base_ints[0], base_ints[-1] + 1) if n not in base_ints]",
+          "gaps = []"
+        ]
+      ]
+    },
+    {
+      "id": "caption-cross-check-removed",
+      "breaks": "A figure absent from analysis/captions.md stops being reported, so it ships without a caption.",
+      "replace": [
+        [
+          "if cap_names[\"Figure\"] and stem not in cap_names[\"Figure\"]",
+          "if False"
+        ]
+      ]
+    },
+    {
+      "id": "code-fence-stripping-removed",
+      "breaks": "Embed syntax shown inside a fenced example counts as a real figure, so a Methods section documenting the convention reports orphans.",
+      "replace": [
+        [
+          "clean = _clean(text)",
+          "clean = text"
+        ]
+      ]
+    },
+    {
+      "id": "out-of-order-detection-removed",
+      "breaks": "A caption printed before a lower-numbered one stops being reported. Gap, duplicate and mention checks are all order-blind, so nothing else covers it.",
+      "replace": [
+        [
+          "            if peak is not None and n < peak:",
+          "            if False:"
+        ]
+      ]
+    },
+    {
+      "id": "degenerate-range-dropped-silently",
+      "breaks": "A range whose ends are equal or inverted goes back to contributing nothing and reporting nothing — a broken cross-reference becomes invisible rather than wrong.",
+      "replace": [
+        [
+          "            degenerate.append({",
+          "            [].append({"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+name: Hata bildirimi / Bug report
+description: Bir script, skill, hook veya build beklendiği gibi çalışmıyor.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Güvenlikle ilgiliyse bunu kullanmayın — özel danışma açın (SECURITY.md).
+  - type: textarea
+    id: what
+    attributes:
+      label: Ne çalıştırdınız? / What did you run?
+      description: Tam komut. The exact command.
+      placeholder: python scripts/claim_check.py --strict
+      render: shell
+    validations: {required: true}
+  - type: textarea
+    id: output
+    attributes:
+      label: Script ne bastı? / What did it print?
+      description: |
+        JSON çıktısının tamamı. Kısaltmayın — bu araçlar kasıtlı olarak neyi
+        *bilmediklerini* de raporlar, ve kesilen kısım genelde o oluyor.
+        The whole JSON. Do not trim it: these tools deliberately report what they
+        did NOT determine, and that is usually what gets cut.
+      render: json
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes:
+      label: Ne bekliyordunuz? / What did you expect instead?
+    validations: {required: true}
+  - type: input
+    id: env
+    attributes:
+      label: Ortam / Environment
+      placeholder: "Windows 11 · Python 3.13 · scholar-kit 1.1.0 · plugin kurulumu"
+    validations: {required: true}
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Bunları denediniz mi? / Did you check these first?
+      options:
+        - label: "`python scripts/validate_kit.py` çalıştırdım (0 problem bekleniyor)"
+          required: true
+        - label: "Projede `PROJECT.md` var — yoksa her zorlayıcı hook sessizce devre dışıdır"
+          required: true

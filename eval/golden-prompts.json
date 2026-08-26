@@ -1,0 +1,416 @@
+[
+  {
+    "prompt": "CNN tabanlı rulman arıza teşhisi konusunda yeni bir makale projesi başlatmak istiyorum",
+    "expect": "new-project",
+    "note": "Turkish new-project trigger"
+  },
+  {
+    "prompt": "Let's start a new empirical paper on transformer-based sentiment analysis",
+    "expect": "new-project"
+  },
+  {
+    "prompt": "Is 'Mechanical Systems and Signal Processing' a good SCIE journal to target?",
+    "expect": "journal-check"
+  },
+  {
+    "prompt": "\"Neural Computing and Applications\" dergisi predatory mi diye kontrol eder misin?",
+    "expect": "journal-check",
+    "note": "Turkish predatory check"
+  },
+  {
+    "prompt": "Run a systematic literature review on deep learning for bearing fault diagnosis, search both English and Turkish sources",
+    "expect": "lit-review"
+  },
+  {
+    "prompt": "rulman arıza teşhisi için literatür taraması yapalım, sistematik olsun",
+    "expect": "lit-review",
+    "note": "Turkish systematic review"
+  },
+  {
+    "prompt": "How should I decide whether to search in English or Turkish for my topic?",
+    "expect": "literature-review",
+    "note": "knowledge skill not the /lit-review command"
+  },
+  {
+    "prompt": "What's the difference between SCI-E, SSCI, ESCI and Scopus indexing?",
+    "expect": "literature-review",
+    "note": "venue-quality reference lives inside literature-review"
+  },
+  {
+    "prompt": "Build the outline for my paper now that I have enough evidence cards",
+    "expect": "outline"
+  },
+  {
+    "prompt": "outline'ı onayladım, şimdi methods bölümünü yaz",
+    "expect": "draft"
+  },
+  {
+    "prompt": "Write the introduction section of my thesis chapter 1",
+    "expect": "draft"
+  },
+  {
+    "prompt": "I need to analyze my vibration sensor CSV data and produce baseline model comparisons",
+    "expect": "analyze-data"
+  },
+  {
+    "prompt": "kendi verimle CNN modeli eğitip sonuçları tabloya döksün",
+    "expect": "analyze-data",
+    "note": "Turkish data analysis"
+  },
+  {
+    "prompt": "Check my bibliography for fabricated or retracted citations before I move forward",
+    "expect": "verify-citations"
+  },
+  {
+    "prompt": "atıflarımı doğrula, hazır mıyız kontrol edelim",
+    "expect": "verify-citations"
+  },
+  {
+    "prompt": "Run a fresh peer review simulation on my draft and give me a mock accept/reject decision",
+    "expect": "critique"
+  },
+  {
+    "prompt": "taslağımı hakem gözüyle değerlendir, major/minor sorunları listele",
+    "expect": "critique"
+  },
+  {
+    "prompt": "Let's go through the Major issues from the last review one by one and fix them",
+    "expect": "revise"
+  },
+  {
+    "prompt": "eleştiri raporundaki maddeleri tek tek işleyelim",
+    "expect": "revise"
+  },
+  {
+    "prompt": "Export my literature screening and extraction data to an Excel workbook",
+    "expect": "export-excel"
+  },
+  {
+    "prompt": "tarama tablosunu Excel'e aktar, çeyreklik renklendirmeli olsun",
+    "expect": "export-excel"
+  },
+  {
+    "prompt": "I have the journal's official Word template, please make all future builds follow it exactly",
+    "expect": "ingest-template"
+  },
+  {
+    "prompt": "Are we ready to submit? Run the full pre-submission checklist",
+    "expect": "submit-check"
+  },
+  {
+    "prompt": "gönderime hazır mıyız, tüm kontrolleri çalıştır",
+    "expect": "submit-check"
+  },
+  {
+    "prompt": "What's the current status of my paper — word counts, TODOs, verification state?",
+    "expect": "status"
+  },
+  {
+    "prompt": "durumu özetle, hangi aşamadayız",
+    "expect": "status"
+  },
+  {
+    "prompt": "I have my thesis defense coming up, help me prepare committee questions",
+    "expect": "defense-prep"
+  },
+  {
+    "prompt": "tez savunmasına hazırlanıyorum, jüri soruları hazırla",
+    "expect": "defense-prep"
+  },
+  {
+    "prompt": "What's the right structure for a PRISMA systematic review paper vs a narrative review?",
+    "expect": "paper-types"
+  },
+  {
+    "prompt": "Which reporting guideline applies to my randomized controlled trial write-up?",
+    "expect": "reporting-guidelines"
+  },
+  {
+    "prompt": "How do I properly cite a translated Turkish institutional report in APA 7th edition?",
+    "expect": "citation-styles"
+  },
+  {
+    "prompt": "APA'dan IEEE stiline nasıl geçerim, referanslarımı yeniden mi yazmam lazım?",
+    "expect": "citation-styles"
+  },
+  {
+    "prompt": "I need to create an evidence card for a key finding from this PDF I just read",
+    "expect": "evidence-cards"
+  },
+  {
+    "prompt": "How should I write my methods section paragraphs — what's the right academic tone?",
+    "expect": "academic-writing"
+  },
+  {
+    "prompt": "Türkçe akademik yazımda edilgen çatı kuralları nelerdir?",
+    "expect": "academic-writing",
+    "note": "Turkish register question"
+  },
+  {
+    "prompt": "What's the YÖK-required order for my thesis front matter, and does my Özet need to match the Abstract structurally?",
+    "expect": "thesis-structure"
+  },
+  {
+    "prompt": "I'm getting 'Undefined control sequence' when compiling my LaTeX thesis with babel Turkish",
+    "expect": "latex-thesis"
+  },
+  {
+    "prompt": "My Pandoc DOCX output isn't using the Heading 1 style from my reference.docx",
+    "expect": "docx-output"
+  },
+  {
+    "prompt": "Which metric should I report for my image segmentation model — Dice or mIoU?",
+    "expect": "ml-research"
+  },
+  {
+    "prompt": "How many random seeds should I run for statistically valid model comparison?",
+    "expect": "ml-research"
+  },
+  {
+    "prompt": "How do I build a fair comparison table between my method and three baselines?",
+    "expect": "comparative-analysis"
+  },
+  {
+    "prompt": "Is it okay to say my method 'causes' better accuracy, or should I hedge that claim?",
+    "expect": "comparative-analysis"
+  },
+  {
+    "prompt": "Scopus, WoS ve IEEE'de gelişmiş sorgularla tam bir sistematik literatür taraması yürüt: makaleleri indir, markdown'a çevir, detaylı Excel tablosunu çıkar",
+    "expect": "slr",
+    "note": "full hocamdan pipeline, TR"
+  },
+  {
+    "prompt": "Run the complete SLR pipeline on these databases: search Scopus and PubMed, screen, convert PDFs to markdown, extract sections to JSON, and build the detailed Excel",
+    "expect": "slr"
+  },
+  {
+    "prompt": "Dergi gönderimde yapay zekâ kullanım beyanı ve CRediT yazar katkı bildirimi istiyor, ikisini de hazırlayalım",
+    "expect": "disclosures",
+    "note": "TR disclosure trigger; the competing surface is thesis-structure (front matter also holds an ethics declaration)"
+  },
+  {
+    "prompt": "The submission portal wants an author contributions statement and a funding acknowledgement — TÜBİTAK grant 123E456",
+    "expect": "disclosures"
+  },
+  {
+    "prompt": "Hedef dergi IEEE yerine APA 7 istiyor — projedeki atıf stilini değiştir",
+    "expect": "restyle",
+    "note": "TR style switch; the competing surface is citation-styles, whose description also names 'switch citation style' — restyle is the ACTION on this project, citation-styles is the knowledge about the styles"
+  },
+  {
+    "prompt": "We're resubmitting to a Vancouver-style journal. Convert the manuscript's references from IEEE.",
+    "expect": "restyle"
+  },
+  {
+    "prompt": "Zotero'daki 180 kaynağı bu projeye aktarabilir miyiz?",
+    "expect": "import-library",
+    "note": "Turkish existing-library import"
+  },
+  {
+    "prompt": "I exported my Mendeley library as a .bib — can you bring it into the source register?",
+    "expect": "import-library"
+  },
+  {
+    "prompt": "Arıza teşhisi için açık bir titreşim veri seti bulabilir misin?",
+    "expect": "find-dataset",
+    "note": "Turkish dataset search"
+  },
+  {
+    "prompt": "I need a public dataset for Turkish sentiment classification — what exists?",
+    "expect": "find-dataset"
+  },
+  {
+    "prompt": "Uygun veri seti yok, siteden kendim toplayacağım — nasıl ilerlemeliyim?",
+    "expect": "collect-data",
+    "note": "Turkish own-collection trigger"
+  },
+  {
+    "prompt": "We are running a survey of 300 students for this study; set it up properly",
+    "expect": "collect-data"
+  },
+  {
+    "prompt": "Üç modeli beş tohumla eğitip karşılaştıralım, sonuçları da kayıt altına alalım",
+    "expect": "experiment",
+    "note": "Turkish training/comparison run"
+  },
+  {
+    "prompt": "Train LightGBM against the baselines and record every run with its seed",
+    "expect": "experiment"
+  },
+  {
+    "prompt": "Dergiye gönderiyorum, kapak mektubu ve form alanlarını hazırlayalım",
+    "expect": "submission-pack",
+    "note": "Turkish submission form"
+  },
+  {
+    "prompt": "Write the cover letter and check the abstract against the journal's limits",
+    "expect": "submission-pack"
+  },
+  {
+    "prompt": "Dergiden major revision geldi, 3 hakem 27 madde — yanıt mektubunu hazırlayalım",
+    "expect": "respond-review",
+    "note": "Turkish real decision letter"
+  },
+  {
+    "prompt": "The editor sent the reviewers' comments; help me answer them point by point",
+    "expect": "respond-review"
+  },
+  {
+    "prompt": "Veri ve kodu paylaşmak için replikasyon paketi hazırla",
+    "expect": "replication-package"
+  },
+  {
+    "prompt": "Analizi yapmadan önce hipotezleri ve analiz planını kayıt altına alalım",
+    "expect": "preregister",
+    "note": "Turkish preregistration"
+  },
+  {
+    "prompt": "Tezin ön kısmını hazırla: onay sayfası, etik beyan, içindekiler, şekil listesi",
+    "expect": "front-matter"
+  },
+  {
+    "prompt": "Makale reddedildi, başka bir dergiye hazırlayalım",
+    "expect": "retarget",
+    "note": "Turkish venue change"
+  },
+  {
+    "prompt": "15 dakikalık konferans sunumu ve poster hazırlayalım",
+    "expect": "present",
+    "note": "Turkish talk/poster"
+  },
+  {
+    "prompt": "Hocamın gönderdiği makale taslağı elimde, .docx olarak. Bunu kite alıp atıflarını doğrulatmak istiyorum",
+    "expect": "import-manuscript",
+    "note": "Turkish: an existing manuscript file, not a reference library — the /import-library confusion this pair exists to separate"
+  },
+  {
+    "prompt": "I already wrote this paper last year in LaTeX. Can you pull it in so I can run the reviewer simulation on it?",
+    "expect": "import-manuscript"
+  },
+  {
+    "prompt": "Tezimi Türkçe yazdım ama dergi İngilizce istiyor; makaleyi İngilizceye çevirelim",
+    "expect": "translate",
+    "note": "Turkish: language change, NOT citation-style change — the /restyle confusion"
+  },
+  {
+    "prompt": "Translate the methods section into Turkish and check that no citation or number was lost",
+    "expect": "translate"
+  },
+  {
+    "prompt": "Etik kurul başvurusu hazırlamam gerekiyor, bir de bilgilendirilmiş onam formu",
+    "expect": "ethics-application",
+    "note": "Turkish: the board's application, NOT /collect-data's protocol and NOT /disclosures' manuscript boilerplate"
+  },
+  {
+    "prompt": "I need the IRB application and a consent form for the survey study",
+    "expect": "ethics-application"
+  },
+  {
+    "prompt": "Proje çağrısı veri yönetim planı istiyor, hazırlayabilir miyiz?",
+    "expect": "dmp",
+    "note": "Turkish DMP — the funder's document, not /replication-package's deposit"
+  },
+  {
+    "prompt": "Horizon Europe wants a data management plan with the FAIR section filled in",
+    "expect": "dmp"
+  },
+  {
+    "prompt": "Danışmanım taslağı değişiklikler izlenmiş halde geri gönderdi, neyi değiştirmiş görmek istiyorum",
+    "expect": "merge-coauthor",
+    "note": "Turkish: a co-author's returned file — NOT /import-manuscript (a paper the kit has never seen) and NOT /respond-review (a journal letter)"
+  },
+  {
+    "prompt": "My co-author sent the draft back with tracked changes — what did they actually change, and did any citation disappear?",
+    "expect": "merge-coauthor"
+  },
+  {
+    "prompt": "Bir dergi bana hakemlik için makale gönderdi, hakem raporumu yazmam lazım",
+    "expect": "review-paper",
+    "note": "Turkish: refereeing SOMEONE ELSE'S paper — NOT /critique (a simulated review of the user's own draft)"
+  },
+  {
+    "prompt": "I agreed to review a manuscript for IEEE TIM. Help me write up my referee report from the notes I took.",
+    "expect": "review-paper"
+  },
+  {
+    "prompt": "Makaleyi arXiv'e preprint olarak yüklemeden önce neye karar vermem gerekiyor?",
+    "expect": "deposit",
+    "note": "Turkish preprint — NOT /submission-pack (the journal portal) and NOT /replication-package (code and data)"
+  },
+  {
+    "prompt": "We found an error in a published paper — I need a corrigendum and the list of everything that number affected",
+    "expect": "deposit"
+  },
+  {
+    "prompt": "TÜBİTAK 1001 çağrısına proje önerisi yazacağız, iş paketleri ve bütçeyi de kuralım",
+    "expect": "proposal",
+    "note": "Turkish grant proposal — NOT /preregister (a study's analysis plan) and NOT /outline (a manuscript's skeleton)"
+  },
+  {
+    "prompt": "Help me put together the work packages, Gantt chart and budget for a Horizon Europe application",
+    "expect": "proposal"
+  },
+  {
+    "prompt": "Projenin gelişme raporunu hazırlamam gerekiyor, iş paketlerinde neredeyiz?",
+    "expect": "project-report",
+    "note": "Turkish progress report on a funded project — NOT /status (the manuscript's own phase)"
+  },
+  {
+    "prompt": "The funder wants a final report — planned deliverables against what we actually did",
+    "expect": "project-report"
+  },
+  {
+    "prompt": "Doçentlik dosyası için yayınlarımın puanlarını hesaplayalım, hangi makale hangi ölçüte giriyor?",
+    "expect": "dossier",
+    "note": "Turkish promotion dossier — the points table, NOT /journal-check (one venue) and NOT /import-library"
+  },
+  {
+    "prompt": "Score my publication list against the promotion criteria and check none of the index claims are wrong",
+    "expect": "dossier"
+  },
+  {
+    "prompt": "Bu dönem vereceğim dersin izlencesini hazırlayalım, öğrenme çıktıları ve AKTS iş yükü dahil",
+    "expect": "syllabus",
+    "note": "Turkish course syllabus — the teaching axis, not any manuscript command"
+  },
+  {
+    "prompt": "Write the course syllabus with learning outcomes and check the assessment weights add up",
+    "expect": "syllabus"
+  },
+  {
+    "prompt": "Vize sorularını hazırlayıp her öğrenme çıktısının ölçüldüğünden emin olalım",
+    "expect": "exam",
+    "note": "Turkish exam — question/outcome coverage, not /rubric"
+  },
+  {
+    "prompt": "Build the final exam and check every learning outcome is measured by at least one question",
+    "expect": "exam"
+  },
+  {
+    "prompt": "Dönem projesi için rubrik yazalım, seviyeler birbirinden ayrışsın",
+    "expect": "rubric",
+    "note": "Turkish rubric — criteria × levels, not /exam's questions"
+  },
+  {
+    "prompt": "I need an analytic rubric for the project where the levels are actually distinguishable",
+    "expect": "rubric"
+  },
+  {
+    "prompt": "MÜDEK için program çıktısı - ders çıktısı matrisini çıkaralım",
+    "expect": "accreditation",
+    "note": "Turkish accreditation matrix — programme-level, not a single course's /syllabus"
+  },
+  {
+    "prompt": "Build the ABET programme outcome to course outcome matrix and find the ones nothing assesses",
+    "expect": "accreditation"
+  },
+  {
+    "prompt": "Doktora öğrencimin TİK raporunu hazırlayacağız, tez nerede duruyor?",
+    "expect": "supervision",
+    "note": "Turkish thesis monitoring committee report — NOT /defense-prep (the defence itself)"
+  },
+  {
+    "prompt": "I need the six-month supervision progress report for my PhD student",
+    "expect": "supervision"
+  }
+]

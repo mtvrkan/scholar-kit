@@ -1,0 +1,65 @@
+---
+/**
+ * The hero's panel: the kit's own pipeline, in the order it runs.
+ *
+ * What stood here was a real `03-verify-status.json`, typeset — an artefact
+ * rather than a mockup, and the site's proof. It was also a JSON dump in the
+ * first screen, which asks a visitor to read a verification record before they
+ * have been told what the thing is, so it moved down to the showcase band where
+ * the run it belonged to was described. That band and the runs behind it have
+ * since been withdrawn: two of the three never reached a result their author
+ * would stand behind, and evidence that has been taken back cannot go on being
+ * shown.
+ *
+ * This is the same panel slot doing the job the first screen actually has:
+ * showing what the kit IS. Six commands in the order a paper goes through
+ * them, and the three gates that sit between them — which is the one diagram
+ * the rest of the page keeps referring to.
+ *
+ * Every command name here is a real one. `test_the_hero_pipeline_names_real_commands`
+ * checks each against the plugin's own command directory, because a landing
+ * page that invents a command is the exact failure this kit exists to refuse,
+ * committed by its own marketing.
+ */
+import Icon from './Icon.astro';
+
+type Step = { cmd: string; tr: string; en: string };
+type Gate = { gate: true; tr: string; en: string };
+
+const FLOW: (Step | Gate)[] = [
+  { cmd: '/lit-review', tr: 'Tarama ve kanıt kartları', en: 'Search and evidence cards' },
+  { cmd: '/outline', tr: 'İskelet', en: 'Outline' },
+  { gate: true, tr: 'iskelet onaylanmadan yazılmaz', en: 'no drafting before the outline is approved' },
+  { cmd: '/draft', tr: 'Taslak', en: 'Draft' },
+  { cmd: '/verify-citations', tr: 'Atıf doğrulama', en: 'Citation verification' },
+  { gate: true, tr: 'verify = PASS vermeden hakem turu açılmaz', en: 'no review round until verify = PASS' },
+  { cmd: '/critique', tr: 'Hakem turu', en: 'Peer-review round' },
+  { gate: true, tr: 'Major = 0 olmadan biçimlendirme başlamaz', en: 'no formatting until Major = 0' },
+  { cmd: '/submit-check', tr: 'Gönderim kontrolü', en: 'Submission check' },
+];
+
+let n = 0;
+---
+
+<div class="flow">
+  <div class="flow-h">
+    <b><span class="tr" lang="tr">Üretim hattı</span><span class="en" lang="en">The pipeline</span></b>
+    <span class="grow"></span>
+    <span><span class="tr" lang="tr">sırayla</span><span class="en" lang="en">in order</span></span>
+  </div>
+
+  <ol class="flow-b">
+    {FLOW.map((s) => ('gate' in s ? (
+      <li class="flow-gate">
+        <Icon name="lock" size={13} />
+        <span class="tr" lang="tr">{s.tr}</span><span class="en" lang="en">{s.en}</span>
+      </li>
+    ) : (
+      <li class="flow-step">
+        <i>{String(++n).padStart(2, '0')}</i>
+        <b><span class="tr" lang="tr">{s.tr}</span><span class="en" lang="en">{s.en}</span></b>
+        <code>{s.cmd}</code>
+      </li>
+    )))}
+  </ol>
+</div>

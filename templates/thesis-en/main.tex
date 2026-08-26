@@ -1,0 +1,33 @@
+% English thesis skeleton — scholar-kit
+% Build: bash scripts/latex_build.sh templates/thesis-en/main.tex build
+% If an institute template is registered under templates/ingested/, its rules win.
+\documentclass[12pt,a4paper,oneside]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{times}
+\usepackage[left=3.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{setspace}\onehalfspacing
+\usepackage[backend=biber,style=apa]{biblatex}
+\addbibresource{../../bib/references.bib}
+\usepackage{graphicx,booktabs,caption,subcaption}
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalise]{cleveref}
+
+\begin{document}
+\input{frontmatter/titlepage}
+\input{frontmatter/declaration}
+\input{frontmatter/acknowledgments}
+\input{frontmatter/abstract}
+\tableofcontents
+\listoftables
+\listoffigures
+
+\input{chapters/01-introduction}   % RQs defined here (RQ1, RQ2, ...)
+\input{chapters/02-literature}
+\input{chapters/03-methodology}
+\input{chapters/04-results}        % headings must map 1:1 to RQs (--rq-trace)
+\input{chapters/05-conclusion}
+
+\printbibliography
+\end{document}

@@ -1,0 +1,138 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(./**)",
+      "Write(./drafts/**)",
+      "Write(./outline/**)",
+      "Write(./reviews/**)",
+      "Write(./analysis/**)",
+      "Write(./exports/**)",
+      "Write(./build/**)",
+      "Write(./templates/**)",
+      "Write(./sources/**)",
+      "Write(./evidence/**)",
+      "Write(./proposal/**)",
+      "Write(./teaching/**)",
+      "Write(./dossier/**)",
+      "Edit(./drafts/**)",
+      "Edit(./outline/**)",
+      "Edit(./proposal/**)",
+      "Edit(./teaching/**)",
+      "Edit(./dossier/**)",
+      "Edit(./PROJECT.md)",
+      "Bash(python scripts/*)",
+      "Bash(python3 scripts/*)",
+      "Bash(bash scripts/*)",
+      "Bash(pytest *)",
+      "Bash(python -m pytest *)",
+      "Bash(claude mcp *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "WebSearch",
+      "WebFetch",
+      "mcp__semantic-scholar__*",
+      "mcp__paper-search__*",
+      "mcp__scholar-sidekick__*"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(chmod 777 *)",
+      "Bash(sudo *)",
+      "Write(./sources/registry.jsonl)",
+      "Write(./sources/venues.jsonl)",
+      "Write(./sources/search-log.jsonl)",
+      "Write(./evidence/cards.jsonl)",
+      "Write(./bib/references.bib)",
+      "Write(./verify-status.json)",
+      "Write(./provenance.jsonl)",
+      "Write(./analysis/datasets.jsonl)",
+      "Write(./analysis/runs.jsonl)",
+      "Edit(./sources/registry.jsonl)",
+      "Edit(./sources/venues.jsonl)",
+      "Edit(./sources/search-log.jsonl)",
+      "Edit(./evidence/cards.jsonl)",
+      "Edit(./bib/references.bib)",
+      "Edit(./verify-status.json)",
+      "Edit(./provenance.jsonl)",
+      "Edit(./analysis/datasets.jsonl)",
+      "Edit(./analysis/runs.jsonl)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect_data_files.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/phase_gate.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/agent_write_scope.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/template_supremacy_gate.py\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/cite_warn.py\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_status.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

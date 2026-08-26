@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # Static analysis runs once, not per-OS-per-Python: ruff and bandit read the
+  # source, not the platform, so a 6-way matrix would buy six identical answers.
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: '3.13'
+      - name: Install dev dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Ruff
+        # Config and the reasoning for every disabled rule: ruff.toml.
+        run: python -m ruff check .
+      - name: Bandit
+        # -ll: MEDIUM severity and above. The LOW band here is entirely
+        # subprocess-module notices on calls whose argv this repo builds itself,
+        # and a scanner that reports twelve of those every run is a scanner
+        # nobody reads by the second week.
+        run: python -m bandit -q -ll -r scripts .claude/hooks
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.13']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        # requirements-dev.txt pulls in requirements.txt + pytest — single source
+        # of truth, so CI can't silently drift from the pinned runtime deps.
+        run: python -m pip install -r requirements-dev.txt
+      - name: Kit integrity
+        run: python scripts/validate_kit.py
+      - name: Tests (network tests skipped without RUN_LIVE)
+        run: python -m pytest -q
+
+  # Coverage is a REGRESSION FLOOR, not a quality metric, and it is deliberately
+  # a separate job with no published number.
+  #
+  # It used to read 59% with a comment explaining that the figure understated
+  # the truth by an unknown margin: most of this suite drives the scripts as
+  # SUBPROCESSES (that is the contract being tested — a CLI that emits JSON),
+  # and coverage started in the pytest process cannot see into a child. That
+  # comment was an accurate description of a broken instrument and not a fix for
+  # one. COVERAGE_PROCESS_START makes pytest-cov start coverage inside every
+  # child too; the real figure is 92%, and it was 92% all along.
+  #
+  # The floor sits well below that on purpose. It exists to fail loudly when a
+  # swathe of tests is deleted or silently stops exercising what it claims to,
+  # not to be defended point by point — a floor set at the current reading is a
+  # target in disguise, and the first honest refactor turns it red.
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: '3.13'
+      - name: Install dev dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Coverage floor
+        env:
+          # The rcfile the children read (parallel data files, path remapping,
+          # and the include patterns that keep the tracer off site-packages).
+          COVERAGE_PROCESS_START: ${{ github.workspace }}/.coveragerc
+          # Absolute, because the children run inside a tmp_path: a relative
+          # data file would be written there and lost at teardown.
+          COVERAGE_FILE: ${{ github.workspace }}/.coverage
+        run: >-
+          python -m pytest -q --cov=scripts --cov=.claude/hooks
+          --cov-report=term-missing:skip-covered --cov-fail-under=85

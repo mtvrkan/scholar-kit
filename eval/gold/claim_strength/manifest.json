@@ -1,0 +1,1349 @@
+{
+  "task": "claim_strength",
+  "entrypoint": "claim_check",
+  "description": "Labeled cases for claim_check.py: overclaim (prose stronger than the evidence card drawn from the same source) and uncited-assertion. Balanced positive/negative so precision and recall are both measurable — a set of positives alone would report a flattering recall and an unmeasurable precision.",
+  "thresholds": {
+    "precision": 0.95,
+    "recall": 0.95
+  },
+  "cases": [
+    {
+      "id": "001-causal-over-associative-en",
+      "drafts": {
+        "discussion.md": "Smoking causes reduced lung capacity [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 5,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "002-directional-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Sigara icmek akciger kapasitesini azaltmaktadir [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 4,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "003-predictive-over-associative",
+      "drafts": {
+        "discussion.md": "Baseline severity predicts recovery time [@demir2022]."
+      },
+      "cards": [
+        {
+          "id": "EV-0002",
+          "source": "demir2022",
+          "type": "finding",
+          "claim": "Baseline severity correlates with recovery time"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0002",
+          "draft_rung": 2
+        }
+      ]
+    },
+    {
+      "id": "004-hedge-drop-is-an-upward-move",
+      "drafts": {
+        "discussion.md": "The programme improves retention [@yilmaz2021]."
+      },
+      "cards": [
+        {
+          "id": "EV-0003",
+          "source": "yilmaz2021",
+          "type": "finding",
+          "claim": "The programme may improve retention"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0003"
+        }
+      ]
+    },
+    {
+      "id": "005-turkish-ebil-drop-is-an-upward-move",
+      "drafts": {
+        "tartisma.md": "Program katilimi etkilemektedir [@yilmaz2021]."
+      },
+      "cards": [
+        {
+          "id": "EV-0003",
+          "source": "yilmaz2021",
+          "type": "finding",
+          "claim": "Program katilimi etkileyebilir"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0003"
+        }
+      ]
+    },
+    {
+      "id": "006-card-under-registry-id",
+      "drafts": {
+        "discussion.md": "Automation causes displacement [@aydin2020labour]."
+      },
+      "cards": [
+        {
+          "id": "EV-0004",
+          "source": "SRC-0007",
+          "type": "finding",
+          "claim": "Automation is associated with displacement"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0007",
+          "bib_key": "aydin2020labour",
+          "status": "included"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0004"
+        }
+      ]
+    },
+    {
+      "id": "007-overclaim-inside-results-section",
+      "drafts": {
+        "results.md": "This confirms that the treatment causes remission [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "The treatment is associated with remission"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001"
+        }
+      ]
+    },
+    {
+      "id": "008-clean-equal-rung",
+      "drafts": {
+        "discussion.md": "Exercise improves functional outcomes [@demir2022]."
+      },
+      "cards": [
+        {
+          "id": "EV-0002",
+          "source": "demir2022",
+          "type": "finding",
+          "claim": "Exercise increases functional outcomes"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "009-clean-weaker-than-source",
+      "drafts": {
+        "discussion.md": "Smoking is associated with reduced lung capacity [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking causes reduced lung capacity"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "010-clean-attributive-participle-in-card",
+      "drafts": {
+        "discussion.md": "Exposure is associated with reduced capacity [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Exposure is associated with reduced capacity"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "011-clean-turkish-attributive-participle",
+      "drafts": {
+        "tartisma.md": "Maruziyet, azaltilmis kapasite ile iliskilidir [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Maruziyet, azaltilmis kapasite ile iliskilidir"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "012-clean-multi-source-strongest-supports",
+      "drafts": {
+        "discussion.md": "The intervention causes recovery [@a2020; @b2021]."
+      },
+      "cards": [
+        {
+          "id": "EV-0005",
+          "source": "a2020",
+          "type": "finding",
+          "claim": "The intervention is associated with recovery"
+        },
+        {
+          "id": "EV-0006",
+          "source": "b2021",
+          "type": "finding",
+          "claim": "The intervention causes recovery"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "013-clean-uncarded-source-not-guessed",
+      "drafts": {
+        "discussion.md": "Automation causes displacement [@unknown2019]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "unrelated associative finding"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "014-clean-no-ladder-verb-in-prose",
+      "drafts": {
+        "discussion.md": "The dataset contains 5110 records [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "The dataset is associated with imbalance"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "015-uncited-statistic",
+      "drafts": {
+        "intro.md": "Regional prevalence reached 47.3% last year."
+      },
+      "cards": [],
+      "expect": [
+        {
+          "check": "uncited",
+          "signal": "statistic"
+        }
+      ]
+    },
+    {
+      "id": "016-uncited-causal-claim",
+      "drafts": {
+        "intro.md": "Automation causes widespread displacement across the labour market."
+      },
+      "cards": [],
+      "expect": [
+        {
+          "check": "uncited",
+          "signal": "causal-claim"
+        }
+      ]
+    },
+    {
+      "id": "017-clean-own-work-marker-en",
+      "drafts": {
+        "intro.md": "We observed an accuracy of 0.87 on the held-out split."
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "018-clean-own-work-marker-tr",
+      "drafts": {
+        "giris.md": "Bu calismada dogruluk %87,4 olarak olculmustur."
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "019-clean-artefact-pointer",
+      "drafts": {
+        "intro.md": "Table 2 reports an F1 of 0.91."
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "020-clean-bare-integer-not-empirical",
+      "drafts": {
+        "intro.md": "The survey covered 3 regions and 12 institutions."
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "021-clean-associative-without-statistic",
+      "drafts": {
+        "intro.md": "Automation is associated with labour-market change."
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "022-clean-code-fence-not-prose",
+      "drafts": {
+        "intro.md": "Setup follows the reference implementation.\n\n```\nacc = 0.87  # causes drift\n```\n"
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "023-clean-artefact-pointer-mid-sentence",
+      "comment": "NEGATIVE, load-bearing. Case 019 puts the artefact pointer at the head of the sentence; a single such case was not enough to hold the allowance — the mutation harness removed ARTEFACT_RE entirely and precision only fell to 0.90, exactly the threshold, so the set passed while the allowance was gone. The pointer belongs mid-sentence too, which is where authors actually write it.",
+      "drafts": {
+        "intro.md": "Sensitivity reached 88.4%, as Figure 3 shows.\n"
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "024-clean-artefact-pointer-tr",
+      "comment": "NEGATIVE. The Turkish half of the same allowance. TR and EN are equal targets, and a checker that exempts 'Table 2' but not 'Tablo 2' fails the Turkish author silently. Deliberately NOT in bulgular.md: DEFAULT_SKIP skips that file wholesale, so the case would have asserted nothing.",
+      "drafts": {
+        "giris.md": "Tablo 2 içinde ROC-AUC değeri 0,809 olarak verilmiştir.\n"
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "025-clean-equation-pointer",
+      "comment": "NEGATIVE, and it found a real bug rather than confirming one. 'Eq. 4' was not in claim_check's sentence-splitter protection list even though ARTEFACT_RE recognises it, so the sentence split at the abbreviation and the fragment holding the statistic lost the pointer that exempts it — a false uncited-assertion on a sentence any ML paper writes. Fixed in _PROTECT; this case is what holds the fix.",
+      "drafts": {
+        "intro.md": "The threshold is derived in Eq. 4 and equals 0.63.\n"
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "026-clean-turkish-equation-pointer",
+      "comment": "NEGATIVE. The Turkish abbreviated forms (Şek., Denk.) had the same splitter gap as Eq. and are held by the same fix.",
+      "drafts": {
+        "giris.md": "Şek. 2 ve Denk. 3 uyarınca eşik değeri 0,63 olarak belirlenmiştir.\n"
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "027-unrelated-hedge-does-not-launder-an-overclaim",
+      "comment": "POSITIVE. A hedge anywhere in the sentence demotes the rung once, which means a hedge attached to something ELSE ('the mechanism may be unclear') cannot be used to license a causal claim the card does not carry. 5 - 1 = 4 is still above associative, and the finding stands.",
+      "drafts": {
+        "discussion.md": "Although the mechanism may be unclear, smoking causes reduced lung capacity [@kaya2023].\n"
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001"
+        }
+      ]
+    },
+    {
+      "id": "028-clean-card-with-no-ladder-verb-is-no-basis",
+      "comment": "NEGATIVE, and distinct from 013: the source IS carded, but the card states a cohort rather than a relation, so there is no rung to compare against. A checker that treated 'no ladder verb in the card' as rung 0 would report every cited sentence in the manuscript.",
+      "drafts": {
+        "discussion.md": "Smoking causes reduced lung capacity [@kaya2023].\n"
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "dataset",
+          "claim": "Cohort of 5110 participants drawn from the national registry"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "029-cross-lingual-turkish-card-english-prose",
+      "comment": "POSITIVE. The card is Turkish and the prose is English — the ladder has to be read in the card's language, not the draft's. A kit that treats both languages as first-class has to score this pair, and the mixed pair is the ordinary case for a Turkish author writing in English.",
+      "drafts": {
+        "discussion.md": "Air pollution causes an increase in stroke incidence [@yilmaz2024].\n"
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "yilmaz2024",
+          "type": "finding",
+          "claim": "Hava kirliliği ile inme insidansı arasında ilişki bulunmuştur"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001"
+        }
+      ]
+    },
+    {
+      "id": "030-vague-literature-attribution-carries-no-citation",
+      "comment": "POSITIVE (uncited). 'Previous studies report' names no study. It reads like an attribution and functions as none, which is exactly the shape that survives a citation audit — there is no key to check.",
+      "drafts": {
+        "discussion.md": "Previous studies report a 4.9% positive rate in comparable cohorts.\n"
+      },
+      "cards": [],
+      "expect": [
+        {
+          "check": "uncited"
+        }
+      ]
+    },
+    {
+      "id": "031-clean-turkish-elde-edilen-is-an-own-work-marker",
+      "comment": "NEGATIVE. 'Elde edilen' (obtained) marks a result as this study's own just as 'bu çalışmada' does; a Turkish author uses both. Distinct from 018, which exercises the other spelling.",
+      "drafts": {
+        "giris.md": "Elde edilen doğruluk %92,4'tür.\n"
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "032-clean-turkish-abbreviated-figure-pointer",
+      "comment": "NEGATIVE. 024 covers the full form ('Tablo 2'); this covers the abbreviation an author actually types ('Şek. 3'), which is also the form that has to survive sentence splitting on its own period.",
+      "drafts": {
+        "giris.md": "Şek. 3'te görüldüğü gibi doğruluk %92,4'e ulaşmaktadır.\n"
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "033-clean-noun-form-predictor-is-the-same-rung",
+      "comment": "NEGATIVE. The card says 'is a strong predictor of', the prose says 'predicts'. Same rung, different part of speech — a ladder that only recognised the verb form would read the card as rungless and then have nothing to compare, or worse, read the prose as a step up.",
+      "drafts": {
+        "discussion.md": "Age predicts stroke risk in this population [@kaya2023].\n"
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Age is a strong predictor of stroke risk"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "034-hedged-directional-over-associative-tr",
+      "comment": "POSITIVE, and the case that caught the author out: 'azaltabileceğini düşündürmektedir' carries TWO hedges and still lands above an associative card, because the demotion is one rung and 4 - 1 = 3 > 1. That is the intended rule and it is the right one — attributing a direction to a source that reported only a correlation is the overclaim reviewers actually write comments about. Cases 035-037 pin the boundary so the rule cannot drift into flagging properly qualified prose.",
+      "drafts": {
+        "tartisma.md": "Bu bulgu, sigaranın akciğer kapasitesini azaltabileceğini düşündürmektedir [@kaya2023].\n"
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Sigara içimi ile akciğer kapasitesi arasında ilişki saptanmıştır"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001"
+        }
+      ]
+    },
+    {
+      "id": "035-hedged-directional-over-associative-en",
+      "comment": "POSITIVE. The English twin of 034 — 'suggest ... may reduce' against an associative card. Shipped as a pair on purpose: if a future change makes one language more forgiving than the other, one of these two fails.",
+      "drafts": {
+        "discussion.md": "These findings suggest that smoking may reduce lung capacity [@kaya2023].\n"
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001"
+        }
+      ]
+    },
+    {
+      "id": "036-clean-hedged-directional-lands-on-the-card-rung",
+      "comment": "NEGATIVE. Same hedged Turkish sentence as 034, but the card is contributory rather than associative: 4 - 1 = 3 equals the card's rung, and equal is not upward. This is the case that keeps 034 from being read as 'hedged prose always flags'.",
+      "drafts": {
+        "tartisma.md": "Bu bulgu, sigaranın akciğer kapasitesini azaltabileceğini düşündürmektedir [@kaya2023].\n"
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Sigaranın akciğer kapasitesindeki düşüşe katkı sağladığı bulunmuştur"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "037-clean-hedged-associative-is-below-the-card",
+      "comment": "NEGATIVE. 'May be associated' demotes to hedged, below an associative card. Writing more cautiously than the source is never the defect.",
+      "drafts": {
+        "discussion.md": "Smoking may be associated with reduced lung capacity [@kaya2023].\n"
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "038-clean-hedged-predictive-tr-lands-on-associative",
+      "comment": "NEGATIVE. 'Öngörebileceği düşünülmektedir' is predictive hedged down to associative, which is exactly the card's rung. The Turkish -ebil- suffix has to demote for this to pass — the mutation 'hedge-detector-disabled' turns this case positive.",
+      "drafts": {
+        "tartisma.md": "Yaşın inme riskini öngörebileceği düşünülmektedir [@kaya2023].\n"
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Yaş ile inme riski arasında ilişki saptanmıştır"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "039-nominal-effect-of-over-associative-en",
+      "drafts": {
+        "discussion.md": "The effect of smoking on lung capacity is substantial [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 4,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "040-nominal-impact-of-over-associative-en",
+      "drafts": {
+        "discussion.md": "The impact of smoking on lung capacity is now well established [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 4,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "041-nominal-influence-on-over-associative-en",
+      "drafts": {
+        "discussion.md": "Its influence on lung capacity persists after adjustment [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 4,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "042-nominal-driver-of-over-associative-en",
+      "drafts": {
+        "discussion.md": "Smoking is the primary driver of reduced lung capacity [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 4,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "043-nominal-etkisi-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Sigaranın akciğer kapasitesi üzerindeki etkisi belirgindir [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 4,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "044-nominal-etkisini-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Bu bulgu sigaranın akciğer kapasitesi üzerindeki etkisini ortaya koymaktadır [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 4,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "045-nominal-etkisiyle-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Kapasite kaybı sigaranın etkisiyle açıklanmaktadır [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 4,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "046-nominal-etkisinin-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Sigaranın etkisinin boyutu bu çalışmada da doğrulanmıştır [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 4,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "047-nominal-nedeni-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Bu düşüşün nedeni sigara kullanımıdır [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 5,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "048-nominal-nedenleri-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Kapasite kaybının nedenleri arasında sigara ilk sırada yer almaktadır [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 5,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "049-nominal-sebebiyle-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Akciğer kapasitesi sigara sebebiyle gerilemektedir [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 5,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "050-nominal-kaynaklanma-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Gözlenen düşüş sigara kullanımından kaynaklanmaktadır [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 5,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "051-nominal-katkisi-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Sigaranın bu düşüşe katkısı yadsınamaz [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 3,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "052-nominal-katkisini-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Çalışma sigaranın kapasite kaybına katkısını ortaya koymaktadır [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 3,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "053-nominal-katkisinin-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Sigaranın katkısının büyüklüğü ayrıca değerlendirilmiştir [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 3,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "054-nominal-katkisiyla-over-associative-tr",
+      "drafts": {
+        "tartisma.md": "Kapasite kaybı sigaranın katkısıyla derinleşmektedir [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 3,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "055-clean-effect-size-is-not-a-claim-en",
+      "drafts": {
+        "discussion.md": "The effect size was 0.42 in the pooled analysis [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [],
+      "comment": "Isolates the framing requirement: bare 'effect' before a noun is meta-analysis vocabulary, not a relational claim."
+    },
+    {
+      "id": "056-clean-random-effects-model-en",
+      "drafts": {
+        "discussion.md": "A random-effects model was fitted to the twelve included studies [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "057-clean-treatment-effects-varied-en",
+      "drafts": {
+        "discussion.md": "Treatment effects varied considerably across the subgroups [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "058-clean-effect-estimates-pooled-en",
+      "drafts": {
+        "discussion.md": "Effect estimates were pooled using inverse-variance weighting [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "059-clean-privative-etkisiz-tr",
+      "drafts": {
+        "tartisma.md": "Uygulanan müdahale bu örneklemde etkisiz bulunmuştur [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [],
+      "comment": "'-siz' is the Turkish privative suffix: 'etkisiz' asserts the absence of an effect, the opposite of the rung-4 nominal."
+    },
+    {
+      "id": "060-clean-privative-etkisizdir-tr",
+      "drafts": {
+        "tartisma.md": "İkinci modelde düzeltme etkisizdir [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "061-clean-privative-etkisiz-kalmis-tr",
+      "drafts": {
+        "tartisma.md": "Bu değişken eklendiğinde katsayı etkisiz kalmıştır [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "062-clean-etki-buyuklugu-is-not-a-claim-tr",
+      "drafts": {
+        "tartisma.md": "Etki büyüklüğü 0,42 olarak hesaplanmıştır [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "063-clean-interrogative-neden-tr",
+      "drafts": {
+        "tartisma.md": "Bu sonucun neden ortaya çıktığı belirsizliğini korumaktadır [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [],
+      "comment": "Bare 'neden' is the interrogative 'why'; only the suffixed nominal ('nedeni') asserts causation."
+    },
+    {
+      "id": "064-clean-nominal-below-a-causal-card-en",
+      "drafts": {
+        "discussion.md": "The effect of smoking on lung capacity is substantial [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking causes reduced lung capacity"
+        }
+      ],
+      "expect": [],
+      "comment": "Same sentence as 039. Over a CAUSAL card the nominal rung-4 reading is weaker than the source, which is never a defect."
+    },
+    {
+      "id": "065-hedge-drop-is-an-upward-move-second-en",
+      "drafts": {
+        "discussion.md": "Screening reduces cardiovascular mortality [@demir2022]."
+      },
+      "cards": [
+        {
+          "id": "EV-0004",
+          "source": "demir2022",
+          "type": "finding",
+          "claim": "Screening may reduce cardiovascular mortality"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0004"
+        }
+      ]
+    },
+    {
+      "id": "066-hedge-drop-is-an-upward-move-second-tr",
+      "drafts": {
+        "tartisma.md": "Tarama ölüm oranını azaltmaktadır [@demir2022]."
+      },
+      "cards": [
+        {
+          "id": "EV-0004",
+          "source": "demir2022",
+          "type": "finding",
+          "claim": "Tarama ölüm oranını azaltabilir"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0004"
+        }
+      ]
+    },
+    {
+      "id": "067-uncited-statistic-second-en",
+      "drafts": {
+        "intro.md": "Mortality fell by 12.4 percentage points over the decade."
+      },
+      "cards": [],
+      "expect": [
+        {
+          "check": "uncited",
+          "signal": "statistic"
+        }
+      ]
+    },
+    {
+      "id": "068-uncited-statistic-tr",
+      "drafts": {
+        "giris.md": "Bölgesel yaygınlık geçen yıl %8,6 düzeyine ulaşmıştır."
+      },
+      "cards": [],
+      "expect": [
+        {
+          "check": "uncited",
+          "signal": "statistic"
+        }
+      ]
+    },
+    {
+      "id": "069-nominal-effect-of-over-associative-second-en",
+      "drafts": {
+        "discussion.md": "The effect of smoking on lung capacity outweighs every other exposure examined here [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": [
+        {
+          "check": "overclaim",
+          "card": "EV-0001",
+          "draft_rung": 4,
+          "source_rung": 1
+        }
+      ]
+    },
+    {
+      "id": "070-clean-own-work-marker-second-en",
+      "drafts": {
+        "intro.md": "In this study we report a precision of 0.91 on the validation split."
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "071-clean-privative-etkisiz-gorulmus-tr",
+      "drafts": {
+        "tartisma.md": "Bu parametre çıktı üzerinde etkisiz görülmüştür [@kaya2023]."
+      },
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023",
+          "type": "finding",
+          "claim": "Smoking is associated with reduced lung capacity"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "072-roman-numeral-section-pointer-tr",
+      "comment": "NEGATIVE. '(III.4)' is a cross-reference to this manuscript's own Results. A manuscript numbering its sections I./II./III./IV. had no working own-work pointer at all, so every Discussion sentence restating its own pooled estimates read as an uncited assertion.",
+      "drafts": {
+        "tartisma.md": "Havuzlanmış özgüllük 0,911 olarak bulunmuştur (III.4)."
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "073-roman-numeral-section-pointer-en",
+      "comment": "NEGATIVE. The same convention in English prose.",
+      "drafts": {
+        "discussion.md": "Pooled specificity was 0.911 (IV.2)."
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "074-roman-numeral-nested-and-suffixed",
+      "comment": "NEGATIVE. 'III.5.1' and 'III.6a' are section numbers too.",
+      "drafts": {
+        "tartisma.md": "Ortak değişken sınavı boş modeli korumuştur (III.5.1).\nTürkiye kohortu tek bir çalışmadadır (III.6a), oranı %0,9."
+      },
+      "cards": [],
+      "expect": []
+    },
+    {
+      "id": "045-bare-roman-letter-is-not-a-pointer",
+      "comment": "POSITIVE. The exemption must require numeral + dot + digit. A bare 'V' beside a statistic is not a section reference, and an allowance that fired on any capital Roman letter would exempt most English prose.",
+      "drafts": {
+        "intro.md": "Model V reached 0.911 accuracy on the held-out split."
+      },
+      "cards": [],
+      "expect": [
+        {
+          "check": "uncited",
+          "signal": "statistic"
+        }
+      ]
+    }
+  ],
+  "mutations": [
+    {
+      "id": "hedge-detector-disabled",
+      "breaks": "Hedged prose stops being recognised as hedged, so a properly qualified sentence is scored at its bare verb's rung and reported as an overclaim.",
+      "replace": [
+        [
+          "if HEDGE_RE.search(text):",
+          "if (lambda *_a, **_k: None)(text):"
+        ]
+      ]
+    },
+    {
+      "id": "ownwork-allowance-removed",
+      "breaks": "A sentence reporting the study's own work stops being exempt from the citation requirement, so every Results sentence becomes an uncited assertion.",
+      "replace": [
+        [
+          "OWNWORK_RE.search(sent)",
+          "(lambda *_a, **_k: None)(sent)"
+        ]
+      ]
+    },
+    {
+      "id": "artefact-pointer-allowance-removed",
+      "breaks": "'as Table 2 shows' stops counting as in-manuscript evidence, so pointing at the author's own figure is flagged as needing an external citation.",
+      "replace": [
+        [
+          "ARTEFACT_RE.search(sent)",
+          "(lambda *_a, **_k: None)(sent)"
+        ]
+      ]
+    },
+    {
+      "id": "statistic-signal-disabled",
+      "breaks": "A percentage, p-value or CI stops registering as an empirical signal, so the strongest uncited-assertion shape goes unreported.",
+      "replace": [
+        [
+          "has_stat = bool(STAT_RE.search(sent))",
+          "has_stat = False"
+        ]
+      ]
+    },
+    {
+      "id": "nominal-en-frames-removed",
+      "breaks": "English nominalized claims stop carrying a rung, so 'the effect of X on Y' / 'the driver of Y' written over an associative card is no longer an overclaim.",
+      "replace": [
+        [
+          "r\"|\\b(?:effects?|impacts?|influences?)\\s+(?:of|on)\\b\"\n        r\"|\\bdrivers?\\s+of\\b\"",
+          "r\"|(?!x)x\""
+        ]
+      ]
+    },
+    {
+      "id": "nominal-en-framing-requirement-dropped",
+      "breaks": "The nominal patterns stop requiring 'of'/'on' after the noun, so meta-analysis vocabulary ('effect size', 'random-effects model') is swept up as a relational claim.",
+      "replace": [
+        [
+          "r\"|\\b(?:effects?|impacts?|influences?)\\s+(?:of|on)\\b\"",
+          "r\"|\\b(?:effects?|impacts?|influences?)\\b\""
+        ]
+      ]
+    },
+    {
+      "id": "nominal-tr-etkisi-removed",
+      "breaks": "The Turkish nominal 'etkisi' stops carrying rung 4, restoring the asymmetry where an English nominal was scored and its Turkish twin was not.",
+      "replace": [
+        [
+          "r\"|etkis[ıi](?!z)\"",
+          "r\"|(?!x)x\""
+        ]
+      ]
+    },
+    {
+      "id": "nominal-tr-privative-guard-removed",
+      "breaks": "'etkisiz' (the privative: no effect) starts matching the rung-4 nominal, so a sentence denying an effect is reported as an overclaim.",
+      "replace": [
+        [
+          "r\"|etkis[ıi](?!z)\"",
+          "r\"|etkis[ıi]\""
+        ]
+      ]
+    },
+    {
+      "id": "nominal-tr-causal-nouns-removed",
+      "breaks": "Turkish nominal causation ('nedeni', 'sebebiyle', 'kaynaklanmaktadır') stops carrying rung 5, leaving the verb phrase 'neden ol-' as the only recognised spelling of a causal claim.",
+      "replace": [
+        [
+          "r\"|neden(?:i|ler)|sebeb(?:i|iyle)|sebepler|kaynaklan\"",
+          "r\"|(?!x)x\""
+        ]
+      ]
+    },
+    {
+      "id": "nominal-tr-katkisi-removed",
+      "breaks": "The bare noun 'katkısı' stops carrying rung 3, so a contribution claim counts only when written with one of the light verbs.",
+      "replace": [
+        [
+          "|katk[ıi]s[ıi]\"",
+          "\""
+        ]
+      ]
+    },
+    {
+      "id": "roman-numeral-section-pointer-removed",
+      "breaks": "A Roman-numeral section cross-reference stops counting as an own-work pointer, so a manuscript numbered I./II./III./IV. has every self-referring Results sentence in its Discussion reported as an uncited empirical assertion.",
+      "replace": [
+        [
+          "    r\"|\\b(?:I{1,3}|IV|VI{0,3}|IX|XI{0,3}|X)\\.\\d+(?:\\.\\d+)*[a-z]?\\b\",",
+          "    r\"|(?!x)x\","
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2234 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   TUTANAK — the site is a record.
+
+   The direction this replaces ("AURA") was, in its own DESIGN.md's words,
+   "ported from a supplied brief for a premium, AI-native product page": dark
+   ground, swept gradient headline, liquid-glass cards, a macOS menu-bar strip.
+   It read as every other AI product page of its year, worn by the one project
+   whose whole claim is that it refuses to assert what it has not measured.
+   Form and thesis were arguing with each other.
+
+   This one takes the thesis literally. The page is typeset as a critical
+   edition of a verification record: warm paper, an apparatus margin that holds
+   the annotations beside the sentences they qualify, figures set in mono, and
+   colour spent almost entirely on VERDICTS — a resolved citation, a refusal, a
+   flag. The landing hero is not a mockup of a product; it is the actual
+   `verify-status.json` from `examples/showcase/`, typeset.
+
+   Why this is not the retired "HAT" direction, which was achromatic on
+   principle and came back judged *drab*: this ground is warm rather than grey,
+   and the archival teal is structural — section numbers, rules, record chrome,
+   the mark — not held back for verdicts alone. Colour is present on every
+   screen; what is rationed is which colours are allowed to mean something.
+
+   Constraints every rule here respects — one stylesheet for five pages, no
+   inline `style` attribute anywhere (CSP `style-src 'self'`), no external
+   request of any kind, and it must open correctly from `file://`. See
+   web/DESIGN.md.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── faces ──────────────────────────────────────────────────────────────── */
+/* Paths are root-absolute and rewritten to `../fonts/…` by postbuild.mjs, which
+   is what keeps `docs/index.html` working when opened straight from disk.
+   Two families only. The Archivo files that used to sit beside these were
+   declared by nothing and shipped 172 KB to every visitor for two directions;
+   they are gone. */
+
+@font-face {
+  font-family: 'Inter'; font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+                 U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+                 U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter'; font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+                 U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF,
+                 U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0,
+                 U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* The accent face. Two subsets, and the ext one is not optional here: Turkish
+   headings carry ğ and ş, which live outside latin. Self-hosted rather than
+   linked, because a Google Fonts <link> is an external request on a page whose
+   own policy is `font-src 'self'` — the browser would refuse it and the
+   headline would silently fall back to Times. */
+@font-face {
+  font-family: 'Instrument Serif'; font-style: italic; font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrumentserif-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+                 U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+                 U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Serif'; font-style: italic; font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrumentserif-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+                 U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF,
+                 U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0,
+                 U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Plex Mono'; font-style: normal; font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/plexmono-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+                 U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+                 U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Plex Mono'; font-style: normal; font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/plexmono-400-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+                 U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF,
+                 U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0,
+                 U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Plex Mono'; font-style: normal; font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/plexmono-600-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+                 U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+                 U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Plex Mono'; font-style: normal; font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/plexmono-600-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+                 U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF,
+                 U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0,
+                 U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ── tokens ─────────────────────────────────────────────────────────────── */
+/* Every colour on the site resolves to one of these. Nothing below this block
+   writes a literal hex — which is what makes the dark remap at the end of the
+   block a fifteen-line change instead of a second stylesheet. */
+
+:root {
+  /* The light theme is the INVERSION, not the design. The design is black —
+     literally #000, not a near-black — and everything below is built for it;
+     this block exists so a reader whose system asks for light gets a coherent
+     page rather than a black one with a white patch, and every value here is
+     the counterpart of a value in the dark block, not an independent choice. */
+  --paper:     #ffffff;
+  --paper-2:   #fafafa;   /* raised: records, cards, the masthead */
+  --paper-3:   #f0f0f0;   /* sunken: table stripes, code wells */
+  --ink:       #000000;
+  --ink-2:     #3f3f3f;   /* 10.4:1 — the stat/secondary tier */
+  --ink-3:     #5e5e5e;   /* 6.3:1 — muted */
+  --rule:      rgb(0 0 0 / .16);
+  --rule-2:    rgb(0 0 0 / .10);
+
+  --arc:       #1a1a1a;
+  --arc-2:     #000000;
+  --arc-wash:  rgb(0 0 0 / .06);
+  --glow-cold: rgb(90 120 190 / .28);
+
+  --pass:      #106b4a;
+  --pass-wash: #e6f2ed;
+  --fail:      #a8331b;
+  --fail-wash: #f8e6e2;
+  --flag:      #7a5a12;
+  --flag-wash: #f3eddc;
+
+  --shadow: 0 1px 0 #ffffff88, 0 2px 14px rgb(19 24 26 / .10);
+  --shadow-lift: 0 1px 0 #ffffffaa, 0 10px 30px -10px rgb(19 24 26 / .20);
+
+  /* The light that falls on the page. A sheet under a lamp is not one flat
+     value, and the flat fill this replaces is most of why the ground read as
+     unfinished — there was nothing for a surface to be raised OFF of. */
+  /* Three sources, not one. A single centred wash is a vignette; glass needs
+     something with STRUCTURE behind it, because a blur of an even field is the
+     same even field and the panel reads as flat grey. These are placed so that
+     every large panel on the page has a light and a dark region behind it. */
+  --glow:
+    radial-gradient(58rem 40rem at 12% -6rem,  rgb(120 150 220 / .16), transparent 62%),
+    radial-gradient(52rem 36rem at 88% 12rem,  rgb(150 170 210 / .12), transparent 60%),
+    radial-gradient(80rem 46rem at 50% 88%,    rgb(90 120 190 / .08),  transparent 66%);
+  /* The top edge of anything raised. One hairline of the light source caught on
+     the fold — the whole trick, and cheaper than any amount of shadow. */
+  --edge:  inset 0 1px 0 rgb(255 255 255 / .7);
+  --grain-opacity: .05;
+
+  /* The glass recipe, in one place. Four things make a pane read as glass and
+     leaving any of them out makes it read as a tinted box:
+       1. it is TRANSLUCENT, so what is behind it matters;
+       2. it BLURS what is behind it, and saturates it slightly, because real
+          glass concentrates colour as it scatters;
+       3. it has a bright TOP EDGE — the specular line where the light source
+          catches the bevel, which is the single strongest depth cue here;
+       4. it casts a soft shadow, so it is above the page rather than in it. */
+  --glass-bg: linear-gradient(158deg,
+                rgb(255 255 255 / .72), rgb(255 255 255 / .48) 46%,
+                rgb(255 255 255 / .62));
+  --glass-border: rgb(0 0 0 / .10);
+  --glass-blur: blur(18px) saturate(1.5);
+  --glass-edge: inset 0 1px 0 rgb(255 255 255 / .9);
+  --glass-shadow: 0 1px 2px rgb(20 30 60 / .06), 0 20px 44px -24px rgb(20 30 60 / .22);
+
+  /* How much of the first screen the masthead takes. It is `sticky`, not
+     `fixed`, so it sits IN the flow and the section under it gets the viewport
+     minus this — the one number two rules have to agree on. `.head-in` derives
+     its own min-height from it and `.hero` subtracts it, so the pane cannot
+     change height without the first screen following. */
+  --head-h: 4.5rem;
+
+  /* type scale, ratio 1.25 from a 16px body */
+  --t-xs:   .78rem;
+  --t-sm:   .875rem;
+  --t-base: 1rem;
+  --t-md:   1.125rem;
+  --t-lg:   1.375rem;
+  --t-xl:   1.75rem;
+  --t-2xl:  2.375rem;
+  /* 36px on a phone to 76px at 1920 and beyond, which is the ladder this
+     direction is drawn on: the title is the only large thing on the page, so it
+     has to be large enough to be the reason the page has a top. */
+  --t-3xl:  clamp(2.25rem, 1.05rem + 3.9vw, 4.75rem);
+
+  /* one spacing ladder, 4px-based */
+  /* 4 8 12 16 20 24 32 40 48 64 96 128 in px. The 5 and 10 rungs were missing
+     and three separate rounds of edits reached for them anyway — which is the
+     signal that the ladder had a gap, not that the edits were careless. They
+     are on the same 4px grid as everything else. */
+  --s1: .25rem;  --s2: .5rem;   --s3: .75rem;  --s4: 1rem;
+  --s5: 1.25rem; --s6: 1.5rem;  --s8: 2rem;    --s10: 2.5rem;
+  --s12: 3rem;   --s16: 4rem;   --s24: 6rem;   --s32: 8rem;
+
+  /* Inter carries the page. The serif appears in exactly one role — the
+     emphasised words inside a page title — where the change of face and the
+     drop to the muted grey do the work a colour would otherwise have to do on
+     a palette that has no colour. */
+  --prose: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+           sans-serif;
+  --accent-face: 'Instrument Serif', 'Times New Roman', Times, serif;
+  --mono: 'Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  /* Paper fibre. Generated in the file rather than fetched: it is four lines of
+     SVG, an image request would be a request this page promises not to make,
+     and at this opacity a compression artefact would be visible where the noise
+     is not. Greyscale is forced INSIDE the filter — fractalNoise is coloured by
+     default, and coloured speckle on a slate ground reads as a dead pixel. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+
+  /* Full width means the LAYOUT fills the viewport, not the sentences. A line
+     of prose at 1800px is 260 characters and nobody reads it twice, so the two
+     are separated: the shell spans the screen and the measure stays a measure
+     inside it. Everything that benefits from width — tables, card grids, the
+     record — takes the whole grid; everything that is read left to right takes
+     seven of twelve columns and stops at the measure. */
+  --gutter:    clamp(1.25rem, 2.6vw, 3.5rem);
+  /* 1536, not 1920. "Full width" is not "as wide as the monitor": past about
+     this the columns stop gaining anything and the page starts LOSING — the
+     wordmark ends up alone at one end of the masthead, a heading and its own
+     table are a foot apart, and the eye has to travel further between two
+     things that belong together than between two that do not. The bands still
+     run edge to edge; it is the reading grid that stops. */
+  --shell-max: 96rem;
+  --cols:      12;
+  --text:      46rem;    /* the measure — ~78 characters at 17px */
+  --rail:      15rem;    /* the apparatus column, inside the grid now */
+  --wrap: var(--shell-max);
+
+  --ease: cubic-bezier(.2, 0, 0, 1);
+
+  color-scheme: light dark;
+}
+
+/* The same edition, printed on dark stock. Only the tokens move: warmth is
+   kept (the ground is a warm near-black, not #000), the verdict hues are
+   lifted for contrast against it, and every rule below is untouched. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Pure black, not a tinted near-black. The ground is the design here: every
+       surface on the page is a low-alpha white over it, so any tint in the
+       ground would be carried by all of them and the greys would stop reading
+       as neutral. */
+    --paper:     #000000;
+    --paper-2:   #0a0a0a;   /* raised: records, cards, the masthead */
+    --paper-3:   #121212;   /* sunken: table stripes, code wells */
+    --ink:       #ffffff;
+    --ink-2:     #d8d8d8;   /* the stat tier: still bright, plainly secondary */
+    --ink-3:     #9a9a9a;   /* muted: lede, captions, the accent in a title */
+    --rule:      rgb(255 255 255 / .16);
+    --rule-2:    rgb(255 255 255 / .12);
+
+    /* There is no chromatic accent. The page is white on black and the only
+       colour it ever shows is the cold blue that appears in a glow when
+       something is hovered — light, not pigment. */
+    --arc:       #ffffff;
+    --arc-2:     #f3f6ff;
+    --arc-wash:  rgb(255 255 255 / .08);
+    --glow-cold: rgb(186 208 255 / .35);
+
+    /* Verdicts stay legible but are pulled toward the monochrome, so PASS reads
+       as a state of this page rather than as a sticker from another one. */
+    --pass:      #7fd6ae;
+    --pass-wash: rgb(127 214 174 / .10);
+    --fail:      #f0947c;
+    --fail-wash: rgb(240 148 124 / .10);
+    --flag:      #d9bd7a;
+    --flag-wash: rgb(217 189 122 / .10);
+
+    --shadow: 0 1px 0 #ffffff08, 0 2px 18px #00000055;
+    --shadow-lift: 0 1px 0 #ffffff0d, 0 16px 40px -16px #00000077;
+
+    /* On dark stock the lamp is warm and much weaker: a wash strong enough to
+       see is a wash strong enough to look like a product screenshot. */
+    /* On black the same three, colder and much weaker: on a dark ground a bloom
+       you can see plainly is a bloom that looks like a rendering artefact. */
+    --glow:
+      radial-gradient(58rem 40rem at 12% -6rem,  rgb(96 132 220 / .17), transparent 62%),
+      radial-gradient(52rem 36rem at 88% 12rem,  rgb(120 90 210 / .13), transparent 60%),
+      radial-gradient(80rem 46rem at 50% 88%,    rgb(60 110 190 / .10), transparent 66%);
+    --edge: inset 0 1px 0 rgb(255 255 255 / .045);
+    --grain-opacity: .055;
+
+    --glass-bg: linear-gradient(158deg,
+                  rgb(255 255 255 / .085), rgb(255 255 255 / .028) 46%,
+                  rgb(255 255 255 / .06));
+    --glass-border: rgb(255 255 255 / .14);
+    --glass-blur: blur(20px) saturate(1.7);
+    --glass-edge: inset 0 1px 0 rgb(255 255 255 / .20);
+    --glass-shadow: 0 1px 2px rgb(0 0 0 / .5), 0 22px 48px -26px rgb(0 0 0 / .9);
+  }
+}
+
+/* ── reset ──────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  margin: 0;
+  background-color: var(--paper);
+  background-image: var(--glow);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--prose);
+  font-size: 1.0625rem;   /* 17px: a serif needs the extra pixel a grotesque does not */
+  line-height: 1.62;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'cv05' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Only the page title is large. Section headings are set in the tool's face,
+   small and quiet — a running head on a proof sheet, not a billboard. The old
+   scale shouted every heading at the same volume, so nothing in the hierarchy
+   was doing any work. */
+h1, h2, h3, h4 {
+  margin: 0;
+  line-height: 1.14;
+  text-wrap: balance;
+}
+h1 {
+  font-family: var(--prose);
+  font-weight: 500;
+  letter-spacing: -.045em;
+  line-height: 1.12;
+}
+h2, h3, h4 {
+  font-family: var(--prose);
+  font-weight: 600;
+  letter-spacing: -.025em;
+}
+
+/* The fibre sits over everything, including the masthead, because paper does
+   not stop at a rule. It is inert and unselectable; the one thing it must never
+   do is intercept a click. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: var(--grain);
+  background-size: 180px 180px;
+  opacity: var(--grain-opacity);
+}
+
+p { margin: 0 0 var(--s4); text-wrap: pretty; }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0; padding: 0; }
+img, svg, video { max-width: 100%; }
+b, strong { font-weight: 620; }
+
+a { color: var(--arc); text-decoration-thickness: 1px; text-underline-offset: .16em; }
+a:hover { color: var(--arc-2); }
+
+code, kbd, samp, pre { font-family: var(--mono); font-size: .92em; }
+
+::selection { background: var(--arc-wash); color: var(--ink); }
+
+:focus-visible {
+  outline: 2px solid var(--arc);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ── bilingual ──────────────────────────────────────────────────────────── */
+/* Both languages ship in the HTML: the toggle is instant, needs no navigation,
+   and a crawler indexes the page in both. Turkish is the pre-toggle default,
+   so the English half hides before the inline script has run. */
+
+.en { display: none; }
+[data-lang='en'] .tr { display: none; }
+[data-lang='en'] .en { display: initial; }
+[data-lang='en'] p.en,
+[data-lang='en'] h1.en,
+[data-lang='en'] h2.en { display: block; }
+
+/* The nav pills, the badge and the frosted button are all built out of light
+   over a black ground. On white every one of them inverts or it stops being the
+   same object: a dark pill on a white page is not the light-catching strip the
+   dark page has, it is a black rectangle. So the gradients are mirrored rather
+   than reused, and the page keeps one design in two grounds instead of one
+   design and a photographic negative of it. */
+@media (prefers-color-scheme: light) {
+  /* The nav's light-theme rules are NOT here. They sit immediately after the
+     glass rules they qualify, several hundred lines down, because a media
+     query buys no specificity: these selectors and those are both `.nav a…`,
+     so whichever the file states LAST wins in both themes. Stated here — which
+     is where they were — the light theme's own nav treatment was dead code
+     overridden by the rule below it, in a block whose entire purpose is to say
+     what light does differently. */
+
+  .nav a::before {
+    background: linear-gradient(115deg, transparent 30%,
+      rgb(0 0 0 / .07) 50%, transparent 70%);
+  }
+
+  .pill {
+    background: linear-gradient(180deg, #1c1c1c 0%, #101010 48%, #000000 100%);
+    color: #fff;
+    border-color: #000;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .18);
+  }
+  .pill:hover {
+    background: linear-gradient(180deg, #21242c 0%, #12151c 42%, #000000 100%);
+    border-color: #10131a;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .22), 0 0 22px var(--glow-cold),
+                0 8px 18px rgb(0 0 0 / .18);
+  }
+  .pill::after {
+    background: linear-gradient(115deg, transparent 20%,
+      rgb(255 255 255 / .28) 48%, transparent 76%);
+  }
+  .pill-ghost {
+    background: linear-gradient(135deg, rgb(0 0 0 / .06),
+      rgb(255 255 255 / .7) 46%, rgb(90 110 150 / .08));
+    color: var(--ink);
+    border-color: rgb(0 0 0 / .22);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .8);
+  }
+  .pill-ghost:hover {
+    background: linear-gradient(135deg, rgb(60 90 160 / .1),
+      rgb(255 255 255 / .8) 48%, rgb(80 100 140 / .1));
+    border-color: rgb(40 60 110 / .4);
+    box-shadow: inset 0 1px 0 #fff, 0 0 24px var(--glow-cold);
+  }
+
+  .eyebrow {
+    background: linear-gradient(90deg, #dcdcdc 0%, #f0f0f0 52%, #ffffff 100%);
+    color: #1a1a1a;
+    border: 1px solid rgb(0 0 0 / .14);
+  }
+  /* The rule that used to live here inverted the stamp's leading mark, back
+     when that mark was a white SVG sparkle. It is a status dot painted in the
+     pass colour now, and `invert(1)` was turning it magenta on every light
+     display — a green light reading as an alarm, in the one component whose
+     whole job is to say the check passed. */
+
+  /* Both marks added with this direction are drawn in white at low alpha, which
+     on paper is drawn in nothing. Same geometry, inked. */
+  .hero::before {
+    background-image:
+      linear-gradient(to right, rgb(0 0 0 / .055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(0 0 0 / .055) 1px, transparent 1px);
+  }
+  .lang::before {
+    background: linear-gradient(180deg, #ffffff, #ececec);
+    border-color: rgb(0 0 0 / .16);
+    box-shadow: 0 1px 2px rgb(0 0 0 / .12);
+  }
+  .rec-file:hover { border-color: rgb(0 0 0 / .22); }
+}
+
+/* ── the page frame ─────────────────────────────────────────────────────── */
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: var(--s2);
+  z-index: 100;
+  padding: var(--s2) var(--s4);
+  background: var(--paper-2);
+  border: 1px solid var(--arc);
+  border-radius: 4px;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip:focus { left: var(--s4); }
+
+.wrap {
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ── masthead ───────────────────────────────────────────────────────────── */
+
+/* The masthead is a pane, not a band. A full-bleed bar with a hairline under it
+   is the one piece of chrome that was still drawn in the old flat language, and
+   on a page made of floating glass it read as a lid. Now it floats with the
+   rest: inset from the top, its own rounded pane, and the page visibly passes
+   UNDER it rather than being cut off by it. */
+.head {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding-top: var(--s3);
+  background: none;
+  border: 0;
+}
+.head-in {
+  position: relative;
+  isolation: isolate;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-edge);
+  padding-inline: var(--s4);
+  transition: box-shadow .3s var(--ease), border-color .3s var(--ease);
+}
+/* The pane's fill and blur live on a pseudo-element, not on `.head-in` itself,
+   and that is load-bearing rather than tidy. `backdrop-filter` on an element
+   makes it a CONTAINING BLOCK for `position: fixed` descendants — so the phone
+   menu, which is a fixed full-viewport sheet and is a child of the masthead,
+   was being trapped inside the header bar: 226x144px of blurred nothing with
+   five 2px links in it. A pseudo-element carries the same blur and creates no
+   containing block, so the sheet escapes to the viewport where it belongs.
+   `position: relative` here is safe: it is a containing block for `absolute`,
+   never for `fixed`. */
+.head-in::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+}
+/* Only once something has actually passed beneath it. A masthead carrying a
+   shadow at scroll position zero is claiming a depth the page does not have. */
+.head.is-scrolled .head-in {
+  border-color: rgb(255 255 255 / .2);
+  box-shadow: var(--glass-edge), 0 18px 40px -26px rgb(0 0 0 / .95);
+}
+
+/* Brand and navigation travel TOGETHER on the left; only the actions are
+   pinned right. Centring the nav looked right in the abstract and wrong on the
+   page: it left the wordmark stranded at one end with several hundred pixels of
+   nothing beside it, which reads as a missing element rather than as space. */
+/* `1fr auto 1fr` and not `auto 1fr auto`: the second centres the middle track
+   inside the space the outer two leave, so the menu drifts left or right by
+   half the difference between the wordmark's width and the controls' — which is
+   about forty pixels here, enough to look like a mistake and not enough to look
+   deliberate. Two equal outer tracks centre the nav on the PAGE. */
+.head-in {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--s4);
+  min-height: calc(var(--head-h) - var(--s3));
+}
+.head .nav { justify-self: center; }
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  color: var(--ink);
+  text-decoration: none;
+  flex: none;
+}
+.brand svg { color: var(--arc); }
+.brand-mark {
+  font-weight: 660;
+  letter-spacing: -.02em;
+  font-size: var(--t-md);
+}
+.brand-mark i { font-style: normal; color: var(--arc); padding-inline: .1em; }
+
+/* The body face, not the mono one. The masthead holds exactly two things and
+   they were set in two different families: the wordmark in Inter and the five
+   destinations beside it in Plex Mono. Mono is this design's voice for a
+   RECORD — a field name, a command, a ledger row, a section number — and a
+   navigation is none of those; it is prose, and setting it in the record face
+   made the top of the page read as two objects that had been pushed together.
+   The size and weight are unchanged, so the strip keeps its rhythm. */
+.nav {
+  display: flex;
+  gap: var(--s1);
+  justify-self: start;
+  margin-inline-start: var(--s6);
+  font-size: var(--t-sm);
+  font-weight: 450;
+  letter-spacing: -.005em;
+}
+/* Liquid metal. The gradient runs across the pill rather than down it, so the
+   row reads as one milled strip catching light at slightly different angles,
+   and a band of light passes over whichever one is hovered. */
+.nav a {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  height: 2.25rem;
+  padding: 0 .9rem;
+  border-radius: 9px;
+  /* The nav used to be five milled-metal slabs, which on a glass page were the
+     only opaque objects in sight and took the eye before the title did. They
+     are panes now, and only the current one is filled. */
+  border: 1px solid transparent;
+  background: none;
+  color: var(--ink-2);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .35s ease, border-color .35s ease, box-shadow .35s ease;
+}
+.nav a::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%,
+    rgb(255 255 255 / .16) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform .6s ease;
+}
+.nav a:hover {
+  color: var(--ink-2);
+  border-color: color-mix(in srgb, var(--glass-border) 70%, transparent);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-edge);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+.nav a:hover::before { transform: translateX(120%); }
+/* The lit half of the language control, applied to the lit nav item — same
+   gradient, same rim, same inset highlight. They sit eleven pixels apart in the
+   same strip and were painted by two different ideas of what "on" looks like:
+   the toggle's marker is a raised sliver of light, the nav's was a flat pane of
+   `--glass-bg` with a brighter border. One control in a row of controls cannot
+   have its own vocabulary for the same state. */
+/* Glass, and the whole recipe rather than an impression of it. This rule spent
+   two rounds mixing its own alphas — a flat white gradient, a rim, an inset
+   line — which is the thing the token block at the top of this file warns
+   about: leave any of the four parts out and the pane reads as a tinted box.
+   The lit item now takes the same four as every other pane on the page, so the
+   ruling and the pool behind the masthead stay visible through it and the item
+   sits ABOVE the strip rather than being painted onto it. */
+.nav a[aria-current='true'],
+.nav a[aria-current='page'] {
+  color: var(--ink);
+  border-color: var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+/* The light theme takes the same two rules and one number differently, and it
+   has to be stated HERE rather than up with the rest of the light overrides: a
+   media query adds no specificity, so the same selector further down the file
+   wins in both themes. Up there it was overridden by the two rules above and
+   did nothing at all — which is how the light theme kept mirroring a milled
+   metal nav that the dark theme had stopped having.
+
+   The number is the rim. `--glass-border` is `rgb(0 0 0 / .10)` on paper, which
+   reads as an edge across a wide pane and as nothing whatever around a 36px
+   pill, so hover and current get a firmer one. Same vocabulary, a different
+   amount of it. */
+@media (prefers-color-scheme: light) {
+  .nav a:hover { border-color: rgb(0 0 0 / .16); }
+  .nav a[aria-current='true'],
+  .nav a[aria-current='page'] { border-color: rgb(0 0 0 / .26); }
+}
+/* ── marks and prose ────────────────────────────────────────────────────── */
+
+/* A stamp rather than a caption: the tool's face, in caps, at a size that does
+   not compete, inside the same pane as everything else. The status dot is the
+   only mark it needs, and it earns its place by carrying a fact — the build
+   this page was generated from. */
+.eyebrow {
+  /* `inline-flex` alone is not enough in a centred column: a block-level child
+     of a grid stretches to its track, so the stamp would draw its border around
+     the whole width. `width: fit-content` plus an auto inline margin is what
+     makes it a mark ON the page rather than a caption around it. */
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: .6em;
+  font-family: var(--mono);
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: var(--s6);
+  padding: .45em .85em;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  background: var(--glass-bg);
+  box-shadow: var(--glass-edge);
+}
+.eyebrow::before {
+  content: '';
+  width: .4em;
+  height: .4em;
+  flex: none;
+  border-radius: 50%;
+  background: var(--pass);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pass) 18%, transparent);
+  /* One slow breath. The dot carries a fact, so it is allowed to be alive. */
+  animation: idle-pulse 3.4s var(--ease) infinite;
+}
+@keyframes idle-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--pass) 18%, transparent); }
+  50%      { box-shadow: 0 0 0 5px color-mix(in srgb, var(--pass) 6%, transparent); }
+}
+
+.lede {
+  font-size: var(--t-md);
+  color: var(--ink-2);
+  max-width: 40rem;
+}
+
+/* ── bands ──────────────────────────────────────────────────────────────── */
+
+/* The page is a stack of bands, each one centred on its own axis. The old
+   layout was an edition grid — twelve columns, an apparatus rail holding
+   section numbers and margin notes, prose capped at a measure on the left third
+   of the screen. That is the right shape for a document and the wrong one for
+   an introduction: it put a §01 in the margin of every section and left the
+   right two thirds of a wide screen empty. */
+.band { padding-block: var(--s24); position: relative; }
+.band-figs { padding-block: var(--s16) var(--s24); }
+.band-close { padding-bottom: var(--s16); }
+@media (max-width: 46rem) { .band { padding-block: var(--s16); } }
+
+.band-h {
+  text-align: center;
+  max-width: 46rem;
+  margin: 0 auto var(--s12);
+}
+.kicker {
+  font-family: var(--mono);
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: var(--s4);
+}
+.band-h h2 {
+  font-size: var(--t-2xl);
+  font-weight: 500;
+  letter-spacing: -.035em;
+  margin-bottom: var(--s4);
+}
+.band-h h2:last-child { margin-bottom: 0; }
+.band-lede {
+  font-size: var(--t-md);
+  color: var(--ink-2);
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+/* The record's column in the hero. `min-width: 0` because it is a grid item
+   holding a monospace table: without it the track refuses to be narrower than
+   the longest unbreakable row and the two columns stop sharing the width. */
+.hero-panel { min-width: 0; }
+
+/* The closing band is one column of centred text: a heading, three points and
+   the two ways out. */
+.close { text-align: center; max-width: 46rem; margin-inline: auto; }
+
+/* Three promises across, not down. Stacked, each line ran the width of the
+   column and the band spread over most of a screen for sixty words; three
+   columns put them in one glance and give the section a shape. */
+.points {
+  list-style: none;
+  margin: var(--s10) 0 var(--s12);
+}
+.points li {
+  /* The mark's row is a stated height. Left to size itself it takes whatever
+     line box the icon's font context produces, and one of the three came out a
+     few pixels taller — which put its title off the line the other two share.
+     Same fix as the five layers, same reason. */
+  display: grid;
+  grid-template-rows: 2.75rem auto 1fr;
+  justify-items: center;
+  gap: .4rem;
+  text-align: center;
+  padding: var(--s6) var(--s5);
+}
+.point-i {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 35%, rgb(255 255 255 / .1), transparent 70%);
+  color: var(--ink-2);
+}
+/* Two lines, reserved and centred in them — the same idiom as `.card h3`, for
+   the same reason. Two of the three titles are one line in both languages and
+   "Your data stays with you" is two in English, which started that card's
+   sentence twenty-three pixels below its neighbours'. Three cards side by side
+   are read across, and the line they are read along has to exist. */
+.points b {
+  font-weight: 550;
+  letter-spacing: -.01em;
+  min-height: 2.6em;
+  min-height: 2lh;
+  display: flex;
+  align-items: center;
+}
+.points li > span:not(.point-i) {
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+.close h2 {
+  font-size: var(--t-2xl);
+  font-weight: 500;
+  letter-spacing: -.035em;
+  margin-bottom: var(--s4);
+}
+
+/* ── the phone's way in ─────────────────────────────────────────────────── */
+/* Below this the nav was `display: none` and nothing replaced it, so four of
+   the five pages were unreachable from the other four. The replacement is a
+   full-viewport sheet rather than a dropdown: five destinations at a size a
+   thumb can hit, over a backdrop that blurs the page instead of dimming it, so
+   it is plainly a layer and not a redraw. */
+/* Below 56rem the masthead carries the wordmark and the language control, and
+   nothing else. There was a burger here opening a full-screen sheet over five
+   in-page anchors — a menu, a backdrop, a scroll lock and an open/close state,
+   all of it so a reader could jump between sections of a page that is one
+   continuous scroll. The sections follow each other in the order the argument
+   runs; on a phone, scrolling IS the navigation. */
+@media (max-width: 56rem) {
+  .head-in { grid-template-columns: 1fr auto; }
+  /* Two columns for three children, so the nav has to leave rather than be
+     squeezed: five items at their `nowrap` width do not fit beside the wordmark
+     and the language control, and left in the flow they push the third child
+     onto a second row. The anchors stay in the markup — the JSON-LD names them
+     and a crawler still reads the page's structure. */
+  .nav { display: none; }
+  /* The masthead's pane sat against both edges of a narrow screen because the
+     shell's gutter is the same 1rem the pane's own padding is — so the wordmark
+     started where the screen did. The band gets its own inset. */
+  .head { padding-inline: var(--s2); }
+  .head-in { padding-inline: var(--s5); }
+}
+
+/* The right-hand pair travels together and stays pinned to the end. */
+.head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s3);
+  justify-self: end;
+}
+.brand { justify-self: start; }
+
+/* The one button shape on the site. A pill, an ink fill, and a chevron that
+   steps forward 2px on hover — no lift, no glow, no gradient. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  justify-content: center;
+  height: 2.75rem;
+  padding: 0 1.15rem;
+  /* 10px, in the same family as the 14px panels and the 16px masthead. A 6px
+     button on a page of 14px panes is a control borrowed from another design. */
+  border-radius: 10px;
+  /* The primary was a slab of pure white with a white border, and on a black
+     page that is the brightest possible object — it outshouted the title it was
+     supposed to sit under. It is still the light one, because on this ground
+     light IS primary, but it is a warm off-white with a rim that is darker than
+     its face, so it reads as a lit surface with an edge instead of a hole cut
+     in the page. */
+  background: linear-gradient(180deg, #f7f8fa 0%, #e4e7ec 52%, #d3d8e0 100%);
+  color: #0d0f12;
+  border: 1px solid rgb(255 255 255 / .55);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .9),
+              0 1px 2px rgb(0 0 0 / .35), 0 10px 24px -14px rgb(0 0 0 / .8);
+  font-size: .875rem;
+  letter-spacing: -.015em;
+  font-weight: 550;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .18s var(--ease), border-color .18s var(--ease);
+}
+/* Hover is a cold light finding the surface, not a repaint. */
+.pill:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #eef2fb 44%, #dbe2f0 100%);
+  border-color: rgb(255 255 255 / .8);
+  color: #0d0f12;
+  box-shadow: inset 0 1px 0 #fff, 0 0 26px -4px var(--glow-cold),
+              0 12px 28px -14px rgb(0 0 0 / .8);
+}
+/* A single pass of light across the face on hover. The reference this borrows
+   from sweeps a chrome highlight; here it is one low-alpha band at the angle
+   the page's own light already comes from, and it reads as the surface turning
+   rather than as the surface being metal. */
+/* The shine is parked at translateX(-130%) until hover, which puts it a button
+   and a third to the LEFT of the button. Without a clip it paints there: a
+   metallic streak floating in the middle of the masthead, attached to nothing.
+   `isolation` was doing the z-index part of the job and nothing about the box. */
+/* `position: relative` is the load-bearing half of this, and it was missing.
+   The shine is `position: absolute`, so its containing block is the nearest
+   POSITIONED ancestor — with the button unpositioned that was whatever section
+   happened to be relative, and `inset: 0` then covered the section rather than
+   the button. Translated -130% it painted a metre-wide diagonal band across the
+   page, and `overflow: hidden` on the button could not clip it because the
+   button was never its containing block. Clipping and containing are two
+   different jobs; the first fix only did one of them. */
+.pill { position: relative; isolation: isolate; overflow: hidden; }
+.pill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(115deg, transparent 20%,
+    rgb(255 255 255 / .45) 48%, transparent 76%);
+  transform: translateX(-130%);
+  transition: transform .65s ease;
+}
+.pill:hover::after { transform: translateX(130%); }
+.pill svg { width: 1em; height: 1em; flex: none; }
+.pill .chev { transition: transform .18s var(--ease); }
+.pill:hover .chev { transform: translateX(2px); }
+
+/* The secondary is the SAME pane as everything else on the page, at button
+   size. It was a near-black slab with a bright grey border, which next to a
+   white slab read as two buttons from two different sites. */
+.pill-ghost {
+  /* A definite edge, and the reason is that the two buttons measure the same
+     and did not look it. The light one is a near-white shape on black: its own
+     fill draws its outline, and a bright shape on a dark ground reads slightly
+     larger than it is. The ghost's fill is a few per cent off the page's own
+     colour, so with a rim at the standard pane alpha its top and bottom edges
+     dissolved into the background and it read as the shorter of the two. Both
+     are 44px. Only one of them was saying so. */
+  background: linear-gradient(180deg, rgb(255 255 255 / .07), rgb(255 255 255 / .03));
+  color: var(--ink);
+  border: 1px solid rgb(255 255 255 / .2);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .1);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+/* `background` is the load-bearing declaration here and it was missing. The
+   base `.pill:hover` paints a near-white gradient, `.pill-ghost` overrides the
+   fill in its OWN rule but says nothing about the hover state — so on hover the
+   cascade handed the ghost the light button's white face while its label stayed
+   white on top of it. For two thirds of a second the button was unreadable. A
+   state that overrides a fill has to override the fill in that state too. */
+.pill-ghost:hover {
+  background: linear-gradient(180deg, rgb(255 255 255 / .12), rgb(255 255 255 / .05));
+  color: var(--ink);
+  border-color: rgb(255 255 255 / .3);
+  box-shadow: var(--glass-edge), 0 0 22px -10px var(--glow-cold),
+              0 12px 30px -18px rgb(0 0 0 / .9);
+}
+/* The sweep is a 45%-white band, and it was written for the LIGHT button, where
+   it reads as a surface turning. On the dark ghost it washes the whole face out
+   and takes the label with it — for two thirds of a second the button says
+   nothing. The ghost gets a much fainter pass, or none where the contrast is
+   already tight. */
+.pill-ghost::after {
+  background: linear-gradient(115deg, transparent 20%,
+    rgb(255 255 255 / .07) 48%, transparent 76%);
+}
+
+/* A segmented control, not a button that renames itself. The lit half is
+   chosen from `data-lang` on the ROOT — the same attribute that decides which
+   of every `.tr`/`.en` pair on the page is showing — so the control cannot
+   disagree with the document it controls. There is no second source of truth
+   for it to drift from.
+
+   The marker is a pseudo-element that slides rather than a background that
+   swaps, because the movement is the part that says these are two states of one
+   control and not two buttons that happen to sit together. */
+.lang {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid var(--glass-border);
+  /* The same corner every other control on this page uses — the nav item is 9px
+     and the menu button 10px. This was a 999px pill, which made the one control
+     that sits between those two the only round thing in the masthead. */
+  border-radius: 10px;
+  background: var(--glass-bg);
+  box-shadow: var(--glass-edge);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+.lang::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: 3px auto 3px 3px;
+  /* Half the padding box. The two labels are two mono characters each, so the
+     halves are equal by construction and `translateX(100%)` lands exactly. */
+  width: calc((100% - 6px) / 2);
+  /* Outer radius minus the 3px padding: a concentric corner rather than a
+     smaller copy of the outer one. */
+  border-radius: 7px;
+  background: linear-gradient(180deg, rgb(255 255 255 / .16), rgb(255 255 255 / .06));
+  border: 1px solid rgb(255 255 255 / .18);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .25);
+  transition: transform .34s var(--ease);
+}
+:root[data-lang='en'] .lang::before { transform: translateX(100%); }
+.lang button {
+  position: relative;
+  z-index: 1;
+  /* 2.5rem × 1.9rem is under the 24px floor on neither axis, and the group as a
+     whole is a 44px-tall target. */
+  min-width: 2.5rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-family: var(--mono);
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: color .2s var(--ease);
+}
+.lang button:hover { color: var(--ink-2); }
+.lang button[aria-pressed='true'] { color: var(--ink); }
+
+/* ── hero ───────────────────────────────────────────────────────────────── */
+
+/* The first screen, and only the first screen. `svh` rather than `vh`: on a
+   phone `vh` is the tallest the viewport ever gets, so a section sized to it is
+   always taller than what is actually visible and the next block peeks over the
+   fold — which is the exact thing this rule exists to prevent.
+
+   The masthead IS subtracted, and the note that used to stand here said the
+   opposite: that it "floats over the page rather than pushing it, so nothing
+   has to be subtracted". That is true of `fixed` and false of `sticky`, and the
+   masthead is sticky — it occupies the first 4.5rem of the flow and the hero
+   began underneath it while still asking for a whole viewport, so the section
+   ran 72px past the fold. Centred content inside it therefore sat half of that
+   too low, and the 7rem/4rem padding — written to clear a masthead that was
+   already clear — put it another 24px lower again. Subtracting the pane and
+   balancing the padding puts the copy in the middle of the space the reader
+   actually has, which is 60px up from where it was. */
+.hero {
+  min-height: calc(100svh - var(--head-h));
+  display: grid;
+  align-content: center;
+  padding-block: var(--s16);
+  position: relative;
+}
+/* The ruling belongs to the whole sheet, not to the first screen. It lived on
+   `.hero::before`, so the page was lined paper for one viewport and plain black
+   for the four after it — which reads as a texture that failed to load rather
+   than as a decision. It is on `main` now: one layer, the height of the
+   document, faded out at the left and right margins so the lines end the way
+   ink does rather than at a hard edge. */
+main { position: relative; }
+main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to bottom, rgb(255 255 255 / .022) 1px, transparent 1px);
+  background-size: 100% 2.25rem;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+}
+/* The first screen keeps a little more of it — the ruling is strongest where
+   the page is emptiest, and that is the one screen with room to show it. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to bottom, rgb(255 255 255 / .028) 1px, transparent 1px);
+  background-size: 100% 2.25rem;
+  -webkit-mask-image: radial-gradient(58% 56% at 40% 46%, #000, transparent 78%);
+  mask-image: radial-gradient(58% 56% at 40% 46%, #000, transparent 78%);
+}
+
+.hero-in {
+  display: grid;
+  gap: var(--s12);
+  align-items: center;
+}
+@media (min-width: 68rem) {
+  .hero-in { grid-template-columns: minmax(0, 1fr) minmax(0, 30rem); gap: var(--s16); }
+}
+.hero-copy { max-width: 40rem; }
+
+.hero-title {
+  /* Its own clamp, not the page's biggest step. `--t-3xl` tops out at 4.75rem,
+     which was set when the headline had the full width of a centred page; in a
+     7/12 column beside a panel it breaks "Makale ve / tez yazımı," and leaves
+     two words alone on a line. This ceiling lets the first line hold. */
+  font-size: clamp(2.1rem, 1.1rem + 2.4vw, 3.5rem);
+  font-weight: 500;
+  letter-spacing: -.045em;
+  margin-bottom: var(--s6);
+}
+/* On a palette with no colour this is the only differentiation a title gets,
+   and it does the work with two changes at once: a different FACE — a
+   high-contrast serif against a grotesque — and a drop to the muted grey. Grey,
+   not white: the emphasised words sit BACK from the line, which is the opposite
+   of what emphasis normally does and is why it reads as a considered pairing
+   rather than as a highlight. */
+.hero-title i, .shiny {
+  font-family: var(--accent-face);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.08em;
+  letter-spacing: -.03em;
+  color: var(--ink-3);
+}
+
+/* Two buttons, one width — and the pair of declarations that does it is
+   `grid-auto-columns: 1fr` plus `width: fit-content`, which have to be read
+   together. Inside a shrink-to-fit box a `1fr` track resolves to the widest
+   column's max-content size, so both buttons come out as wide as the longer
+   label instead of five characters apart. As a flex row they were 110px and
+   174px in the closing band: two controls offered as alternatives, drawn as if
+   one mattered more.
+
+   `.notfound-actions` is the same row on the 404 page, which is not built on
+   the shared layout and therefore shares nothing it is not told to. */
+.cta-row,
+.notfound-actions {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  width: fit-content;
+  gap: var(--s3);
+  margin-top: var(--s8);
+}
+.notfound-actions { margin-top: var(--s4); }
+/* Centred only where the band around it is. `margin-inline: auto` rather than
+   `justify-content`, because the row is now a shrink-to-fit box: there is no
+   free space inside it left to distribute. */
+.close .cta-row { margin-inline: auto; }
+/* A grid does not wrap, and `fit-content` does not overflow — it shrinks, and
+   the labels inside are `white-space: nowrap`, so the failure mode is a button
+   narrower than its own text rather than a second row. The threshold is set by
+   the widest pair on the site, which is the closing band in English: two
+   199px buttons and a 12px gap need 410px of content, and 32rem leaves 457
+   after the shell's gutters and a scrollbar. Below that the row turns. */
+@media (max-width: 32rem) {
+  .cta-row,
+  .notfound-actions { grid-auto-flow: row; width: 100%; }
+}
+
+/* ── the pipeline panel ─────────────────────────────────────────────────── */
+/* The hero's panel: six commands in the order a paper goes through them, and
+   the three gates between them. Same pane as everything else, and the rows are
+   a table of contents rather than a table — a label on the left, a command on
+   the right, and a leader between them so the eye can cross the gap on a row
+   that is mostly empty. */
+
+.flow {
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  box-shadow: var(--edge), var(--shadow);
+  overflow: hidden;
+}
+
+.flow-h {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+  padding: var(--s3) var(--s5);
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper-3);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+.flow-h b { font-weight: 600; color: var(--ink); }
+.flow-h > span:last-child { color: var(--ink-3); }
+.flow-h .grow { flex: 1; }
+
+.flow-b { list-style: none; padding: var(--s3) var(--s5) var(--s5); }
+
+.flow-step {
+  display: grid;
+  grid-template-columns: 1.9rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--s3);
+  padding-block: .5rem;
+}
+.flow-step i {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--arc);
+}
+.flow-step b {
+  font-weight: 500;
+  font-size: .95rem;
+  letter-spacing: -.015em;
+  color: var(--ink);
+}
+.flow-step code {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* A gate is a rule across the row with the condition written into it — the
+   thing it is, drawn. */
+.flow-gate {
+  display: flex;
+  align-items: center;
+  gap: .5em;
+  margin-block: .35rem;
+  padding: .4rem .6rem;
+  border-radius: 8px;
+  border-inline-start: 2px solid color-mix(in srgb, var(--pass) 55%, transparent);
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--pass) 8%, transparent), transparent 70%);
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .01em;
+  color: var(--ink-2);
+}
+.flow-gate .ico { color: var(--pass); }
+
+/* ── figures ────────────────────────────────────────────────────────────── */
+
+/* Four figures, four labels, and nothing else. They were inside a panel with a
+   hairline down the left of each cell, which made a small table out of four
+   numbers and gave the quietest content on the page the loudest container. A
+   figure at this size is already the loudest thing in its row. */
+.figs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  text-align: center;
+  max-width: 64rem;
+  margin-inline: auto;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-edge);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  overflow: hidden;
+}
+/* A hairline between cells rather than a gap: four numbers floating on the
+   ground read as four unrelated facts, and four in one strip read as a summary
+   — which is what they are. The divider is on the cell, not the container, so
+   it never draws an edge on the outside. */
+.fig + .fig { border-inline-start: 1px solid var(--rule-2); }
+@media (max-width: 46rem) {
+  .figs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fig:nth-child(odd) { border-inline-start: 0; }
+  .fig:nth-child(n+3) { border-top: 1px solid var(--rule-2); }
+}
+
+/* Symmetric, and it took three tries to get back here because the asymmetry was
+   argued from the wrong measurement both times. The number's line box does
+   carry negative leading and the label's does carry positive, and it is
+   tempting to correct for that by hand — 24/32 one round, 40/32 the next. What
+   settles it is measuring the INK rather than reasoning about the boxes: cap
+   top of the figure to baseline of the label, against the cell's own centre.
+   24/32 put that ink 3.5px high; 40/32 put it 3.9px low; equal padding lands it
+   within half a pixel, because the two line boxes' leading very nearly cancels.
+   The watermark is 88px inside a 137px cell, so it still has room. */
+.fig {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: .3rem;
+  padding: var(--s8) var(--s4);
+  overflow: hidden;
+}
+/* A wash that lifts the cell off the strip's own ground, brightest under the
+   figure. */
+.fig::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(70% 60% at 50% 30%, rgb(255 255 255 / .035), transparent 70%);
+}
+.fig > * { position: relative; }
+/* The watermark. It is set here rather than on the component because the mark
+   wants to be five times the size an icon is ever asked to be, and the stroke
+   weight that comes with a 17px icon is exactly what makes it read as a drawn
+   shape at that scale rather than as a hairline.
+
+   Every cell gets the same `--ink` at the same alpha, and that uniformity is
+   the whole fix: the version that was pulled tinted the fourth mark with the
+   pass colour and raised it to .09, which made it the only one legible and the
+   strip read as three empty cells beside a full one. `--ink` rather than a
+   white so the light theme gets a dark watermark on paper instead of nothing. */
+.fig .ico {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5.5rem;
+  height: 5.5rem;
+  transform: translate(-50%, -58%);
+  color: var(--ink);
+  opacity: .045;
+  pointer-events: none;
+}
+.fig b {
+  display: block;
+  font-size: clamp(2.2rem, 4.4vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  /* The figure fades upward, which is what stops four large numbers in a row
+     from reading as a scoreboard. */
+  background: linear-gradient(180deg, var(--ink) 40%, var(--ink-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.fig > span {
+  display: block;
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+  letter-spacing: -.005em;
+}
+/* The zero is the only figure that is a claim rather than a count, so it is the
+   only one that carries the pass colour. */
+.fig.mark b {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--pass);
+}
+.fig.mark::before {
+  background: radial-gradient(70% 60% at 50% 30%,
+    color-mix(in srgb, var(--pass) 9%, transparent), transparent 70%);
+}
+
+/* ── cards ──────────────────────────────────────────────────────────────── */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s4);
+  align-items: stretch;
+}
+@media (max-width: 62rem) { .cards { grid-template-columns: 1fr; } }
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s6);
+  /* Three cards in a row are compared, so their parts have to sit on the same
+     lines. The heading row is fixed and the paragraph is pushed to the bottom
+     of the card: with one card carrying a one-line sentence and its neighbours
+     two, the three headings were level and the three paragraphs were not, which
+     is the arrangement that reads as broken rather than as varied. */
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-edge);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  transition: border-color .2s var(--ease), box-shadow .2s var(--ease),
+              transform .2s var(--ease);
+}
+.card-top { display: flex; align-items: center; justify-content: space-between; }
+.card-n {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .12em;
+  color: var(--arc);
+}
+.card-i { color: var(--ink-3); transition: color .2s var(--ease); }
+.card h3 {
+  font-size: var(--t-md);
+  font-weight: 550;
+  letter-spacing: -.02em;
+  min-height: 2.6em;
+  display: flex;
+  align-items: center;
+}
+.card p { font-size: var(--t-sm); color: var(--ink-2); margin: 0; }
+/* Same reservation as the install steps, same reason: three gates compared side
+   by side, one of which had a one-line sentence. */
+#gates .card p { min-height: 3.1em; min-height: 2lh; }
+/* `.card-run`, `.runfigs`, `.card-actions` and `.card-go` stood here and went
+   with the showcase band that was their only caller. A stylesheet that keeps
+   rules for markup nothing emits is the kind of dead code nobody greps for,
+   because it never fails to compile. */
+
+/* ── the five layers ────────────────────────────────────────────────────── */
+
+/* Five items read in order: numbered, left to right on a wide screen and top to
+   bottom on a narrow one — the two directions a reader already reads in. They
+   were five columns divided by a rule across the top, which on a dark ground
+   reads as a table header with nothing under it. Panes instead, in the same
+   glass as every other raised surface here, and the mark sits in a tile of its
+   own so five different silhouettes still line up as one row. */
+.layers {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--s4);
+}
+@media (max-width: 74rem) { .layers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 40rem) { .layers { grid-template-columns: 1fr; } }
+
+/* Explicit rows. Left to size themselves, the number row and the mark row take
+   the height of whatever line box the text happens to produce — and one of the
+   five was coming out five pixels taller than its neighbours, which put its
+   icon and its title off the line the other four share. Row heights that are
+   stated cannot be argued with by content. */
+.layers li {
+  display: grid;
+  grid-template-rows: 1.1rem 1.75rem auto 1fr;
+  gap: var(--s2);
+  padding: var(--s5);
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  transition: border-color .25s var(--ease), box-shadow .25s var(--ease);
+}
+.layers li:hover {
+  border-color: rgb(255 255 255 / .24);
+  box-shadow: var(--glass-edge), 0 0 26px -12px var(--glow-cold),
+              0 16px 34px -22px rgb(0 0 0 / .9);
+}
+.layer-n, .layers h3 { align-self: center; }
+/* No tile. A bordered square around each mark was a second box inside a box —
+   five small frames on five panes — and the row lines up perfectly well without
+   one, because the grid row it sits in is a fixed height. What is left is the
+   mark, larger, with the pane's own light behind it. */
+.layer-i {
+  color: var(--ink-3);
+  transition: color .25s var(--ease), filter .25s var(--ease);
+}
+.layers li:hover .layer-i {
+  color: var(--arc);
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--arc) 45%, transparent));
+}
+.layers li:hover { border-top-color: var(--arc); }
+.layer-n {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .12em;
+  color: var(--arc);
+}
+.layer-i { color: var(--ink-3); }
+.layers h3 { font-size: .975rem; font-weight: 550; letter-spacing: -.015em; }
+.layers p {
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  line-height: 1.5;
+  margin: 0;
+  min-height: 4.5em;
+  min-height: 3lh;
+}
+
+/* The line back to the document that carries the detail this page does not. */
+/* Its own block, centred on the page rather than on whatever column of the
+   grid above happened to end last. `display: flex` on the wrapper is what does
+   that: `text-align` centres inline content, and an inline-flex pill is inline
+   content whose line box the browser is free to place against the grid's last
+   baseline — which is what left it sitting a few pixels off the middle. */
+.more {
+  display: flex;
+  justify-content: center;
+  margin-block: var(--s12) 0;
+}
+/* The band that ends in a `.more` closes tighter, so the air above the link and
+   the air below it are the same. Measured before this: forty pixels above and
+   ninety-six below, because the link's own bottom margin collapsed out through
+   the shell and what was left under it was the section's padding. The class is
+   on the section rather than a `:has()` selector — one word in the markup says
+   which band it is, and nothing has to be inferred. */
+.band-tight { padding-bottom: var(--s12); }
+.more a {
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  text-decoration: none;
+  padding: .6rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  transition: color .18s var(--ease), border-color .18s var(--ease);
+}
+.more a:hover { color: var(--ink); border-color: var(--glass-border); }
+.more .ico { transition: transform .18s var(--ease); }
+.more a:hover .ico { transform: translateX(2px); }
+
+/* ── install steps ──────────────────────────────────────────────────────── */
+
+.steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s4);
+  /* `stretch`, so three panes in a row end on one line. `start` sized each to
+     its own content and the first step has two commands in it, which left a
+     ragged bottom edge under a centred heading. */
+  align-items: stretch;
+}
+@media (max-width: 62rem) { .steps { grid-template-columns: 1fr; } }
+
+.steps li {
+  /* A column, not a grid: the paragraph absorbs the slack (`margin-bottom:
+     auto` below), so however many commands a step has, they sit on the bottom
+     edge and the three cards' command blocks line up. Stretching the rows
+     instead left a band of empty pane under the shorter steps, and letting the
+     cards size themselves left a ragged bottom under a centred heading. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s6);
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-edge);
+  /* A grid item's automatic minimum size is its min-content width, and `.cmd`
+     is `white-space: nowrap` — without this the step refuses to be narrower
+     than the whole command and the card is cut off on a phone. */
+  min-width: 0;
+}
+.step-n {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .12em;
+  color: var(--arc);
+}
+/* Two lines, reserved. The three descriptions are written to two lines each in
+   both languages, and this is the guard for the day one of them is edited to
+   one: without it the three cards' text blocks were 1, 3 and 2 lines tall and
+   the section read as three unrelated cards rather than three steps of one
+   thing. `lh` is the line box of this element; the `em` before it is the same
+   distance for an engine that does not know the unit yet. */
+.steps p {
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  margin: 0 0 auto;
+  min-height: 3.1em;
+  min-height: 2lh;
+}
+
+.cmd {
+  display: block;
+  padding: var(--s3);
+  background: var(--paper-3);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.cmd::before { content: '❯ '; color: var(--arc); }
+
+/* ── faq ────────────────────────────────────────────────────────────────── */
+
+.faq { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.faq > details { border-bottom: 1px solid var(--rule-2); }
+/* Both halves are needed and neither is enough: Safari draws the triangle from
+   the shadow-DOM pseudo-element, everything else from `list-style`. */
+.faq summary {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s4);
+  padding-block: var(--s4);
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--t-md);
+  color: var(--ink-2);
+  transition: color .18s var(--ease);
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary:hover { color: var(--ink); }
+.faq details[open] summary { color: var(--ink); }
+.faq-q { flex: 1; }
+.faq-chev {
+  color: var(--ink-3);
+  margin-top: .3em;
+  transition: transform .25s var(--ease);
+}
+.faq details[open] .faq-chev { transform: rotate(90deg); }
+.faq p {
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  margin: 0;
+  padding-bottom: var(--s6);
+  max-width: var(--text);
+  line-height: 1.6;
+}
+
+/* ── back to top, with the progress on it ───────────────────────────────── */
+
+.to-top {
+  position: fixed;
+  right: var(--gutter);
+  bottom: var(--gutter);
+  z-index: 35;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-edge), var(--shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--ink-2);
+  transition: color .18s var(--ease), border-color .18s var(--ease);
+}
+.to-top[hidden] { display: none; }
+.to-top:hover { color: var(--ink); border-color: rgb(255 255 255 / .3); }
+
+/* Both children sit in the same grid cell, stacked. */
+.to-top .ring, .to-top .ring-arrow { grid-area: 1 / 1; }
+.ring {
+  width: 2.75rem;
+  height: 2.75rem;
+  /* Start the arc at twelve o'clock rather than at three. `transform-origin`
+     has to be stated: on an SVG element it does not default to the centre the
+     way it does on an HTML box, so an unqualified rotate turns the ring around
+     its top-left corner — and the track being a full circle hides that the arc
+     underneath it is now pointing somewhere else entirely. */
+  transform: rotate(-90deg);
+  transform-origin: center;
+  fill: none;
+}
+.ring-track { stroke: var(--rule); stroke-width: 2; }
+.ring-arc {
+  stroke: var(--arc);
+  stroke-width: 2;
+  stroke-linecap: round;
+  /* The circle carries `pathLength="100"`, so these are percentages. The full
+     offset here means an unscripted page shows an empty ring rather than a full
+     one, which would claim the reader is at the end of a page they just
+     opened. */
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset .12s linear;
+}
+.ring-arrow { width: 1.05rem; height: 1.05rem; }
+
+/* ── footer ─────────────────────────────────────────────────────────────── */
+
+/* Plain. It was a pane inside a pane — a card holding four link columns on a
+   page already made of cards — and the last thing a reader sees does not need
+   to be the most constructed. One lit rule across the top, columns on the open
+   ground, and a single line underneath. */
+.foot {
+  margin-top: var(--s24);
+  background: none;
+  border: 0;
+  position: relative;
+}
+.foot::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent,
+    rgb(255 255 255 / .18) 18%, rgb(255 255 255 / .18) 82%, transparent);
+}
+.foot-in {
+  padding-block: var(--s16) var(--s6);
+}
+.foot-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s6);
+  padding-block: var(--s4);
+}
+.foot-id { display: grid; gap: var(--s3); justify-items: start; }
+.foot-brand { color: var(--ink); }
+.foot-blurb {
+  margin: 0;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  max-width: 42ch;
+}
+
+/* Carried over from the other projects rather than re-invented: same gap, same
+   weight on the name, same heartbeat. The one thing that had to change is the
+   heart's colour — #ef4444 was chosen against those sites' grounds, and on pure
+   black at this size it vibrates. A little deeper holds the same hue and stops
+   buzzing. */
+.footer-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  /* Not the monospace either. It went to the tool's face to match the small
+     print, and a credit is the one line on the page that is neither data nor
+     reference — set in a typewriter it reads as a log entry. The body face at
+     footnote size, a shade brighter than the surrounding grey so it does not
+     look switched off, and the name carries the weight. */
+  font-size: var(--t-xs);
+  letter-spacing: -.005em;
+  color: var(--ink-2);
+}
+.footer-credit a {
+  color: var(--ink-2);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color .2s var(--ease);
+}
+.footer-credit a:hover { color: var(--ink); }
+
+.footer-heart {
+  /* A shade deeper than the projects this line is carried over from: #ef4444
+     was chosen against their grounds and on pure black at 14px it vibrates. */
+  color: #d8564f;
+  flex-shrink: 0;
+  animation: heartbeat 2.6s var(--ease) infinite;
+}
+@keyframes heartbeat {
+  0%, 82%, 100% { transform: scale(1); }
+  86%           { transform: scale(1.18); }
+  90%           { transform: scale(1); }
+  94%           { transform: scale(1.12); }
+}
+
+/* ── scrollbars ─────────────────────────────────────────────────────────── */
+/* The default bar is a piece of operating-system chrome sitting on a page that
+   has decided every other edge and surface for itself, and on the code blocks —
+   where it appears INSIDE a pane — it is the loudest object in the section. Same
+   tokens as everything else, and it thins to a hairline until pointed at.
+   `scrollbar-width`/`scrollbar-color` is the standard property; the `::-webkit-`
+   block is what Chrome and Safari actually read. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--rule);
+  border-radius: 999px;
+  /* The border is transparent padding: it makes the thumb read as a 4px pill
+     floating in a 10px gutter rather than as a bar filling one. */
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); background-clip: content-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+/* Inside a code block the gutter is smaller still — the pane is only a few
+   lines tall and a 10px bar takes a fifth of it. */
+.cmd::-webkit-scrollbar { height: 7px; }
+.cmd::-webkit-scrollbar-thumb { border-width: 2px; }
+
+/* On a phone the footer is one centred column. This was written before the
+   footer's own rules and lost to them: a media query does not outrank a later
+   declaration of equal specificity, and `.foot-top { justify-content:
+   space-between }` came after it in the file. Order is the whole fix. */
+@media (max-width: 46rem) {
+  .foot-top { justify-content: center; text-align: center; }
+  /* `justify-items` on the container is overridden by `justify-self` on the
+     item, and `.brand` carries `justify-self: start` from the masthead — so
+     the wordmark stayed pinned to the left of a column whose every other line
+     was centred, seventy-seven pixels off at 380px. The item has to be told,
+     not the container. */
+  .foot-id { justify-items: center; }
+  .foot-brand { justify-self: center; }
+  .foot-blurb { max-width: 34ch; }
+  .foot-in { padding-bottom: var(--s16); }
+}
+
+/* ── links inside prose ───────────────────────────────────────────────── */
+
+.link { color: var(--arc); }
+.end { color: var(--ink-3); }
+
+/* A prose link underlines itself by drawing the rule, left to right, rather
+   than switching one on. The same gesture as every other mark on this page, and
+   it is one property animating a background-size — no layout, and the text
+   itself is never repainted. */
+/* `p:not(.more)` — the link back to the README is a pill inside a paragraph,
+   and this rule was reaching it: it drew the sliding prose underline across a
+   button, and its `padding-bottom: .06em` overrode the pill's own 9.6px. The
+   label sat eleven pixels from the top of the capsule and two from the bottom,
+   which is the "the text has slid down" an eye reports without being able to
+   name it. A treatment for prose links has to say it is for prose links. */
+.band p:not(.more) a:not(.pill) {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 1px;
+  transition: background-size .32s var(--ease), color .18s var(--ease);
+  padding-bottom: .06em;
+}
+.band p:not(.more) a:not(.pill):hover { background-size: 100% 1px; text-decoration: none; }
+
+
+/* ── glass ──────────────────────────────────────────────────────────────── */
+/* Every raised surface on the site, in one rule. They were nine different
+   backgrounds and six different borders, accumulated one direction at a time;
+   a single recipe is what makes a page look designed rather than assembled, and
+   it is also the only way the light stays consistent — nine hand-tuned panels
+   catch the light nine slightly different ways and the eye reads the difference
+   as sloppiness long before it can name it.
+
+   `.figs` used to be on this list and has come off it. Four numbers at 3.4rem
+   do not need a container to be seen; putting them in one made a small table
+   out of a headline and gave the quietest content on the page the loudest
+   frame. */
+.record,
+.card,
+.steps li,
+.faq {
+  transition: border-color .35s var(--ease), box-shadow .35s var(--ease);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* The pane has a highlight running along the top edge that fades toward the
+   corners, which is what a curved bevel does with a light source that is not
+   directly overhead. A flat 1px line across the whole width reads as a border;
+   this reads as a surface. */
+.record, .card, .steps li, .faq { position: relative; }
+.record::before, .card::before, .steps li::before, .faq::before {
+  content: '';
+  position: absolute;
+  inset-inline: 12%;
+  top: -1px;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent,
+    rgb(255 255 255 / .55) 22%, rgb(255 255 255 / .55) 78%, transparent);
+  opacity: .55;
+}
+
+/* The accordion sits INSIDE a pane, so its own top border would be a second
+   frame drawn a pixel inside the first. */
+.faq { padding-inline: var(--s6); border-top: 0; }
+
+/* Panels do not blur what is behind them when the page is printed, and a
+   translucent fill over white paper is a grey box. */
+@media print {
+  .record, .card, .steps li, .faq {
+    background: none; box-shadow: none; backdrop-filter: none;
+    border: 1px solid #999;
+  }
+}
+
+/* ── motion ─────────────────────────────────────────────────────────────── */
+/* Three gestures, all borrowed from what the page already claims to be.
+   A passage SETTLES: it rises the last few pixels and comes to rest, the way a
+   sheet does when it is put down. A mark is DRAWN: it grows from the end a hand
+   would have started at. A record PRINTS: one line after another, in order.
+   Nothing slides in from off-screen, nothing scales up, nothing bounces — a
+   proof sheet is not a slide deck, and a reader who scrolled to a section did
+   not ask to watch it perform.
+
+   Every initial state is behind `.js`, set synchronously in the head. Without
+   scripting the page is simply finished, rather than a column of invisible
+   elements waiting for an observer that will never run. */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Choreographed by KIND, not by position: `.hero`'s children differ per page
+   and both language variants of a heading are siblings, so nth-child would be
+   choreographing whichever one happened to be hidden.
+
+   The masthead is on the ladder too. It used to be simply present at frame
+   one, which made the page look like it had loaded twice — chrome already
+   there, content arriving after it. */
+@keyframes in-scale {
+  from { opacity: 0; transform: scale(.84); }
+  to   { opacity: 1; transform: none; }
+}
+.head .brand { animation: in-scale 1.05s var(--ease) both; animation-delay: .08s; }
+.head .nav a { animation: in-scale 1.05s var(--ease) both; }
+.head .nav a:nth-child(1) { animation-delay: .16s; }
+.head .nav a:nth-child(2) { animation-delay: .28s; }
+.head .nav a:nth-child(3) { animation-delay: .40s; }
+.head .nav a:nth-child(4) { animation-delay: .52s; }
+.head .nav a:nth-child(5) { animation-delay: .64s; }
+.head .lang { animation: in-scale 1.05s var(--ease) both; animation-delay: .34s; }
+
+/* The title is pressed onto the sheet: it rises the last few pixels while the
+   line box uncovers it from the top edge down, which is the one entrance that
+   describes what the page claims to be. clip-path rather than a wrapper span,
+   because the alternative is a `.headline-line` element around every heading on
+   five pages in two languages, and a purely visual effect should not become a
+   thing the content has to carry. */
+@keyframes press {
+  from { opacity: 0; transform: translateY(26px); clip-path: inset(0 0 100% 0); }
+  to   { opacity: 1; transform: none; clip-path: inset(0 0 -25% 0); }
+}
+/* The badge pops slightly past its size and settles, which is the one place a
+   little overshoot is right: it is a small object being set down, not a block
+   of text arriving. */
+@keyframes stamp {
+  0%   { opacity: 0; transform: scale(.9); }
+  70%  { opacity: 1; transform: scale(1.03); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes lift {
+  from { opacity: 0; transform: translateY(16px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+.hero .eyebrow  { animation: stamp 1.05s var(--ease) both; animation-delay: .18s; }
+.hero h1        { animation: press 1.05s var(--ease) both; animation-delay: .38s; }
+.hero .lede     { animation: rise 1.25s var(--ease) both;  animation-delay: .72s; }
+.hero .cta-row  { animation: lift 1.05s var(--ease) both;  animation-delay: .88s; }
+.hero-panel     { animation: lift 1.15s var(--ease) both;  animation-delay: 1.02s; }
+
+/* The marked word sharpens a beat after the line it sits in has landed, so the
+   correction reads as having been made TO the line rather than as having been
+   set with it. */
+@keyframes ink {
+  from { opacity: .3; filter: blur(3px); }
+  to   { opacity: 1; filter: none; }
+}
+.hero h1 i, .hero .shiny {
+  animation: ink 1.2s var(--ease) both;
+  animation-delay: .72s;
+}
+
+/* — settle — */
+/* One rule, one class. The old version named `.sec`, `.record` and `.figs`, and
+   staggered `.is-in > *` by nth-child — which quietly meant that a block the
+   page grew later did not move at all, and a reader who sees five blocks
+   animate and the sixth appear reads the sixth as broken. A block opts in by
+   carrying `.reveal`; nothing else decides. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  /* Short on purpose. The lead the observer gives is a quarter of a viewport;
+     anything slower and a reader scrolling at a normal clip outruns their own
+     content, which is the one thing a reveal must never do. */
+  transition: opacity .65s var(--ease), transform .65s var(--ease);
+}
+.js .reveal.is-in { opacity: 1; transform: none; }
+
+/* The children of a revealed grid follow it in order, so a row of three cards
+   lands left to right rather than all at once. Written in nth-child because
+   `style-src 'self'` is real: a `style="--i:3"` in the markup is refused by the
+   page's own policy, and an animation that depends on being allowed an inline
+   style stops working the day that policy is enforced properly. */
+.js .cards > *,
+.js .layers > *,
+.js .steps > *,
+.js .figs > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .5s var(--ease), transform .5s var(--ease);
+}
+/* The release has to reach as deep as the rule above sets. Both were `> *`,
+   which held while every staggered container WAS the reveal target — and the
+   moment one of them sat inside a reveal instead of being one, its children
+   were set to `opacity: 0` by a rule that matched them and released by a rule
+   that did not. The closing band's three cards were invisible on the live site:
+   present, taking their space, painting nothing. */
+.js .is-in > *,
+.js .is-in .cards > *,
+.js .is-in .layers > *,
+.js .is-in .steps > *,
+.js .is-in .figs > * { opacity: 1; transform: none; }
+.js .is-in > *:nth-child(2),
+.js .is-in .cards > *:nth-child(2) { transition-delay: .1s; }
+.js .is-in > *:nth-child(3),
+.js .is-in .cards > *:nth-child(3) { transition-delay: .2s; }
+.js .is-in > *:nth-child(4),
+.js .is-in .cards > *:nth-child(4) { transition-delay: .3s; }
+.js .is-in > *:nth-child(5),
+.js .is-in .cards > *:nth-child(5) { transition-delay: .4s; }
+.js .is-in > *:nth-child(n+6) { transition-delay: .5s; }
+
+/* Headings arrive out of focus and sharpen, which is the one gesture that reads
+   as "this is being set down" rather than "this is sliding in". Two properties,
+   both compositor-friendly, and the blur is small enough that a reader who
+   scrolls past quickly never sees an unreadable line. */
+.js .band-h { filter: blur(3px); }
+.js .band-h.is-in { filter: none; }
+.js .band-h { transition: opacity .55s var(--ease), transform .55s var(--ease),
+              filter .55s var(--ease); }
+
+/* — one entrance per section — */
+/* Every band moving the same eighteen pixels upward is a page that scrolls
+   like a spreadsheet. Each section arrives the way its own content reads, and
+   the distances are deliberately past the point of subtlety: a reveal nobody
+   notices is a reveal that costs bytes and buys nothing. Only the STARTING
+   state differs — the release is one rule for all of them, so there is one
+   thing to reason about when a reveal misbehaves. */
+
+/* Three rules, learned the expensive way and worth stating before the
+   declarations that follow.
+
+   A transform that DEFORMS its own content is not a reveal, it is a defect
+   with a timer on it. A `rotateX` under a perspective drew each gate card as a
+   trapezoid with its text sheared — for most of a second the first card's
+   heading was legibly italic and its pane was visibly not a rectangle. A blur
+   on a run card did the same to its sentence. Whatever is being revealed has
+   to be the right shape the entire way in, because a reader scrolling at a
+   normal clip spends the whole transition looking straight at it.
+
+   A child that moves INSIDE a container that is also moving is off-centre for
+   the duration. The four figures translated down 28px within a panel that was
+   itself rising, so for the length of the entrance they sat low in their own
+   box with a band of empty pane above them — read, correctly, as broken
+   alignment rather than as motion.
+
+   And distance is not the same as legibility. Fifty-two pixels of horizontal
+   travel on a row of five panes does not read as "these arrive from the left";
+   it reads as a row that is not centred. What makes a sequence legible is the
+   STAGGER, which is below and unchanged. */
+
+/* The strip settles as one object, and the figures inside it only fade — they
+   never leave the middle of their own cells. */
+.js .band-figs .reveal { transform: translateY(26px); }
+.js .figs > * { transform: none; }
+
+/* Every one of these is written `:not(.is-in)`, and that is the fix for a defect
+   that shipped: they used to be unconditional, and they NEVER released.
+   `.js #gates .cards > *` carries an id, so it scores (1,2,0); the rule that
+   was supposed to undo it, `.js .is-in > *`, scores (0,2,0) and lost every
+   time. The result was permanent: the gate cards sat 24px low, the install
+   steps 26px low, and the five layer cards 14px LEFT of their own grid cells —
+   which on a phone, where the grid is one full-width column, reads as the whole
+   section being off-centre. Opacity released correctly, so the only symptom was
+   a page that looked slightly wrong and nothing that looked broken.
+
+   Putting the state in the selector rather than in a louder rule is what makes
+   it hold: once `.is-in` lands the declaration stops matching, so there is
+   nothing left to out-specify. */
+.js #gates .cards:not(.is-in) > * { transform: translateY(24px); }
+
+/* Left to right, because that is the direction the five are numbered in. The
+   offset is small enough to read as a lean into the row rather than as a row
+   in the wrong place; the order comes from the stagger. */
+.js #how-it-works .layers:not(.is-in) > * { transform: translate(-14px, 18px); }
+.js #how-it-works .more:not(.is-in) { transform: translateY(14px); }
+
+/* The steps come up in order, like a list being written. */
+.js #install .steps:not(.is-in) > * { transform: translateY(26px); }
+
+/* The runs lift out of the page. */
+.js #vitrin .cards > * { transform: translateY(26px); }
+
+/* The questions unroll from the top rule down. */
+.js .faq { transform: translateY(20px); }
+.js .faq.is-in > details { animation: unroll .5s var(--ease) both; }
+.js .faq.is-in > details:nth-child(1) { animation-delay: .05s; }
+.js .faq.is-in > details:nth-child(2) { animation-delay: .12s; }
+.js .faq.is-in > details:nth-child(3) { animation-delay: .19s; }
+.js .faq.is-in > details:nth-child(4) { animation-delay: .26s; }
+.js .faq.is-in > details:nth-child(n+5) { animation-delay: .33s; }
+@keyframes unroll {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* The last band grows into place rather than arriving from anywhere. Two per
+   cent, not eight: a button row inside a scaling box is a button row at the
+   wrong size, and the two buttons in this one are the page's last comparison. */
+.js .band-close .reveal { transform: scale(.98); }
+
+/* A heading enters ahead of the block it introduces, and from further away —
+   which is the order they are read in and the reason the eye lands on the
+   heading first. */
+.js .band-h { transform: translateY(22px); }
+.js .band-h.is-in { transition-delay: 0s; }
+.js .cards.is-in > *, .js .layers.is-in > *, .js .steps.is-in > * { transition-duration: .7s; }
+
+/* — print — */
+/* The one place the motion describes something true: these lines were written
+   by a program, one at a time, in this order. */
+@keyframes tick {
+  from { opacity: 0; transform: translateX(-5px); }
+  to   { opacity: 1; transform: none; }
+}
+.js .record.is-in .rec-row { animation: tick .34s var(--ease) both; }
+.js .record.is-in .rec-row:nth-child(1) { animation-delay: .10s; }
+.js .record.is-in .rec-row:nth-child(2) { animation-delay: .15s; }
+.js .record.is-in .rec-row:nth-child(3) { animation-delay: .20s; }
+.js .record.is-in .rec-row:nth-child(4) { animation-delay: .25s; }
+.js .record.is-in .rec-row:nth-child(5) { animation-delay: .30s; }
+.js .record.is-in .rec-row:nth-child(6) { animation-delay: .35s; }
+.js .record.is-in .rec-row:nth-child(7) { animation-delay: .40s; }
+.js .record.is-in .rec-row:nth-child(n+8) { animation-delay: .45s; }
+
+/* Reduced motion is not "the same thing, faster". Every initial state is
+   released outright, so the page is finished the moment it is parsed and the
+   observer has nothing left to reveal. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .js .reveal,
+  .js .cards > *,
+  .js .layers > *,
+  .js .steps > *,
+  .js .faq > details,
+  .js .figs > * {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    animation: none !important;
+  }
+  /* The heartbeat loops forever, which is exactly the kind of thing this
+     setting exists to stop. The blanket rule above sets iteration-count to 1,
+     so it would still beat once; here it does not start. */
+  .footer-heart { animation: none !important; }
+  .head .brand, .head .nav a, .head .lang,
+  .hero .eyebrow, .hero h1, .hero .lede, .hero .cta-row, .hero .shiny,
+  .hero-panel {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    filter: none !important;
+  }
+}
+
+/* ── 404 ────────────────────────────────────────────────────────────────── */
+/* One screen, centred, no navigation. Everything it needs is already in the
+   design system — it only has to arrange four things. */
+
+.notfound {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--s4);
+  max-width: var(--text);
+  margin-inline: auto;
+  padding: var(--s12) var(--gutter);
+}
+/* The ground's three light sources are placed for a page twenty-six thousand
+   pixels long, where they read as ambient. On one short screen with the content
+   centred, the top-left bloom sits alone in an empty half and stops reading as
+   light — it reads as a smudge on the glass. One source, centred behind the
+   text, weaker. */
+body.page-404 {
+  background-image: radial-gradient(70rem 44rem at 50% 38%,
+    rgb(96 132 220 / .10), transparent 66%);
+}
+
+/* `.notfound-code` and the kicker under it stood here: a large `404` numeral, a
+   rule, and the words "Sayfa bulunamadı". The page said the same thing three
+   times — the numeral, the label, and then the heading "Bu adres yok." — so the
+   first two went and the heading opens the page. */
+/* The toggle sits with the wordmark rather than in a masthead this page does
+   not have — which is what this said before and was not what it did. Pinned to
+   the top-right of a centred column, it floated four hundred pixels above the
+   only other thing on the page and beside nothing. In the row with the mark it
+   is where the sentence about it says it is. */
+.notfound-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  margin-bottom: var(--s6);
+}
+.notfound-title .tr, .notfound-title .en { display: none; }
+[data-lang='tr'] .notfound-title .tr,
+:root:not([data-lang='en']) .notfound-title .tr { display: block; }
+[data-lang='en'] .notfound-title .en { display: block; }
+.notfound-title {
+  font-size: var(--t-2xl);
+  font-weight: 500;
+  letter-spacing: -.035em;
+  line-height: 1.16;
+}
+.notfound-title i {
+  font-family: var(--accent-face);
+  font-style: italic;
+  font-size: 1.08em;
+  letter-spacing: -.03em;
+  color: var(--ink-3);
+}
+.notfound-lede { color: var(--ink-3); font-size: var(--t-md); }
+.notfound-en { color: var(--ink-3); font-style: italic; }
+/* Sized with `.cta-row`, above. */
+
+
+/* ── print ──────────────────────────────────────────────────────────────── */
+/* A record should print like one. */
+
+@media print {
+  .head, .foot, .skip, .lang, .to-top { display: none; }
+  body { background: #fff; color: #000; }
+  .cards, .layers, .steps, .figs { grid-template-columns: 1fr; }
+  .record, .card, .steps li { box-shadow: none; }
+}

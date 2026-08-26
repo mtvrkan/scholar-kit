@@ -1,0 +1,22 @@
+{
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "mit",
+  "title": "Scholar-Kit: Akademik Makale ve Tez Üretim Kiti for Claude Code",
+  "creators": [
+    {
+      "name": "Türkan, Mehmet"
+    }
+  ],
+  "description": "An end-to-end academic research, paper and thesis production kit for Claude Code, built for Turkish and English scholarly writing as equal first-class targets. Specialist subagents handle read-heavy work in their own contexts; a deterministic Python tool layer performs the checks that must not depend on model judgement; project state lives on disk behind write-protecting hooks. Its central discipline is zero-fabrication citation: bibliographic data comes only from DOI content negotiation, every empirical claim binds to an evidence card, and phase gates block drafting before outline approval, review before citation verification passes, and formatting before major issues reach zero.",
+  "keywords": [
+    "academic-writing",
+    "literature-review",
+    "systematic-review",
+    "citation-verification",
+    "research-integrity",
+    "thesis",
+    "claude-code",
+    "turkish-academic-writing"
+  ]
+}

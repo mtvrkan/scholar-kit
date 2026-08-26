@@ -1,0 +1,135 @@
+{
+  "task": "cite_audit",
+  "entrypoint": "cite_audit",
+  "description": "Labeled cases for cite_audit.py — the in-text/bibliography cross-diff that the citation gate is built on. Positives cover the blocking defects (a key cited but absent from the .bib, a leftover [CITATION NEEDED], a leftover [MATERIAL GAP] in both its English and Turkish spelling) and the non-blocking reports (an orphan bib entry, a cited entry lacking verified={true}, an authorized [LLM-SUPPLEMENTED] fill). The negatives are the shapes that look like citations and are not: a key inside a fenced code block, a key inside inline code, an email address, and STATUS.md — which is a project state file the audit must never scan.",
+  "thresholds": {"precision": 0.95, "recall": 0.95},
+  "cases": [
+    {
+      "id": "001-cited-key-absent-from-bib",
+      "comment": "The defect this whole gate exists for: prose cites a source the bibliography does not contain.",
+      "drafts": {"giris.md": "Derin ogrenme yaklasimlari bu alanda one cikmistir [@kaya2023deep].\n\nBenzer bir sonuc baska bir calismada da bildirilmistir [@yokbu2024hayali].\n"},
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning for bearing fault diagnosis},\n  author = {Kaya, Ahmet},\n  journal = {Mechanical Systems and Signal Processing},\n  year = {2023},\n  doi = {10.1016/j.ymssp.2023.00001},\n  verified = {true},\n}\n",
+      "expect": [{"check": "missing", "key": "yokbu2024hayali"}]
+    },
+    {
+      "id": "002-orphan-bib-entry",
+      "comment": "Information only, never blocking — an entry fetched during screening that no draft ended up citing.",
+      "drafts": {"giris.md": "Bu bulgu literaturde desteklenmektedir [@kaya2023deep].\n"},
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning for bearing fault diagnosis},\n  author = {Kaya, Ahmet},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n\n@article{demir2022vibration,\n  title = {Vibration analysis with wavelets},\n  author = {Demir, Cem},\n  journal = {JSV},\n  year = {2022},\n  verified = {true},\n}\n",
+      "expect": [{"check": "orphan", "key": "demir2022vibration"}]
+    },
+    {
+      "id": "003-citation-needed-tag-survives",
+      "comment": "A hole in a finished manuscript. Blocks.",
+      "drafts": {"tartisma.md": "Bu etki daha once de gozlenmistir [CITATION NEEDED].\n"},
+      "bib": "",
+      "expect": [{"check": "placeholder", "where": "drafts/tartisma.md:1"}]
+    },
+    {
+      "id": "004-material-gap-tag-survives",
+      "comment": "Distinct from [CITATION NEEDED]: no session material covers this and the writer refused to fill it from model memory. Same weight, different meaning.",
+      "drafts": {"yontem.md": "Ornekleme protokolu burada anlatilacak [MATERIAL GAP].\n"},
+      "bib": "",
+      "expect": [{"check": "material_gap", "where": "drafts/yontem.md:1"}]
+    },
+    {
+      "id": "005-turkish-material-gap-spelling",
+      "comment": "The Turkish spelling [KANIT YOK] must weigh exactly the same as the English one — the kit's central claim is that the two languages are equal targets, and a tag that blocks in one language and not the other quietly breaks it.",
+      "drafts": {"yontem.md": "Etik kurul onayinin tarihi eksik [KANIT YOK].\n"},
+      "bib": "",
+      "expect": [{"check": "material_gap", "where": "drafts/yontem.md:1"}]
+    },
+    {
+      "id": "006-llm-supplemented-is-reported-never-blocks",
+      "comment": "An authorized fill is a legitimate authoring decision. It is reported so a reviewer sees it — an authorized fill that leaves no trace is indistinguishable from an unauthorized one.",
+      "drafts": {"giris.md": "Alanin genel tarihcesi soyle ozetlenebilir [LLM-SUPPLEMENTED].\n"},
+      "bib": "",
+      "expect": [{"check": "llm_supplemented", "where": "drafts/giris.md:1"}]
+    },
+    {
+      "id": "007-cited-entry-not-machine-verified",
+      "comment": "A bib entry without verified={true} did not come from doi2bib.py's DOI content negotiation — which is the one path the kit trusts.",
+      "drafts": {"giris.md": "Bir onceki calisma bunu gostermistir [@elle2021yazilmis].\n"},
+      "bib": "@article{elle2021yazilmis,\n  title = {Hand written entry},\n  author = {Biri, Bir},\n  journal = {Bir Dergi},\n  year = {2021},\n}\n",
+      "expect": [{"check": "unverified_cited", "key": "elle2021yazilmis"}]
+    },
+    {
+      "id": "008-clean-draft-and-bib",
+      "comment": "NEGATIVE. Every cited key resolves, every entry is cited, everything is verified.",
+      "drafts": {"giris.md": "Iki calisma bu bulguyu desteklemektedir [@kaya2023deep; @demir2022vibration].\n"},
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning},\n  author = {Kaya, A.},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n\n@article{demir2022vibration,\n  title = {Wavelets},\n  author = {Demir, C.},\n  journal = {JSV},\n  year = {2022},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "009-key-inside-fenced-code-block",
+      "comment": "NEGATIVE. A fenced block showing pandoc syntax is documentation, not a citation. Reading it as one invents a missing key that no author can fix.",
+      "drafts": {"yontem.md": "Atif sozdizimi soyledir:\n\n```markdown\n[@ornek2020anahtar]\n```\n\nGercek atif burada [@kaya2023deep].\n"},
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning},\n  author = {Kaya, A.},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "010-key-inside-inline-code",
+      "comment": "NEGATIVE. Same reasoning as the fenced block, one span narrower.",
+      "drafts": {"yontem.md": "Anahtar `@ornek2020anahtar` bicimindedir; gercek atif [@kaya2023deep].\n"},
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning},\n  author = {Kaya, A.},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "011-status-md-is-not-a-draft",
+      "comment": "NEGATIVE. drafts/STATUS.md is the project's own state file. Scanning it would report the kit's bookkeeping as a manuscript defect.",
+      "drafts": {"STATUS.md": "Devam eden is [CITATION NEEDED] etiketi burada bir gorev notudur.\n",
+                 "giris.md": "Temiz bir cumle [@kaya2023deep].\n"},
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning},\n  author = {Kaya, A.},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "012-stray-backticks-do-not-swallow-a-real-citation",
+      "comment": "NEGATIVE, and the case that found a live bug. Two stray backticks in ordinary prose — a unit, a quoted keystroke — used to pair up across the paragraphs between them and blank out every [@key] in that span. The citation then never entered `cited`, so a key with no bibliography entry was never reported missing and the blocking gate passed a manuscript it should have stopped. Nothing here looks like code; that is the point.",
+      "drafts": {"tartisma.md": "Esik deger 5` civarinda secilmistir.\n\nBu secim onceki calismayla uyumludur [@kaya2023deep].\n\nOlcum 6` uzerinden raporlanmistir.\n"},
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning},\n  author = {Kaya, A.},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "013-empty-project-scans-nothing",
+      "comment": "NEGATIVE. A project with no drafts and no bibliography yet is not a project with defects.",
+      "drafts": {},
+      "bib": "",
+      "expect": []
+    }
+  ],
+  "mutations": [
+    {
+      "id": "missing-key-detection-removed",
+      "breaks": "A key cited in the prose but absent from the bibliography stops being reported — the exact fabricated-citation shape the gate exists to stop.",
+      "replace": [["\"missing\": sorted(cited - bib_keys),", "\"missing\": [],"]]
+    },
+    {
+      "id": "material-gap-tag-ignored",
+      "breaks": "[MATERIAL GAP] / [KANIT YOK] stops being detected, so a refused-to-fabricate hole passes the gate as if the section were finished.",
+      "replace": [["MATERIAL_GAP_RE = re.compile(r\"\\[MATERIAL GAP\\]|\\[KANIT YOK\\]\", re.IGNORECASE)",
+                   "MATERIAL_GAP_RE = re.compile(r\"(?!x)x\")"]]
+    },
+    {
+      "id": "code-fence-stripping-disabled",
+      "breaks": "Citation keys inside fenced code blocks are read as real citations, so any document that DOCUMENTS pandoc syntax reports invented missing keys.",
+      "replace": [["    text = FENCE_RE.sub(\"\", text)\n", ""]]
+    },
+    {
+      "id": "inline-code-span-allowed-to-cross-lines",
+      "breaks": "Restores the newline-spanning `[^`]*` code-span pattern. Two stray backticks in ordinary prose then pair up across paragraphs and swallow every citation between them, so a cited key with no bibliography entry is silently never reported as missing — a false negative in the one check that blocks.",
+      "replace": [["INLINE_CODE_RE = re.compile(r\"`[^`\\n]*`\")", "INLINE_CODE_RE = re.compile(r\"`[^`]*`\")"]]
+    },
+    {
+      "id": "verified-flag-check-inverted",
+      "breaks": "Machine-verified entries are reported as unverified and hand-written ones pass — the trust signal reversed.",
+      "replace": [["if e[\"fields\"].get(\"verified\", \"\").lower() != \"true\"",
+                   "if e[\"fields\"].get(\"verified\", \"\").lower() == \"true\""]]
+    },
+    {
+      "id": "status-md-exclusion-removed",
+      "breaks": "drafts/STATUS.md is scanned as if it were manuscript prose, so the kit's own progress notes surface as citation defects.",
+      "replace": [["files = [f for f in files if f.exists() and f.name != \"STATUS.md\"]",
+                   "files = [f for f in files if f.exists()]"]]
+    }
+  ]
+}

@@ -1,0 +1,738 @@
+{
+ "task": "tr_style",
+ "entrypoint": "tr_style_check",
+ "description": "Labeled cases for tr_style_check.py — the kit's Turkish register lint. Two kinds of rule live in it and the set covers both: settled orthography (percent placement, vb./vs.) where one form is simply wrong, and contested convention (decimal separator, voice) where the checker must flag the MIXTURE and never the choice. Most cases pin `checks` to one detector so a case measures the rule it names; the last two run the full set to prove the detectors do not cross-fire. Negatives outnumber positives and are near-misses by construction: the section number that looks like a decimal, the first-mention English parenthetical, the noun that ends in -tık.",
+ "thresholds": {
+  "precision": 0.95,
+  "recall": 0.95
+ },
+ "cases": [
+  {
+   "id": "001-percent-sign-after-number",
+   "checks": [
+    "percent_placement"
+   ],
+   "drafts": {
+    "bulgular.md": "Modelin doğruluğu 94,2% düzeyinde ölçülmüştür.\nDuyarlılık ise 88% olarak raporlanmıştır.\n"
+   },
+   "expect": [
+    {
+     "check": "percent_placement",
+     "total": 2
+    }
+   ]
+  },
+  {
+   "id": "002-abbreviation-with-internal-periods",
+   "checks": [
+    "abbreviation"
+   ],
+   "drafts": {
+    "yontem.md": "Değişkenler yaş, cinsiyet, hipertansiyon v.b. faktörlerden oluşmaktadır.\n"
+   },
+   "expect": [
+    {
+     "check": "abbreviation",
+     "total": 1
+    }
+   ]
+  },
+  {
+   "id": "003-decimal-separator-mixture",
+   "comment": "The defect is the mixture. Both 0,95 and 0.98 appear, so the file cannot be following either convention.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "sonuclar.md": "ROC-AUC değeri 0,95 olarak bulunmuştur.\nF1 skoru 0.98 seviyesindedir.\nKesinlik 0,91 olarak hesaplanmıştır.\n"
+   },
+   "expect": [
+    {
+     "check": "decimal_separator",
+     "dominant": "comma",
+     "comma_count": 2,
+     "dot_count": 1
+    }
+   ]
+  },
+  {
+   "id": "004-informal-register-tokens",
+   "checks": [
+    "informal_register"
+   ],
+   "drafts": {
+    "tartisma.md": "Sonuçlar gayet tutarlıdır ve bir sürü çalışmayla örtüşmektedir.\n"
+   },
+   "expect": [
+    {
+     "check": "informal_register",
+     "total": 2
+    }
+   ]
+  },
+  {
+   "id": "005-voice-mixing-within-one-section",
+   "comment": "Five impersonal predicates against four first-person plural ones in a single file: both registers above the 20% floor, which is the condition the check exists for.",
+   "checks": [
+    "voice_mixing"
+   ],
+   "drafts": {
+    "yontem.md": "Veri seti Kaggle üzerinden elde edilmiştir. Eksik değerler ortanca ile doldurulmuştur. Modeller beş katlı çapraz doğrulama ile eğitilmiştir. Hiperparametreler ızgara araması ile seçilmiştir. Sonuçlar tabloda gösterilmektedir. Eğitim setini rastgele ayırdık. Sınıf dengesizliğini SMOTE ile giderdik. Model karşılaştırmasını bootstrap ile yaptık. Nihai modeli test setinde değerlendirdik.\n"
+   },
+   "expect": [
+    {
+     "check": "voice_mixing"
+    }
+   ]
+  },
+  {
+   "id": "006-term-unity-two-names-one-concept",
+   "checks": [
+    "term_unity"
+   ],
+   "glossary": {
+    "concepts": [
+     {
+      "concept": "artificial neural network",
+      "tr": [
+       "yapay sinir ağı",
+       "sinir ağı"
+      ],
+      "en": [
+       "artificial neural network"
+      ]
+     }
+    ]
+   },
+   "drafts": {
+    "giris.md": "Yapay sinir ağı yaklaşımı yaygındır. Yapay sinir ağı mimarileri derinleşmiştir. Bu çalışmada sinir ağı tabanlı bir model kurulmuştur.\n"
+   },
+   "expect": [
+    {
+     "check": "term_unity"
+    }
+   ]
+  },
+  {
+   "id": "007-ozet-abstract-number-mismatch",
+   "comment": "A figure present in one summary and absent from the other — the defect reviewers actually check for.",
+   "checks": [
+    "ozet_abstract"
+   ],
+   "drafts": {
+    "ozet.md": "Bu çalışmada inme riski tahmini için dört model karşılaştırılmıştır. En iyi ROC-AUC 0,809 olarak elde edilmiştir. Çalışma 5110 hasta kaydı üzerinde yürütülmüştür.\n",
+    "abstract.md": "This study compares four models for stroke risk prediction. The best ROC-AUC was 0.812. The work was carried out on 5110 patient records.\n"
+   },
+   "expect": [
+    {
+     "check": "ozet_abstract",
+     "status": "mismatch"
+    }
+   ]
+  },
+  {
+   "id": "008-ozet-without-abstract",
+   "comment": "Incomplete, not mismatched — the checker must distinguish 'cannot be compared yet' from 'compared and disagreed'.",
+   "checks": [
+    "ozet_abstract"
+   ],
+   "drafts": {
+    "ozet.md": "Bu çalışmada inme riski tahmini için dört model karşılaştırılmıştır.\n"
+   },
+   "expect": [
+    {
+     "check": "ozet_abstract",
+     "status": "incomplete"
+    }
+   ]
+  },
+  {
+   "id": "101-percent-written-correctly",
+   "comment": "NEGATIVE. Turkish places the sign before the number; %25 must never be reported.",
+   "checks": [
+    "percent_placement"
+   ],
+   "drafts": {
+    "bulgular.md": "Pozitif sınıf oranı %4,9 düzeyindedir ve doğruluk %94,2 olarak ölçülmüştür.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "102-abbreviation-written-correctly",
+   "comment": "NEGATIVE. vb. and vs. are the standard forms and share a prefix with the defective v.b.",
+   "checks": [
+    "abbreviation"
+   ],
+   "drafts": {
+    "yontem.md": "Değişkenler yaş, cinsiyet vb. faktörlerden oluşmaktadır. Ölçüm hataları vs. dikkate alınmıştır.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "103-decimal-comma-held-consistently",
+   "comment": "NEGATIVE. One convention, held. The checker has no opinion on WHICH convention and must stay silent here.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "sonuclar.md": "ROC-AUC 0,95 ve F1 skoru 0,98 olarak bulunmuştur. Kesinlik 0,91 seviyesindedir.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "104-decimal-point-held-consistently",
+   "comment": "NEGATIVE. The mirror of 103. Many Turkish journals require the point; flagging it alone would be the checker taking a side it explicitly refuses to take.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "sonuclar.md": "ROC-AUC 0.95 ve F1 skoru 0.98 olarak bulunmuştur. Kesinlik 0.91 seviyesindedir.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "105-section-numbering-is-not-a-decimal",
+   "comment": "NEGATIVE. 'Bölüm 3.1' and 'Tablo 2.4' are numbering, and a manuscript full of them alongside comma decimals would otherwise report a mixture that does not exist.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "yontem.md": "Bölüm 3.1 içinde açıklandığı üzere doğruluk 0,95 olarak ölçülmüştür.\nTablo 2.4 sonuçları özetlemektedir; F1 skoru 0,88 seviyesindedir.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "106-first-mention-english-parenthetical",
+   "comment": "NEGATIVE. Introducing the English form once alongside the Turkish term is correct academic practice, not a term-unity defect. The check only fires when the English form is used more than once.",
+   "checks": [
+    "term_unity"
+   ],
+   "glossary": {
+    "concepts": [
+     {
+      "concept": "artificial neural network",
+      "tr": [
+       "yapay sinir ağı",
+       "sinir ağı"
+      ],
+      "en": [
+       "artificial neural network"
+      ]
+     }
+    ]
+   },
+   "drafts": {
+    "giris.md": "Yapay sinir ağı (artificial neural network) yaklaşımı yaygındır. Yapay sinir ağı mimarileri son yıllarda derinleşmiştir. Bu çalışmada yapay sinir ağı tabanlı bir model kurulmuştur.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "107-noun-ending-in-tik-is-not-first-person",
+   "comment": "NEGATIVE, and load-bearing. 'artık' is a noun (residual), not a -dık verb. The counts are deliberate: eight impersonal predicates clear VOICE_MIN_TOTAL on their own, so the case cannot pass by falling under the floor, and three 'artık' occurrences would put the first-person share at 0.27 — above VOICE_MIX_FLOOR — the moment FIRST_PERSON_EXCEPTIONS stops working. An earlier draft of this case used one 'artık' and stayed silent either way; it looked like a passing negative while measuring nothing. Residual analysis is where a real Turkish methods section says the word this often.",
+   "checks": [
+    "voice_mixing"
+   ],
+   "drafts": {
+    "yontem.md": "Veri seti elde edilmiştir. Eksik değerler doldurulmuştur. Aykırı değerler çıkarılmıştır. Modeller eğitilmiştir. Hiperparametreler seçilmiştir. Sonuçlar gösterilmektedir. Değerlendirme yapılmaktadır. Bulgular tartışılmaktadır. Artık değerler incelenmiş, artık grafiği çizilmiş ve artık dağılımının normalliği sınanmıştır.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "108-impersonal-voice-held-throughout",
+   "comment": "NEGATIVE. A manuscript that holds one register is the passing case, and it must pass even though the predicate count is well above the floor.",
+   "checks": [
+    "voice_mixing"
+   ],
+   "drafts": {
+    "yontem.md": "Veri seti elde edilmiştir. Eksik değerler doldurulmuştur. Modeller eğitilmiştir. Hiperparametreler seçilmiştir. Sonuçlar gösterilmektedir. Karşılaştırma yapılmaktadır. Bulgular sunulmuştur. Analiz tamamlanmıştır. Değerlendirme raporlanmıştır.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "109-equivalent-ozet-and-abstract",
+   "comment": "NEGATIVE. Same numbers, matching keyword counts, and a word ratio inside the asymmetric band Turkish agglutination requires.",
+   "checks": [
+    "ozet_abstract"
+   ],
+   "drafts": {
+    "ozet.md": "Bu çalışmada inme riski tahmini için dört model karşılaştırılmıştır. En iyi ROC-AUC 0,809 olarak elde edilmiştir. Çalışma 5110 hasta kaydı üzerinde yürütülmüştür.\n\nAnahtar Kelimeler: inme, makine öğrenmesi, açıklanabilirlik\n",
+    "abstract.md": "This study compares four models for stroke risk prediction. The best ROC-AUC obtained was 0.809. The work was carried out on 5110 patient records.\n\nKeywords: stroke, machine learning, explainability\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "110-no-summaries-drafted-yet",
+   "comment": "NEGATIVE. Neither section exists. Reporting 'incomplete' before either is written would fire on every project on day one.",
+   "checks": [
+    "ozet_abstract"
+   ],
+   "drafts": {
+    "giris.md": "Bu çalışma inme riski tahminini ele almaktadır.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "111-code-and-citations-are-not-prose",
+   "comment": "NEGATIVE. Full detector set. A fenced block holding 25% and v.b., a URL, and a pandoc citation key are all masked before any check runs; nothing here is manuscript prose.",
+   "drafts": {
+    "yontem.md": "Uygulama ayrıntıları aşağıda verilmiştir [@yilmaz2024ml].\n\n```python\nthreshold = 0.95  # 25% cutoff, v.b. parameters\n```\n\nDetaylar https://example.org/docs/2.4/v.b.html adresindedir.\nDoğruluk %94,2 olarak ölçülmüştür.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "112-clean-turkish-manuscript-full-detector-set",
+   "comment": "NEGATIVE. Full detector set over prose that is correct on every axis at once. This is the case that fails if any detector starts cross-firing on another's fixtures.",
+   "glossary": {
+    "concepts": [
+     {
+      "concept": "artificial neural network",
+      "tr": [
+       "yapay sinir ağı",
+       "sinir ağı"
+      ],
+      "en": [
+       "artificial neural network"
+      ]
+     }
+    ]
+   },
+   "drafts": {
+    "yontem.md": "Bu çalışmada yapay sinir ağı (artificial neural network) tabanlı bir model kurulmuştur. Veri seti 5110 kayıttan oluşmaktadır ve pozitif sınıf oranı %4,9 düzeyindedir. Eksik değerler ortanca ile doldurulmuştur. Modeller beş katlı çapraz doğrulama ile eğitilmiştir. Bölüm 3.1 içinde açıklanan yapay sinir ağı mimarisi kullanılmıştır. Doğruluk 0,942 olarak ölçülmüştür. Sonuçlar Tablo 2.4 içinde sunulmaktadır. Değerlendirme ölçütleri vb. ayrıntılar ekte verilmiştir. Analiz tamamlanmıştır.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "113-clean-bilingual-abstract-keeps-each-convention",
+   "comment": "NEGATIVE, and the hardest one in this set. A thesis Özet/Abstract page holds Turkish decimals (0,81) beside English ones (0.81). Both halves follow THEIR OWN convention, so nothing is mixed and nothing should be reported. A detector that counted separators file-wide would fire on every bilingual manuscript the kit is built to produce.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "ozet.md": "## Özet\n\nModelin ROC-AUC değeri 0,81 olarak ölçülmüştür. Kesinlik 0,74 düzeyindedir.\n\n## Abstract\n\nThe model reached a ROC-AUC of 0.81. Precision was 0.74.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "114-decimal-mixture-inside-the-turkish-half-still-fires",
+   "comment": "POSITIVE. The control for 113: same bilingual page, but now the Turkish half itself carries both separators. Without this case, 113 could be passed by a detector that had simply stopped looking at bilingual files.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "ozet.md": "## Özet\n\nModelin ROC-AUC değeri 0,81 olarak ölçülmüştür. Kesinlik 0.74 düzeyindedir.\n\n## Abstract\n\nThe model reached a ROC-AUC of 0.81.\n"
+   },
+   "expect": [
+    {
+     "check": "decimal_separator"
+    }
+   ]
+  },
+  {
+   "id": "115-clean-english-abstract-may-be-first-person",
+   "comment": "NEGATIVE. English academic convention is first-person plural; Turkish convention here is impersonal. Each half is internally consistent, and voice_mixing flags the MIXTURE, never the choice — across two languages there is no mixture to flag.",
+   "checks": [
+    "voice_mixing"
+   ],
+   "drafts": {
+    "ozet.md": "## Özet\n\nÇalışmada dört model karşılaştırılmıştır. Sonuçlar tablolarda sunulmuştur.\n\n## Abstract\n\nWe compare four models. We report the results in the tables.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "116-clean-english-parenthetical-is-not-a-second-name",
+   "comment": "NEGATIVE. Giving the English term once in parentheses at first mention and then using the Turkish term throughout is the recommended convention, not a term-unity defect. A checker that counted the parenthetical as a competing name would punish the correct behaviour.",
+   "checks": [
+    "term_unity"
+   ],
+   "glossary": {
+    "terms": [
+     {
+      "canonical": "derin öğrenme",
+      "variants": [
+       "deep learning"
+      ]
+     }
+    ]
+   },
+   "drafts": {
+    "giris.md": "Derin öğrenme (deep learning) yöntemleri yaygınlaşmıştır. Derin öğrenme modelleri bu çalışmada karşılaştırılmıştır. Derin öğrenme literatürü hızla büyümektedir.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "117-second-noun-ending-in-tik-is-not-first-person",
+   "comment": "NEGATIVE, and it exists for a reason worth stating: adding case 114 (a true positive) raised this set's tp from 8 to 9, which lifted the precision the mutation 'first-person-exception-list-emptied' produces from 8/9 = 0.89 to 9/10 = 0.90 — exactly the threshold — and the mutation started SURVIVING. Mutation catching is threshold-based, so a set can lose a mutation by gaining a positive. The fix is a second negative that also dies under it: with two false positives the mutated checker scores 9/11 = 0.82 and is caught again. Same arithmetic as 107 (eight impersonal predicates clear VOICE_MIN_TOTAL, three 'atık' tokens clear VOICE_MIX_FLOOR), different exception word, so the two cases cannot both be satisfied by special-casing one noun.",
+   "checks": [
+    "voice_mixing"
+   ],
+   "drafts": {
+    "yontem.md": "Atık su örnekleri sahadan toplanmıştır. Numuneler laboratuvara taşınmıştır. Ölçümler üç tekrarla yapılmıştır. Kalibrasyon eğrileri oluşturulmuştur. Atık yükü kütle dengesiyle hesaplanmıştır. Sonuçlar tablolarda sunulmaktadır. Atık miktarındaki mevsimsel değişim incelenmektedir. Değerlendirme ölçütleri tanımlanmıştır.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "114-doi-prefix-is-not-a-decimal",
+   "comment": "NEGATIVE. A DOI's registrant prefix (10.17780) is not a decimal point competing with the comma. Regression: a review citing many DOIs had every one of them counted on the dot side of the tally that decides which convention dominates.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "bulgular.md": "Duyarlılık 0,942 ve özgüllük 0,881 olarak bildirilmiştir (doi:10.17780/ksujes.1521858).\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "115-many-dois-do-not-outvote-the-convention",
+   "comment": "NEGATIVE. Four cited DOIs against one comma decimal must not flip the reported dominant form — nor produce a warning at all.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "bulgular.md": "Havuzlanmış duyarlılık 0,931 bulunmuştur. Kaynaklar: 10.1038/s41433-024-03000-9, 10.2196/52506, 10.1155/2023/7139560, 10.1016/j.ophtha.2021.04.027.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "016-stray-decimal-beside-a-doi-still-caught",
+   "comment": "POSITIVE. The DOI skip must not blanket-mute the text it appears in — a genuine stray point on the same line is still the defect.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "bulgular.md": "Duyarlılık 0,942 ve özgüllük 0,881 iken AUC 0.809 ölçülmüştür (doi:10.17780/ksujes.1521858).\n"
+   },
+   "expect": [
+    {
+     "check": "decimal_separator",
+     "dominant": "comma"
+    }
+   ]
+  },
+  {
+   "id": "116-english-abstract-percent-form-allowed",
+   "comment": "NEGATIVE. A Turkish paper's English Abstract uses English orthography (94.2%). It is required by nearly every Turkish journal and by the YÖK thesis rules, and it is not Turkish prose.",
+   "checks": [
+    "percent_placement"
+   ],
+   "drafts": {
+    "bulgular.md": "Duyarlılık %94,2 olarak ölçülmüştür.\n",
+    "abstract.md": "Sensitivity was 94.2% in the pooled analysis.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "117-english-abstract-does-not-make-the-body-look-mixed",
+   "comment": "NEGATIVE. decimal_separator is a corpus-wide tally naming the dominant form; the English abstract must not vote in an election about the Turkish body.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "bulgular.md": "Duyarlılık 0,942 ve özgüllük 0,881 bulunmuştur.\n",
+    "abstract.md": "Sensitivity 0.942 and specificity 0.881.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "017-mixture-in-the-turkish-body-still-caught-beside-an-abstract",
+   "comment": "POSITIVE. The abstract exemption must not blanket-mute the corpus: a genuine stray point in the Turkish body is still the defect.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "bulgular.md": "Duyarlılık 0,942 ve 0,881 iken AUC 0.809 idi.\n",
+    "abstract.md": "Sensitivity was 0.942.\n"
+   },
+   "expect": [
+    {
+     "check": "decimal_separator",
+     "dominant": "comma"
+    }
+   ]
+  },
+  {
+   "id": "018-ozet-is-turkish-and-stays-in-scope",
+   "comment": "POSITIVE. Özet is the TURKISH half of the pair. An exemption keyed on 'abstract' must not swallow it.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "bulgular.md": "Duyarlılık 0,942 olarak ölçülmüştür.\n",
+    "ozet.md": "Duyarlılık 0.942 olarak ölçülmüştür.\n"
+   },
+   "expect": [
+    {
+     "check": "decimal_separator",
+     "dominant": "comma"
+    }
+   ]
+  },
+  {
+   "id": "118-wrapped-keyword-lists-are-one-list",
+   "comment": "NEGATIVE. Both lists hold six keywords; they merely wrap in different places. Reading only the matched line reported 3 vs 4 — a mismatch that does not exist.",
+   "checks": [
+    "ozet_abstract"
+   ],
+   "drafts": {
+    "ozet.md": "**Amaç.** Duyarlılık %94,2 bulunmuştur.\n\n**Anahtar sözcükler:** bir; iki; üç;\ndört; beş; altı\n",
+    "abstract.md": "**Objective.** Sensitivity was 94.2%.\n\n**Keywords:** one; two; three; four;\nfive; six\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "019-real-keyword-count-mismatch-past-the-wrap",
+   "comment": "POSITIVE. The continuation must not hide a genuine mismatch: four keywords against six is still the defect.",
+   "checks": [
+    "ozet_abstract"
+   ],
+   "drafts": {
+    "ozet.md": "**Amaç.** Duyarlılık %94,2 bulunmuştur.\n\n**Anahtar sözcükler:** bir; iki; üç;\ndört\n",
+    "abstract.md": "**Objective.** Sensitivity was 94.2%.\n\n**Keywords:** one; two; three; four;\nfive; six\n"
+   },
+   "expect": [
+    {
+     "check": "ozet_abstract",
+     "status": "mismatch"
+    }
+   ]
+  },
+  {
+   "id": "110-product-version-is-not-a-decimal",
+   "comment": "NEGATIVE. A review of tools quotes product versions verbatim from its sources. Counting 'IDx-DR 2.0' on the dot side decides the convention vote wrongly, and the manuscript cannot fix it without misquoting the source.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "yontem.md": "Duyarlılık 0,905 ve özgüllük 0,931 olarak bulunmuştur.\nDeğerlendirilen sistemler IDx-DR 2.0 (IDx LLC), EyeArt system v2.0\n(Eyenuk, Inc.) ve RetCAD v.2.2.0 (Thirona Retina) idi.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "111-real-decimal-point-survives-the-version-exemption",
+   "comment": "POSITIVE, paired with 110. The exemption must not disarm the check: a genuine stray decimal point sitting beside a version string is still the mixture this check exists to report.",
+   "checks": [
+    "decimal_separator"
+   ],
+   "drafts": {
+    "yontem.md": "Duyarlılık 0,905 bulunmuş, özgüllük ise 0.931 yazılmıştır.\nSistem IDx-DR 2.0 (IDx LLC) idi.\n"
+   },
+   "expect": [
+    {
+     "check": "decimal_separator"
+    }
+   ]
+  },
+  {
+   "id": "112-generated-appendix-is-not-the-authors-register",
+   "comment": "NEGATIVE. A machine-emitted table quotes English source strings and carries a banner forbidding hand edits. Counting its cells on the minority side of a corpus-wide tally produces a warning whose only 'fix' is editing a file the banner forbids editing.",
+   "checks": [
+    "term_unity"
+   ],
+   "drafts": {
+    "yontem.md": "Derin öğrenme tabanlı sistemler derin öğrenme ile incelenmiştir.\n",
+    "ek-d.md": "<!-- URETILMIS DOSYA — elle duzenlemeyin. -->\n\n| deep learning | deep learning | deep learning |\n"
+   },
+   "expect": [],
+   "glossary": {
+    "concepts": [
+     {
+      "concept": "deep learning",
+      "tr": [
+       "derin öğrenme"
+      ],
+      "en": [
+       "deep learning"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "113-hand-written-file-with-the-same-cells-is-still-counted",
+   "comment": "POSITIVE, paired with 112. The exemption comes from the banner, not from the content: the same English terms in a file the author writes are still a term-unity finding.",
+   "checks": [
+    "term_unity"
+   ],
+   "drafts": {
+    "yontem.md": "Derin öğrenme tabanlı sistemler derin öğrenme ile incelenmiştir.\n",
+    "tartisma.md": "| deep learning | deep learning | deep learning |\n"
+   },
+   "expect": [
+    {
+     "check": "term_unity"
+    }
+   ],
+   "glossary": {
+    "concepts": [
+     {
+      "concept": "deep learning",
+      "tr": [
+       "derin öğrenme"
+      ],
+      "en": [
+       "deep learning"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "114-ham-haliyle-is-a-noun-not-a-discourse-marker",
+   "comment": "NEGATIVE. 'hâliyle' is informal only as a discourse marker at a clause boundary; 'ham hâliyle' means 'in its raw form' and is ordinary academic Turkish with no other spelling available.",
+   "checks": [
+    "informal_register"
+   ],
+   "drafts": {
+    "yontem.md": "Ham hâliyle sayıldığında aynı ürün birden çok aile görünmektedir;\nmodel kendi hâliyle bırakılmıştır.\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "115-clause-initial-haliyle-is-still-conversational",
+   "comment": "POSITIVE, paired with 114. At a clause boundary the same token is the discourse marker the check exists to find.",
+   "checks": [
+    "informal_register"
+   ],
+   "drafts": {
+    "yontem.md": "Hâliyle sonuç değişmiştir. Bu, malum, bilinen bir sorundur.\n"
+   },
+   "expect": [
+    {
+     "check": "informal_register",
+     "total": 2
+    }
+   ]
+  }
+ ],
+ "mutations": [
+  {
+   "id": "percent-detector-disabled",
+   "breaks": "'25%' stops being reported, so the one settled orthography rule in the checker silently stops applying.",
+   "replace": [
+    [
+     "for m in PERCENT_AFTER_RE.finditer(text):",
+     "for m in (lambda *_a, **_k: [])(text):"
+    ]
+   ]
+  },
+  {
+   "id": "abbreviation-detector-disabled",
+   "breaks": "'v.b.' stops being distinguished from the correct 'vb.'.",
+   "replace": [
+    [
+     "for m in ABBREV_RE.finditer(text):",
+     "for m in (lambda *_a, **_k: [])(text):"
+    ]
+   ]
+  },
+  {
+   "id": "numbering-guard-removed",
+   "breaks": "'Bolum 3.1' and 'Tablo 2.4' start counting as decimal points, so a manuscript that holds the comma convention is reported as mixing separators.",
+   "replace": [
+    [
+     "if NUMBERING_CONTEXT_RE.search(head):",
+     "if (lambda *_a, **_k: None)(head):"
+    ]
+   ]
+  },
+  {
+   "id": "first-person-exception-list-emptied",
+   "breaks": "Nouns ending in -tik/-dik ('artik' = residual) start reading as first-person verbs, so an impersonal manuscript is reported as mixing voice.",
+   "replace": [
+    [
+     "for w in FIRST_PERSON_EXCEPTIONS}",
+     "for w in set()}"
+    ]
+   ]
+  },
+  {
+   "id": "english-first-mention-allowance-removed",
+   "breaks": "The single English parenthetical at first mention stops being exempt, so correct academic practice is reported as a term-unity defect.",
+   "replace": [
+    [
+     "if v > 1}",
+     "if v > 0}"
+    ]
+   ]
+  },
+  {
+   "id": "voice-mixing-floor-dropped",
+   "breaks": "Any trace of the minority register counts as mixing, so a manuscript that holds one voice with a single exception is flagged.",
+   "replace": [
+    [
+     "VOICE_MIX_FLOOR = 0.20",
+     "VOICE_MIX_FLOOR = 0.0"
+    ]
+   ]
+  },
+  {
+   "id": "ozet-abstract-number-comparison-removed",
+   "breaks": "A figure reported in the Ozet but not the Abstract stops being detected - the single most common defect the check exists for.",
+   "replace": [
+    [
+     "if only_ozet or only_abstract:",
+     "if False:"
+    ]
+   ]
+  },
+  {
+   "id": "doi-span-skip-removed",
+   "breaks": "A DOI's registrant prefix (10.17780) goes back to being counted as a decimal point, so a review citing many DOIs has them stuffed onto the dot side of the very tally that decides which convention dominates — and can be told its comma-consistent manuscript is mixed.",
+   "replace": [
+    [
+     "dois = [m.span() for m in DOI_RE.finditer(text)]",
+     "dois = []"
+    ]
+   ]
+  },
+  {
+   "id": "english-abstract-exemption-removed",
+   "breaks": "The English Abstract goes back to being linted as Turkish prose, so its correct '94.2%' and '0.942' are reported as orthography errors and are counted on the minority side of the tally that decides which convention the Turkish body uses. The same line now also carries the generated-file exemption, so removing it re-admits machine-emitted tables quoting English source strings.",
+   "replace": [
+    [
+     "if not _is_english_abstract(p) and not _is_generated(p)]",
+     "if True]"
+    ]
+   ]
+  },
+  {
+   "id": "keyword-list-continuation-removed",
+   "breaks": "A hard-wrapped keyword list is truncated at its first newline, so two lists holding the same terms are reported as different lengths, and a genuine mismatch hiding past the wrap goes unseen.",
+   "replace": [
+    [
+     "        for nxt in lines[i + 1:]:",
+     "        for nxt in []:"
+    ]
+   ]
+  },
+  {
+   "id": "version-exemption-removed",
+   "breaks": "Every quoted product version ('IDx-DR 2.0', 'RetCAD v.2.2.0') goes back to counting as a decimal point, so a manuscript whose own numbers are uniformly comma-written is reported as mixing separators — and cannot fix it without misquoting its sources.",
+   "replace": [
+    [
+     "            if any(s <= m.start() and m.end() <= e for s, e in versions):\n                continue",
+     "            pass"
+    ]
+   ]
+  },
+  {
+   "id": "generated-file-banner-ignored",
+   "breaks": "_is_generated stops finding the banner, so machine-emitted tables quoting English source strings rejoin the corpus-wide tally and the resulting warning names a file the banner forbids editing.",
+   "replace": [
+    [
+     "        with path.open(encoding=\"utf-8\", errors=\"replace\") as fh:\n            head = \"\".join(next(fh, \"\") for _ in range(lookahead_lines))",
+     "        head = \"\""
+    ]
+   ]
+  },
+  {
+   "id": "clause-boundary-rule-removed",
+   "breaks": "'ham hâliyle' ('in its raw form') and 'bu malum sorun' start reporting as conversational, so correct academic Turkish is flagged and the author learns to ignore this check.",
+   "replace": [
+    [
+     "                if token in CLAUSE_INITIAL_ONLY and not _at_clause_start(folded, m.start()):\n                    continue",
+     "                pass"
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,23 @@
+# Optional — the empirical half. Install these ONLY if you train models or draw
+# figures from the run register:
+#
+#   pip install -r requirements-ml.txt
+#
+# They are deliberately not in requirements.txt. A literature review, a citation
+# audit, a thesis build and every gate in this kit run without them, and ~200 MB
+# of scientific stack is not something a review-only project should pay for. The
+# scripts that need them (train_runner.py, results_figure.py) import them on first
+# use and exit BLOCKED with this file's name — the same contract pandoc and
+# latexmk have in the build scripts.
+#
+# Floors are the tested-against baselines; major caps guard against API breaks,
+# for the reason stated in requirements.txt: a tool whose behaviour changes
+# without a commit saying so makes a recorded run irreproducible.
+-r requirements.txt
+scikit-learn>=1.3,<2
+pandas>=2.0,<3
+numpy>=1.24,<3
+matplotlib>=3.7,<4
+# Parquet input is optional on top of this: pandas needs pyarrow for it, and a
+# CSV pipeline should not carry that dependency to read files it never opens.
+# pyarrow>=14,<22

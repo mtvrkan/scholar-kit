@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Güvenlik açığı / Security vulnerability
+    url: https://github.com/mtvrkan/scholar-kit/security/advisories/new
+    about: Sömürülebilir bir şey için issue AÇMAYIN — özel danışma kullanın. Do not open a public issue; use a private advisory.
+  - name: Soru / Question
+    url: https://github.com/mtvrkan/scholar-kit/discussions
+    about: Kullanım sorusu mu? Discussions daha uygun. Usage questions belong in Discussions.

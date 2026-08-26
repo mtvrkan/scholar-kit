@@ -1,0 +1,5 @@
+{"id": "SRC-0001", "label": "include"}
+{"id": "SRC-0002", "label": "exclude", "reason": "wrong population — paediatric cohort"}
+{"id": "SRC-0003", "label": "exclude", "reason": "no comparator arm"}
+{"doi": "10.1000/example.2024.1", "label": "include", "note": "id unknown; matched by DOI"}
+{"bib_key": "ornek2023anahtar", "label": "exclude", "reason": "conference abstract only"}

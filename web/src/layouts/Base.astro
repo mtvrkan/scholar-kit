@@ -1,0 +1,546 @@
+---
+/**
+ * The page shell: masthead, colophon, language toggle.
+ *
+ * The scripts are inlined and there is no framework runtime: nothing is fetched.
+ * This note used to say the toggle was "the site's ENTIRE JavaScript — eighteen
+ * lines", and it was the same sentence both READMEs carried and neither could
+ * keep. The toggle is the small half; beside it are the reveal observer, the
+ * section tracker and the back-to-top control, about 4.5 KB in
+ * all. `test_the_readmes_state_the_javascript_the_page_actually_ships` measures
+ * it against the built page so the figure cannot go stale again.
+ *
+ * Three things this shell used to carry and no longer does, each removed for a
+ * reason rather than for taste:
+ *
+ *  · A fullscreen <video> backdrop served from a third-party CloudFront
+ *    distribution. It was the only outbound request the site made, it forced
+ *    `media-src` in the CSP to name a remote host, the URL pointed at an asset
+ *    this project does not own, and — recorded in the old DESIGN.md — the CDN
+ *    was unreachable from the machine the site is built on, so the footage had
+ *    never once been seen rendering. A hero nobody has verified, on the site of
+ *    a kit that exists to refuse unverified things.
+ *  · A macOS menu-bar strip whose leading glyph was the Apple corporate logo.
+ *  · Guide lines and an SVG grain filter, both of them chrome from the ported
+ *    brief with nothing underneath them to serve.
+ *
+ * The Content-Security-Policy is NOT written here. `postbuild.mjs` hashes every
+ * inline script in the built page and injects the policy with those hashes, so
+ * the policy can stay `script-src '<hash>'` rather than `'unsafe-inline'` and
+ * cannot silently drift when a script changes.
+ */
+import { SITE, NAV } from '../data/site';
+import '../styles/global.css';
+
+/* A static site with one URL gets exactly one share card: the language toggle
+   is client-side, so a crawler, a Slack unfurl and a WhatsApp preview all see
+   whatever is in the markup and never the reader's choice. Serving two cards
+   would need two URLs, which would need two documents.
+
+   That card speaks ONE language, and for two rounds it tried to speak both by
+   joining the Turkish and English strings with a middot. The result was a title
+   and a description that every messenger cut in half — the reader got a Turkish
+   clause ending mid-word and never reached the English. `og:locale` names one
+   language and it names tr_TR, so the card is Turkish and
+   `og:locale:alternate` is the part of the protocol that says English exists. */
+interface Props {
+  title: string;
+  description: string;
+  page: string;
+  ogTitle?: string;
+  /** The share card's own sentence.
+   *
+   *  It used to be `description + ' · ' + descriptionEn` — the Turkish meta
+   *  description and the English one welded together. That produced a 343
+   *  character string, and every messenger that shows a preview truncates
+   *  somewhere between 160 and 200: the card arrived as half a Turkish sentence
+   *  ending mid-clause, with the English half no reader ever reached.
+   *
+   *  One URL gets one card and `og:locale` can name one language, so the card
+   *  speaks Turkish and `og:locale:alternate` declares that English exists.
+   *  Kept separate from `description` because the two are read by different
+   *  things: a search result indexes the page, a share card sells the click. */
+  ogDescription?: string;
+  /** Extra JSON-LD graphs for this page (FAQPage, ItemList, …). */
+  jsonld?: Record<string, unknown>[];
+}
+
+const { title, description, ogDescription, page, ogTitle, jsonld = [] } = Astro.props;
+const shareDescription = ogDescription ?? description;
+
+const canonical = SITE.url + '/';
+const label = NAV.find((n) => n.href === page);
+
+const graph: Record<string, unknown>[] = [
+  {
+    '@type': 'WebSite',
+    '@id': SITE.url + '/#website',
+    url: SITE.url,
+    name: 'Scholar-Kit',
+    inLanguage: ['tr', 'en'],
+    publisher: { '@id': SITE.url + '/#author' },
+  },
+  {
+    '@type': 'Person',
+    '@id': SITE.url + '/#author',
+    name: 'Mehmet Türkan',
+    url: 'https://github.com/mtvrkan',
+  },
+  {
+    '@type': 'SoftwareApplication',
+    '@id': SITE.url + '/#software',
+    name: 'Scholar-Kit',
+    applicationCategory: 'DeveloperApplication',
+    applicationSubCategory: 'Academic writing and research automation',
+    operatingSystem: 'Windows, macOS, Linux',
+    softwareVersion: SITE.version,
+    license: 'https://opensource.org/licenses/MIT',
+    url: SITE.url,
+    codeRepository: SITE.repo,
+    inLanguage: ['tr', 'en'],
+    author: { '@id': SITE.url + '/#author' },
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  /* One document with five sections. A crawler that only sees one URL has no
+     way to know the page has a structure unless the page says so, and these are
+     the same five destinations the navigation offers. */
+  {
+    '@type': 'SiteNavigationElement',
+    '@id': canonical + '#nav',
+    name: NAV.map((n) => n.en),
+    url: NAV.map((n) => SITE.url + '/' + n.href),
+  },
+  {
+    '@type': 'BreadcrumbList',
+    '@id': canonical + '#breadcrumb',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Scholar-Kit', item: SITE.url },
+    ],
+  },
+  ...jsonld,
+];
+
+---
+
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="referrer" content="no-referrer" />
+  <!-- The edition is printed on paper by default and on dark stock when the
+       reader's system asks for it; global.css remaps the same tokens either
+       way, so these two are the only place the choice is stated in markup. -->
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+
+  <!-- Self-hosted, so the "no external font request" claim still holds. -->
+  <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/plexmono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+  {/* The accent face sets two words of the page title — the largest text
+      above the fold and, on most screens, the LCP element. Left to be
+      discovered from the stylesheet it arrives after first paint and the
+      headline visibly reflows from Times to Instrument Serif. */}
+  <link rel="preload" href="fonts/instrumentserif-italic-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+  <title>{title}</title>
+  <meta name="author" content="mtvrkan" />
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:site_name" content="Scholar-Kit" />
+  <meta property="og:title" content={ogTitle ?? title} />
+  <meta property="og:description" content={shareDescription} />
+  <meta property="og:locale" content="tr_TR" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:image" content={SITE.url + '/og.png'} />
+  <meta property="og:image:secure_url" content={SITE.url + '/og.png'} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  {/* Alt text describes the card that ships, and this one did not: it described
+      a verification record with a FABRICATED citation on it, which was the card
+      two designs ago. The current one is a wordmark, a two-line headline, its
+      italic second half and one sentence — so that is what it says. An alt
+      attribute is read by exactly the people who cannot check it. */}
+  <meta property="og:image:alt"
+        content="Scholar-Kit — Akademik çalışmanın tamamı Claude Code içinde: makale ve tezden proje önerisine, etik başvurusundan hakem raporuna" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={ogTitle ?? title} />
+  <meta name="twitter:description" content={shareDescription} />
+  <meta name="twitter:image" content={SITE.url + '/og.png'} />
+
+  <!-- Three ruled lines on paper: a record, at 32px. The palette is the
+       stylesheet's --paper / --arc, restated here because a data: URI cannot
+       read a CSS custom property. -->
+  <link rel="icon" href={'data:image/svg+xml,' + encodeURIComponent(
+    /* The wordmark's own glyph, not a generic document icon — and in the
+       palette the site actually uses. It had been carrying the warm paper
+       and archival teal of two directions ago, which is the kind of thing
+       nobody sees because a favicon is 16px and everybody sees because it
+       is the one piece of the design that sits in a browser tab all day. */
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">' +
+    '<rect width="256" height="256" rx="56" fill="#000"/>' +
+    '<g fill="#fff" transform="translate(28 28) scale(0.78)">' +
+    '<path d="M 0 128 C 70.692 128 128 185.308 128 256 L 64 256 C 64 220.654 35.346 192 0 192 Z ' +
+    'M 256 192 C 220.654 192 192 220.654 192 256 L 128 256 C 128 185.308 185.308 128 256 128 Z ' +
+    'M 128 0 C 128 70.692 70.692 128 0 128 L 0 64 C 35.346 64 64 35.346 64 0 Z ' +
+    'M 192 0 C 192 35.346 220.654 64 256 64 L 256 128 C 185.308 128 128 70.692 128 0 Z"/>' +
+    '</g></svg>')} />
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  })} />
+  <script is:inline>
+    /* Synchronous, in the head, on purpose. Every hidden-until-revealed state in
+       the stylesheet is written behind `.js`, so a page without scripting is
+       finished as parsed rather than a column of invisible elements. Setting the
+       class any later than this — DOMContentLoaded, a deferred module — would
+       show the content and then hide it, which is a flash the reader sees and
+       the author never does.
+
+       And a dead man's switch, because the failure mode on the other side is
+       not a missing animation, it is a BLANK PAGE. `.js` hides the content on
+       the promise that something will later reveal it; if the script that makes
+       that promise good never runs — a syntax error from a future edit, a
+       blocked inline script, an extension that throws first — nothing else on
+       the page would ever notice. So the reveal marks itself installed, and if
+       that mark is absent by DOMContentLoaded the class is taken back off and
+       the page is simply finished. */
+    document.documentElement.classList.add('js');
+    addEventListener('DOMContentLoaded', function () {
+      var root = document.documentElement;
+      if (!root.hasAttribute('data-reveal')) root.classList.remove('js');
+    });
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">
+    <span class="tr" lang="tr">İçeriğe geç</span><span class="en" lang="en">Skip to content</span>
+  </a>
+
+  <header class="head">
+    <div class="wrap head-in">
+      <a class="brand" href="#overview">
+        <svg viewBox="0 0 256 256" fill="currentColor" width="22" height="22" aria-hidden="true">
+          <path d="M 0 128 C 70.692 128 128 185.308 128 256 L 64 256 C 64 220.654 35.346 192 0 192 Z M 256 192 C 220.654 192 192 220.654 192 256 L 128 256 C 128 185.308 185.308 128 256 128 Z M 128 0 C 128 70.692 70.692 128 0 128 L 0 64 C 35.346 64 64 35.346 64 0 Z M 192 0 C 192 35.346 220.654 64 256 64 L 256 128 C 185.308 128 128 70.692 128 0 Z" />
+        </svg>
+        <span class="brand-mark">Scholar<i>·</i>Kit</span>
+      </a>
+
+      <nav class="nav" id="site-nav" aria-label="Site">
+        {NAV.map((item) => (
+          <a href={item.href} data-anchor={item.href}>
+            <span class="tr" lang="tr">{item.tr}</span><span class="en" lang="en">{item.en}</span>
+          </a>
+        ))}
+      </nav>
+
+      {/* The masthead used to end in a GitHub button. It was the third route
+          to the same repository — the hero's primary call and the footer's
+          source list are the other two — and it was the one competing for
+          attention with the navigation, at the top of every screen, in the
+          brightest treatment on the page. A masthead is for finding your way
+          around the document; the download belongs where the argument for
+          downloading has just been made. */}
+      <div class="head-actions">
+        {/* Both languages, always, with the current one lit. The old control
+            was a single button reading "English" — which is the ambiguity a
+            language switch must never have: it can be read as "you are
+            reading English" or as "press for English", and the reader cannot
+            tell which without pressing it and watching what happens. A pair of
+            labels with one of them marked answers both questions at once, and
+            `aria-pressed` says the same thing to a screen reader that the lit
+            pill says to an eye. */}
+        <div class="lang" id="lang" role="group" aria-label="Dil / Language">
+          <button type="button" data-set-lang="tr" aria-pressed="true">TR</button>
+          <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {/* The page is one document now and about twenty-six thousand pixels of it.
+      Scrolling back to the masthead by hand is a long way, and the masthead is
+      where the navigation lives — so without this the only route out of the
+      last chapter is the one that takes the longest. Hidden until it is needed,
+      because a control that is always there is chrome the reader pays for on
+      every screen and uses on one. */}
+  <a class="to-top" id="to-top" href="#overview" hidden
+     aria-label="Başa dön / Back to top">
+    {/* The ring is the scroll position, drawn around the control that acts on
+        it. A separate progress bar across the top of the page is the usual
+        answer and it is a second piece of chrome for one fact; here the fact
+        and the way to undo it are the same object. Two circles: the track, and
+        an arc whose dash offset the scroll handler sets. `pathLength="100"`
+        makes the dash units percent: a browser draws a circle as four beziers
+        and the resulting path measures 118.61, not the 119.38 that 2πr
+        predicts, so arithmetic from the radius leaves the ring short of closed
+        at the bottom of the page. Declaring the length removes the arithmetic
+        rather than correcting it. */}
+    <svg class="ring" viewBox="0 0 44 44" aria-hidden="true">
+      <circle class="ring-track" cx="22" cy="22" r="19" />
+      <circle class="ring-arc" id="ring-arc" cx="22" cy="22" r="19" pathLength="100" />
+    </svg>
+    <svg class="ring-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5" /><path d="m5 12 7-7 7 7" />
+    </svg>
+  </a>
+
+  <main id="main">
+    <slot />
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      {/* Everything but the mark and the credit has come off. The row of
+          seven links was a site map for a site of one page, and every
+          destination on it is one click away on the repository the reader is
+          about to open anyway; the colophon under it printed a version number
+          the stamp at the top of the page already carries. What a footer is for
+          here is saying who made this and stopping. */}
+      <div class="foot-top">
+        <div class="foot-id">
+        <a class="brand foot-brand" href="#overview">
+          <svg viewBox="0 0 256 256" fill="currentColor" width="20" height="20" aria-hidden="true">
+            <path d="M 0 128 C 70.692 128 128 185.308 128 256 L 64 256 C 64 220.654 35.346 192 0 192 Z M 256 192 C 220.654 192 192 220.654 192 256 L 128 256 C 128 185.308 185.308 128 256 128 Z M 128 0 C 128 70.692 70.692 128 0 128 L 0 64 C 35.346 64 64 35.346 64 0 Z M 192 0 C 192 35.346 220.654 64 256 64 L 256 128 C 185.308 128 128 70.692 128 0 Z" />
+          </svg>
+          <span class="brand-mark">Scholar<i>·</i>Kit</span>
+        </a>
+        <p class="foot-blurb tr" lang="tr">Claude Code için akademik üretim hattı.</p>
+        <p class="foot-blurb en" lang="en">An academic production line for Claude Code.</p>
+        </div>
+
+        {/* The same credit CookieExport and Followlens carry, in the same words
+            and the same shape — a house line, so it stays a house line rather
+            than becoming a third phrasing of one sentence. Not translated, for
+            the same reason. */}
+        <p class="footer-credit">
+          Developed with
+          <svg class="footer-heart" width="14" height="14" viewBox="0 0 24 24"
+               fill="currentColor" role="img" aria-label="love">
+            <path d="M12 21s-7.5-4.7-9.6-9A5.4 5.4 0 0 1 12 6.5 5.4 5.4 0 0 1 21.6 12c-2.1 4.3-9.6 9-9.6 9z" />
+          </svg>
+          by
+          <a href="https://mtvrkan.com" target="_blank" rel="noopener">mtvrkan</a>
+        </p>
+      </div>
+
+    </div>
+  </footer>
+
+<script is:inline>
+  (function () {
+    try {
+    /* Reveal on APPROACH, which means the root is grown downward, not shrunk.
+       A negative bottom margin is the intuitive-looking mistake here: it makes
+       the element climb further into view before it fires, so a reader who
+       scrolls quickly arrives at a section that has not started yet and sees a
+       blank column. A positive one starts the entrance while the section is
+       still below the fold, and by the time it is being read it has settled.
+       Each target is unobserved once it fires: this is an entrance, not a state,
+       and re-playing it on the way back up would make scrolling a toy. */
+    /* `.reveal` rather than a list of block classes. The old selector named
+       three of them and the page grew others — the gate cards, the layer list,
+       the install steps, the run cards, the FAQ — so those simply appeared
+       fully formed while their neighbours animated, which reads as a bug in
+       the ones that DO move. A block opts in by carrying the class. */
+    /* `revealTargets`, not `targets`. There is a second `var targets` further
+       down for the chapter mark, and `var` is function-scoped: the two would be
+       the same binding, so anything here that read `targets` after that line
+       would silently get the list of navigation anchors instead. Nothing did
+       until the sweep below needed to, which is the point at which a shadowing
+       hazard stops being theoretical. */
+    var revealTargets = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      for (var i = 0; i < revealTargets.length; i++) revealTargets[i].classList.add('is-in');
+    } else {
+      /* threshold 0, not a fraction. A fraction asks a section to be a certain
+         PROPORTION visible, and the proportion a tall block can reach inside a
+         root shortened by rootMargin is bounded — a section flush with the foot
+         of a short page can then never satisfy it, and its text stays at
+         opacity 0 with nothing left to scroll. Any overlap at all is the only
+         condition that cannot be starved. */
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          e.target.classList.add('is-in');
+          io.unobserve(e.target);
+        });
+      }, { rootMargin: '0px 0px 25% 0px', threshold: 0 });
+      revealTargets.forEach(function (t) { io.observe(t); });
+
+      /* The observer is not enough on its own, and the hole is not theoretical:
+         a browser coalesces or skips intersection callbacks during a
+         programmatic jump (an anchor click, End, a restored scroll position)
+         and throttles them outright in a background tab. Every section the
+         reader passes during one of those is left at opacity 0 — and because
+         it is above the fold by then, the only thing that brings it back is
+         scrolling up. The reader's report is "some sections don't animate",
+         which is the same defect described from the outside.
+
+         So the scroll handler sweeps as well. Geometry has no state to miss: a
+         target whose top is inside a viewport-and-a-quarter is revealed,
+         whatever the observer did or did not do. The two together cover each
+         other, the same way the chapter mark is driven by both. */
+      window.__skSweep = function () {
+        var live = false;
+        for (var j = 0; j < revealTargets.length; j++) {
+          var t = revealTargets[j];
+          if (t.classList.contains('is-in')) continue;
+          if (t.getBoundingClientRect().top < innerHeight * 1.25) {
+            t.classList.add('is-in');
+            io.unobserve(t);
+          } else {
+            live = true;
+          }
+        }
+        if (!live) window.__skSweep = null;
+      };
+    }
+    document.documentElement.setAttribute('data-reveal', 'on');
+
+    /* Which chapter is on screen. On five documents the answer came free from
+       the URL; on one page nothing knows it, and a navigation that never marks
+       the reader's position on a page this long is a list of links, not a map.
+
+       Computed from geometry on every scroll rather than accumulated from
+       IntersectionObserver callbacks. The observer version marked the wrong
+       chapter after a jump to an anchor: it keeps a map of what is intersecting
+       and only updates the entries that CHANGED, so a chapter that was true
+       before the jump and never fired again stayed true and won the vote. Two
+       lines of arithmetic have no state to go stale. */
+    var anchors = [].slice.call(document.querySelectorAll('.nav a[data-anchor]'));
+    var targets = anchors
+      .map(function (a) { return document.querySelector(a.getAttribute('data-anchor')); })
+      .filter(Boolean);
+
+    /* Driven by the chapter observer as well as by scroll. A scroll listener is
+       the obvious source and it is not a sufficient one: a browser does not
+       dispatch scroll events (or run rAF) in a background tab, and it coalesces
+       them during a programmatic jump to an anchor — both cases leave the mark
+       on whatever chapter the reader was in before. IntersectionObserver fires
+       in both, so the two together cover each other. */
+    var markCurrent = function () {
+      if (!targets.length) return;
+      /* A quarter of the way down: the line a reader is actually looking at, not
+         the top edge, where a heading is still arriving. */
+      var line = innerHeight * 0.25;
+      var active = targets[0];
+      targets.forEach(function (t) {
+        if (t.getBoundingClientRect().top - line <= 0) active = t;
+      });
+      anchors.forEach(function (a) {
+        if (a.getAttribute('data-anchor') === '#' + active.id) {
+          a.setAttribute('aria-current', 'true');
+        } else {
+          a.removeAttribute('aria-current');
+        }
+      });
+    };
+
+    if ('IntersectionObserver' in window) {
+      var spy = new IntersectionObserver(markCurrent, {
+        threshold: 0,
+        rootMargin: '0px 0px -70% 0px',
+      });
+      targets.forEach(function (t) { spy.observe(t); });
+    }
+    markCurrent();
+
+    /* The phone menu was here: a burger, a backdrop, a scroll lock, an escape
+       handler and a resize guard, so a reader could jump between five anchors
+       on a page that is one continuous scroll. It went with the sheet it opened
+       — on a phone, scrolling is the navigation. */
+
+    /* The masthead only claims depth once something has passed beneath it. */
+    /* One viewport down is the threshold: any less and the button appears while
+       the hero is still on screen, where the reader is already at the top. */
+    var toTop = document.getElementById('to-top');
+    var arc = document.getElementById('ring-arc');
+    var head = document.querySelector('.head');
+    if (head) {
+      var ticking = false;
+      var onScroll = function () {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function () {
+          head.classList.toggle('is-scrolled', window.scrollY > 8);
+          markCurrent();
+          if (window.__skSweep) window.__skSweep();
+          if (toTop) {
+            /* Hidden until a viewport has passed, and hidden again at the very
+               bottom: down there it overlaps the footer's last line, and a
+               reader who has reached the end of the page does not need to be
+               told they can go back to the top of it. */
+            var atFoot = window.scrollY + innerHeight >=
+              document.documentElement.scrollHeight - 24;
+            toTop.hidden = window.scrollY < innerHeight || atFoot;
+          }
+          if (arc) {
+            /* Guard the divisor: a page shorter than the viewport has a
+               scrollable range of zero, and 0/0 would paint the ring as NaN —
+               which renders as a full circle, i.e. "you are at the end" on a
+               page with no end. */
+            var range = document.documentElement.scrollHeight - innerHeight;
+            var done = range > 0 ? Math.min(1, Math.max(0, window.scrollY / range)) : 0;
+            arc.style.strokeDashoffset = String(100 * (1 - done));
+          }
+          ticking = false;
+        });
+      };
+      addEventListener('scroll', onScroll, { passive: true });
+      addEventListener('hashchange', markCurrent);
+      /* A hidden tab runs no rAF, so everything this handler paints — the
+         masthead's depth, the button, the progress ring — is whatever it was
+         when the tab was last looked at. Coming back to a page scrolled
+         halfway would show an empty ring. One more call when the tab is shown
+         again costs nothing and removes the stale case. */
+      addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') onScroll();
+      });
+      onScroll();
+    }
+    } catch (err) {
+      /* Same rule as the head's switch: whatever went wrong, the reader gets the
+         page rather than an empty column. */
+      document.documentElement.classList.remove('js');
+    }
+  })();
+
+  (function () {
+    /* Two buttons instead of one, so the script no longer writes the control's
+       own label — the markup carries both labels and the attribute says which
+       is current. Which also means the lit half is chosen in CSS from
+       `data-lang` on the root, not by a class this function has to remember to
+       keep in sync. */
+    var root = document.documentElement;
+    var box = document.getElementById('lang');
+    var btns = box ? box.querySelectorAll('[data-set-lang]') : [];
+    function apply(lang) {
+      root.setAttribute('data-lang', lang);
+      root.setAttribute('lang', lang === 'en' ? 'en' : 'tr');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].setAttribute('aria-pressed',
+          btns[i].getAttribute('data-set-lang') === lang ? 'true' : 'false');
+      }
+      try { localStorage.setItem('sk-lang', lang); } catch (e) {}
+    }
+    var saved = null;
+    try { saved = localStorage.getItem('sk-lang'); } catch (e) {}
+    apply(saved || ((navigator.language || 'tr').toLowerCase().indexOf('tr') === 0 ? 'tr' : 'en'));
+    for (var j = 0; j < btns.length; j++) {
+      btns[j].addEventListener('click', function () {
+        apply(this.getAttribute('data-set-lang'));
+      });
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+{
+  "task": "bib_doctor",
+  "entrypoint": "bib_doctor",
+  "description": "Labeled cases for bib_doctor.py — bibliography hygiene: DOI syntax and URL-prefix normalization, duplicate detection by DOI and by near-identical title, required fields per entry type, key style, and the verified={true} stamp that marks an entry as machine-fetched rather than remembered. The negatives are the entries that look defective and are not: a preprint that legitimately has no journal, an @misc carrying a url instead of a doi, an @inproceedings whose venue lives in booktitle, and two distinct papers whose titles share most of their words.",
+  "thresholds": {"precision": 0.95, "recall": 0.95},
+  "cases": [
+    {
+      "id": "001-doi-carries-a-url-prefix",
+      "comment": "doi2bib writes a bare DOI; a hand-pasted one usually arrives as a resolver URL. Normalizable, so it reports a fix rather than just a complaint.",
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning for bearing fault diagnosis},\n  author = {Kaya, Ahmet},\n  journal = {Mechanical Systems and Signal Processing},\n  year = {2023},\n  doi = {https://doi.org/10.1016/j.ymssp.2023.00001},\n  verified = {true},\n}\n",
+      "expect": [{"check": "doi-prefix", "key": "kaya2023deep"}]
+    },
+    {
+      "id": "002-doi-is-not-a-doi",
+      "comment": "A string in the doi field that cannot resolve is worse than an empty one: it looks verified.",
+      "bib": "@article{demir2022vibration,\n  title = {Vibration analysis with wavelets},\n  author = {Demir, Cem},\n  journal = {Journal of Sound and Vibration},\n  year = {2022},\n  doi = {ymssp-2022-00042},\n  verified = {true},\n}\n",
+      "expect": [{"check": "doi-syntax", "key": "demir2022vibration"}]
+    },
+    {
+      "id": "003-same-doi-twice-under-two-keys",
+      "comment": "The classic double-import: the same paper found in two databases, cited under two keys, counted twice in the reference list.",
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning for bearing fault diagnosis},\n  author = {Kaya, Ahmet},\n  journal = {MSSP},\n  year = {2023},\n  doi = {10.1016/j.ymssp.2023.00001},\n  verified = {true},\n}\n\n@article{kaya2023bearing,\n  title = {Deep learning approaches to rolling bearing diagnosis},\n  author = {Kaya, Ahmet},\n  journal = {MSSP},\n  year = {2023},\n  doi = {10.1016/j.ymssp.2023.00001},\n  verified = {true},\n}\n",
+      "expect": [{"check": "duplicate-doi", "key": "kaya2023bearing"}]
+    },
+    {
+      "id": "004-near-identical-titles",
+      "comment": "The same paper imported twice without a DOI on either copy — only the title can catch it.",
+      "bib": "@article{yilmaz2021survey,\n  title = {A survey of deep learning for condition monitoring},\n  author = {Yilmaz, Berk},\n  journal = {IEEE Access},\n  year = {2021},\n  verified = {true},\n}\n\n@article{yilmaz2021review,\n  title = {A survey of deep-learning for condition monitoring},\n  author = {Yilmaz, Berk},\n  journal = {IEEE Access},\n  year = {2021},\n  verified = {true},\n}\n",
+      "expect": [{"check": "duplicate-title", "key": "yilmaz2021review"}]
+    },
+    {
+      "id": "005-article-without-a-journal",
+      "comment": "An @article with no journal is an entry that will render as a dangling reference in every citation style.",
+      "bib": "@article{ozkan2020signal,\n  title = {Signal preprocessing for fault detection},\n  author = {Ozkan, Deniz},\n  year = {2020},\n  doi = {10.1109/access.2020.00002},\n  verified = {true},\n}\n",
+      "expect": [{"check": "missing-field", "key": "ozkan2020signal"}]
+    },
+    {
+      "id": "006-key-is-not-normalized",
+      "comment": "Keys are renamed by hand because in-text [@key] would break otherwise, so this reports and never auto-fixes.",
+      "bib": "@article{Kaya_2023_Deep,\n  title = {Deep learning for bearing fault diagnosis},\n  author = {Kaya, Ahmet},\n  journal = {MSSP},\n  year = {2023},\n  doi = {10.1016/j.ymssp.2023.00001},\n  verified = {true},\n}\n",
+      "expect": [{"check": "key-style", "key": "Kaya_2023_Deep"}]
+    },
+    {
+      "id": "007-entry-not-machine-fetched",
+      "comment": "No verified={true} means the entry did not come from DOI content negotiation. It may be perfectly correct — and there is no way to tell, which is the whole point of the stamp.",
+      "bib": "@article{hatirlanan2019kayit,\n  title = {A remembered reference},\n  author = {Biri, Bir},\n  journal = {Bir Dergi},\n  year = {2019},\n  doi = {10.1000/xyz123},\n}\n",
+      "expect": [{"check": "unverified", "key": "hatirlanan2019kayit"}]
+    },
+    {
+      "id": "008-clean-verified-article",
+      "comment": "NEGATIVE. The shape doi2bib.py produces.",
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning for bearing fault diagnosis},\n  author = {Kaya, Ahmet and Yilmaz, Berk},\n  journal = {Mechanical Systems and Signal Processing},\n  year = {2023},\n  doi = {10.1016/j.ymssp.2023.00001},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "009-preprint-has-no-journal-and-that-is-correct",
+      "comment": "NEGATIVE, and the reason the preprint carve-out exists: doi.org types an arXiv DOI as @article, but a preprint has no peer-reviewed journal. Demanding one flags a perfectly valid, authoritatively-fetched entry.",
+      "bib": "@article{arikan2024transformer,\n  title = {Transformers for vibration signals},\n  author = {Arikan, Ege},\n  year = {2024},\n  doi = {10.48550/arXiv.2401.00001},\n  archiveprefix = {arXiv},\n  eprint = {2401.00001},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "010-misc-with-a-url-instead-of-a-doi",
+      "comment": "NEGATIVE. A dataset or standard has a locator, not a DOI; url|doi is satisfied by either.",
+      "bib": "@misc{kaggle2021stroke,\n  title = {Stroke Prediction Dataset},\n  url = {https://www.kaggle.com/datasets/stroke},\n  year = {2021},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "011-inproceedings-venue-lives-in-booktitle",
+      "comment": "NEGATIVE. A conference paper has no journal field by definition; requiring one per @article rules would flag every CS proceedings entry in the bibliography.",
+      "bib": "@inproceedings{sahin2022cnn,\n  title = {A CNN baseline for bearing faults},\n  author = {Sahin, Ali},\n  booktitle = {Proceedings of the International Conference on Condition Monitoring},\n  year = {2022},\n  doi = {10.1145/3477495.0000001},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "012-different-papers-sharing-most-of-their-words",
+      "comment": "NEGATIVE. Two genuinely distinct papers from the same group. A title matcher tuned loosely enough to merge these would silently delete a real reference.",
+      "bib": "@article{demir2022bearing,\n  title = {Wavelet features for bearing fault detection},\n  author = {Demir, Cem},\n  journal = {JSV},\n  year = {2022},\n  doi = {10.1016/j.jsv.2022.00001},\n  verified = {true},\n}\n\n@article{demir2023gearbox,\n  title = {Wavelet features for gearbox fault detection},\n  author = {Demir, Cem},\n  journal = {JSV},\n  year = {2023},\n  doi = {10.1016/j.jsv.2023.00002},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "013-empty-bibliography",
+      "comment": "NEGATIVE. A project before its first source is registered has no bibliography defects.",
+      "bib": "",
+      "expect": []
+    }
+  ],
+  "mutations": [
+    {
+      "id": "required-field-check-removed",
+      "breaks": "An @article with no journal, or any entry missing a required field, stops being reported — the entry renders as a dangling reference in the built manuscript.",
+      "replace": [["        missing = [f for f in req if not fields.get(f)]", "        missing = []"]]
+    },
+    {
+      "id": "duplicate-doi-detection-removed",
+      "breaks": "The same paper imported from two databases under two keys is counted twice in the reference list and cited as if it were two sources.",
+      "replace": [["            if doi.lower() in seen_dois:", "            if False:"]]
+    },
+    {
+      "id": "preprint-exemption-removed",
+      "breaks": "Every arXiv/bioRxiv entry is flagged for a missing journal it cannot have — a false positive on entries doi2bib.py fetched correctly, which is how a linter teaches its user to ignore it.",
+      "replace": [["        is_preprint = e[\"type\"] == \"article\" and _is_preprint(fields)",
+                   "        is_preprint = False"]]
+    },
+    {
+      "id": "verified-stamp-check-removed",
+      "breaks": "An entry that never went through DOI content negotiation stops being distinguishable from one that did — the zero-fabrication chain's last visible link.",
+      "replace": [["        if fields.get(\"verified\", \"\").lower() != \"true\":", "        if False:"]]
+    },
+    {
+      "id": "doi-url-prefix-normalization-removed",
+      "breaks": "A doi field holding a resolver URL is no longer normalized or reported, so the raw string reaches the bibliography and every downstream DOI comparison against it fails.",
+      "replace": [["            if clean != doi:", "            if False:"]]
+    },
+    {
+      "id": "duplicate-title-threshold-relaxed",
+      "breaks": "Drops the near-identical-title threshold from 95 to 55, so two distinct papers from the same group are reported as duplicates and a real reference gets deleted.",
+      "replace": [["if ntitle and sim(ntitle, other_title) >= 95:", "if ntitle and sim(ntitle, other_title) >= 55:"]]
+    }
+  ]
+}

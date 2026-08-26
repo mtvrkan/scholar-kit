@@ -1,0 +1,18 @@
+{
+  "name": "scholar-kit",
+  "owner": {
+    "name": "Mehmet Türkan",
+    "url": "https://github.com/mtvrkan"
+  },
+  "description": "Scholar-Kit — academic research, writing, review and thesis production for Claude Code, built for Turkish and English scholarship as equal first-class targets.",
+  "plugins": [
+    {
+      "name": "scholar-kit",
+      "source": "./",
+      "description": "43 workflow commands + 11 knowledge skills + 10 subagents. Zero-fabrication citation chain (DOI content negotiation → evidence card → verified BibTeX), claim-strength auditing against the cited source, and the 7-mode AI-research failure-mode scan. Run /new-project first: it materialises the deterministic script layer and enforcement hooks into your project directory.",
+      "version": "1.0.0",
+      "license": "MIT",
+      "skills": ["./.claude/skills/"]
+    }
+  ]
+}

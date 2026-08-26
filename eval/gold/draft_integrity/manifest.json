@@ -1,0 +1,282 @@
+{
+  "task": "draft_integrity",
+  "entrypoint": "draft_integrity",
+  "description": "Draft files as files: does the apparatus a draft uses to describe itself hold up. The motivating defect — a block that says a script owns it while no script does — appeared three separate times in this kit's own development, twice after being fixed once, because each fix wired up only the block that had been noticed.",
+  "thresholds": {
+    "precision": 0.95,
+    "recall": 0.95
+  },
+  "cases": [
+    {
+      "id": "001-generated-block-with-a-writer-is-clean",
+      "comment": "The ordinary case: the marker claims a generator and one exists. Must stay silent, or the check fires on every correctly wired project.",
+      "drafts": {
+        "bulgular.md": "<!-- TABLO5:BASLANGIC — uretilmis, elle duzenlemeyin -->\n| a | b |\n<!-- TABLO5:BITIS -->\n"
+      },
+      "analysis": {
+        "tables_build.py": "embed_block(target, \"TABLO5\", body)\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "002-generated-block-nobody-writes",
+      "comment": "The defect itself. The block says 'generated, do not edit'; nothing generates it; so it is hand-maintained under a sign telling the next reader not to check it.",
+      "drafts": {
+        "bulgular.md": "<!-- TABLO6:BASLANGIC — uretilmis, elle duzenlemeyin -->\n| a | b |\n<!-- TABLO6:BITIS -->\n"
+      },
+      "analysis": {
+        "tables_build.py": "embed_block(target, \"TABLO5\", body)\n"
+      },
+      "expect": [
+        {
+          "check": "unwritten_generated",
+          "tag": "TABLO6"
+        }
+      ]
+    },
+    {
+      "id": "003-two-unwritten-blocks-are-two-findings",
+      "comment": "The second occurrence is the one that matters: fixing one wired block has twice left its sibling unwired, so each must be named separately rather than folded into one report.",
+      "drafts": {
+        "bulgular.md": "<!-- TABLO6:BASLANGIC — uretilmis -->\n| a |\n<!-- TABLO6:BITIS -->\n\n<!-- TABLO7:BASLANGIC — uretilmis -->\n| b |\n<!-- TABLO7:BITIS -->\n"
+      },
+      "analysis": {
+        "tables_build.py": "embed_block(target, \"TABLO5\", body)\n"
+      },
+      "expect": [
+        {
+          "check": "unwritten_generated",
+          "tag": "TABLO6"
+        },
+        {
+          "check": "unwritten_generated",
+          "tag": "TABLO7"
+        }
+      ]
+    },
+    {
+      "id": "004-script-owned-block-that-does-not-say-so",
+      "comment": "The mirror case. A hand edit here is not wrong, it is erased on the next generator run, and nothing warned against it.",
+      "drafts": {
+        "bulgular.md": "<!-- TABLOA:BASLANGIC -->\n| a | b |\n<!-- TABLOA:BITIS -->\n"
+      },
+      "analysis": {
+        "pooled_table.py": "START = \"<!-- TABLOA:BASLANGIC -->\"\n"
+      },
+      "expect": [
+        {
+          "check": "undeclared_generated",
+          "tag": "TABLOA"
+        }
+      ]
+    },
+    {
+      "id": "005-plain-marker-nobody-writes-is-not-a-finding",
+      "comment": "A marker pair that claims nothing and that nothing generates is just an anchor comment. Flagging it would make the check fire on every section marker in every project.",
+      "drafts": {
+        "bulgular.md": "<!-- NOTLAR:BASLANGIC -->\nelle yazilmis\n<!-- NOTLAR:BITIS -->\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "006-english-generated-marker",
+      "comment": "The kit works in two languages, so the block that declares itself does too.",
+      "drafts": {
+        "results.md": "<!-- T1:BASLANGIC generated — do not edit -->\nx\n<!-- T1:BITIS -->\n"
+      },
+      "expect": [
+        {
+          "check": "unwritten_generated",
+          "tag": "T1"
+        }
+      ]
+    },
+    {
+      "id": "007-begin-end-spelling",
+      "comment": "BEGIN/END is the same marker in another dialect; a project that uses it must not be silently unchecked.",
+      "drafts": {
+        "results.md": "<!-- T1:BEGIN generated -->\nx\n<!-- T1:END -->\n"
+      },
+      "expect": [
+        {
+          "check": "unwritten_generated",
+          "tag": "T1"
+        }
+      ]
+    },
+    {
+      "id": "008-copy-in-an-assembled-build-is-not-a-writer",
+      "comment": "build/ holds assembled copies of the drafts, and the copy is markdown, not source. Treating it as a writer would make the check pass exactly once the manuscript has been built — loud before it is needed, silent after.",
+      "drafts": {
+        "bulgular.md": "<!-- T9:BASLANGIC — uretilmis -->\n| a |\n<!-- T9:BITIS -->\n"
+      },
+      "analysis": {
+        "makale_kopya.md": "<!-- T9:BASLANGIC — uretilmis -->\n| a |\n<!-- T9:BITIS -->\n"
+      },
+      "expect": [
+        {
+          "check": "unwritten_generated",
+          "tag": "T9"
+        }
+      ]
+    },
+    {
+      "id": "009-unclosed-marker",
+      "comment": "An opening marker with no close: its writer either fails loudly or replaces the wrong span, depending on how it was written.",
+      "drafts": {
+        "bulgular.md": "<!-- T1:BASLANGIC -->\ngovde\n"
+      },
+      "expect": [
+        {
+          "check": "unclosed-marker",
+          "tag": "T1"
+        }
+      ]
+    },
+    {
+      "id": "010-close-without-open",
+      "comment": "The other half: a closing marker whose block was never opened.",
+      "drafts": {
+        "bulgular.md": "govde\n<!-- T1:BITIS -->\n"
+      },
+      "expect": [
+        {
+          "check": "close-without-open",
+          "tag": "T1"
+        }
+      ]
+    },
+    {
+      "id": "011-reopened-tag",
+      "comment": "The same tag opened twice: whatever sits between the two openings is outside any block and is silently dropped by an idempotent writer.",
+      "drafts": {
+        "bulgular.md": "<!-- T1:BASLANGIC -->\na\n<!-- T1:BASLANGIC -->\nb\n<!-- T1:BITIS -->\n"
+      },
+      "expect": [
+        {
+          "check": "marker-reopened",
+          "tag": "T1"
+        }
+      ]
+    },
+    {
+      "id": "012-interleaved-tags-are-legal",
+      "comment": "Two tags may interleave as long as each opens and closes; requiring strict nesting would flag a legitimate layout.",
+      "drafts": {
+        "bulgular.md": "<!-- A:BASLANGIC -->\n<!-- B:BASLANGIC -->\n<!-- A:BITIS -->\n<!-- B:BITIS -->\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "013-control-characters-from-a-mangled-escape",
+      "comment": "A backslash escape through one interpreter too many: a LaTeX begingroup/footnotesize pair arrives as backspace + 'egingroup' + formfeed + 'ootnotesize'. It reads as plausible prose in a terminal, is invisible in most editors, and reaches the typesetter broken.",
+      "drafts": {
+        "bulgular.md": "```{=latex}\n\begingroup\footnotesize\n```\n"
+      },
+      "expect": [
+        {
+          "check": "control_characters",
+          "file": "bulgular.md",
+          "code": "U+0008"
+        },
+        {
+          "check": "control_characters",
+          "file": "bulgular.md",
+          "code": "U+000C"
+        }
+      ]
+    },
+    {
+      "id": "014-replacement-characters",
+      "comment": "U+FFFD means bytes were decoded with the wrong codec upstream and the original character is already gone — the mojibake this kit hit when Turkish JSON went through argv.",
+      "drafts": {
+        "bulgular.md": "ta�ymayan bir sonu�\n"
+      },
+      "expect": [
+        {
+          "check": "control_characters",
+          "file": "bulgular.md",
+          "code": "U+FFFD"
+        }
+      ]
+    },
+    {
+      "id": "015-tabs-and-newlines-are-not-control-findings",
+      "comment": "Tab and newline are ordinary text. Flagging them would make every indented file a finding and the check worthless.",
+      "drafts": {
+        "bulgular.md": "a\tb\nc\td\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "016-a-clean-manuscript-is-silent",
+      "comment": "Nothing declared, nothing generated, nothing malformed. The negative that keeps the other fifteen honest.",
+      "drafts": {
+        "bulgular.md": "Duz bir bolum, isaret yok.\n\n**Tablo 1. Ozellikler.**\n"
+      },
+      "expect": []
+    }
+  ],
+  "mutations": [
+    {
+      "id": "unwritten-detection-removed",
+      "breaks": "A block that declares itself generated while nothing generates it stops being reported — the defect this whole check exists for.",
+      "replace": [
+        [
+          "        if b[\"generated\"] and not has_writer:",
+          "        if False:"
+        ]
+      ]
+    },
+    {
+      "id": "undeclared-detection-removed",
+      "breaks": "A script-owned block whose marker never says so stops being reported, so a hand edit there is erased with no warning having existed.",
+      "replace": [
+        [
+          "        elif has_writer and not b[\"generated\"]:",
+          "        elif False:"
+        ]
+      ]
+    },
+    {
+      "id": "markdown-counts-as-a-writer",
+      "breaks": "An assembled copy of the draft starts counting as a generator, so every unwritten block passes as soon as the manuscript has been built once — the check would be loud before it is needed and silent after.",
+      "replace": [
+        [
+          "SOURCE_SUFFIXES = {\".py\", \".sh\", \".bash\", \".js\", \".ts\", \".mjs\", \".rb\", \".pl\",",
+          "SOURCE_SUFFIXES = {\".md\", \".py\", \".sh\", \".bash\", \".js\", \".ts\", \".mjs\", \".rb\", \".pl\","
+        ]
+      ]
+    },
+    {
+      "id": "marker-problems-dropped",
+      "breaks": "Unclosed, doubled and orphan markers stop being reported, so a writer silently replaces the wrong span.",
+      "replace": [
+        [
+          "    return blocks, problems",
+          "    return blocks, []"
+        ]
+      ]
+    },
+    {
+      "id": "control-character-detection-removed",
+      "breaks": "A mangled escape reaches the typesetter unreported.",
+      "replace": [
+        [
+          "CONTROL_RE = re.compile(r\"[\\x00-\\x08\\x0b-\\x1f\\x7f]\")",
+          "CONTROL_RE = re.compile(r\"(?!x)x\")"
+        ]
+      ]
+    },
+    {
+      "id": "splitlines-instead-of-split",
+      "breaks": "str.splitlines() treats formfeed and vertical tab as line boundaries, so the very characters being hunted split the line and vanish from the count. This mutation restores the bug the first version of this script actually had, which its own tests caught.",
+      "replace": [
+        [
+          "for lineno, line in enumerate(text.split(\"\\n\"), 1):",
+          "for lineno, line in enumerate(text.splitlines(), 1):"
+        ]
+      ]
+    }
+  ]
+}

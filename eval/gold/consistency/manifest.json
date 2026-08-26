@@ -1,0 +1,350 @@
+{
+  "task": "consistency",
+  "entrypoint": "consistency_check",
+  "description": "Labeled cases for consistency_check.py — the numeric narrated-vs-presented lint. Two defects: a number stated in prose that contradicts analysis/counts.json, and the same quantity stated with different values in different sections. The negatives are the shapes that look like drift and are not: the same number written two ways, a quantity the manifest never declared, a figure inside a code fence, and a bare number with no bound noun.",
+  "thresholds": {
+    "precision": 0.95,
+    "recall": 0.95
+  },
+  "cases": [
+    {
+      "id": "001-prose-contradicts-the-manifest",
+      "analysis": {
+        "counts.json": "{\"n_samples\": 5110, \"n_models\": 4}"
+      },
+      "drafts": {
+        "yontem.md": "The study analysed 5110 records drawn from the public registry.\n",
+        "tartisma.md": "Across 4210 records the pattern held.\n"
+      },
+      "comment": "Two sections disagree AND one of them contradicts the manifest, so both findings are correct and both are asserted. An earlier draft of this case named only the mismatch and read as a false positive — the case was incomplete, not the checker.",
+      "expect": [
+        {
+          "check": "manifest_mismatch",
+          "quantity": "n_samples",
+          "stated": 4210,
+          "manifest": 5110
+        },
+        {
+          "check": "cross_section_drift",
+          "quantity": "n_samples"
+        }
+      ]
+    },
+    {
+      "id": "002-model-count-contradicts-the-manifest",
+      "comment": "The count that changes most often mid-project: a fifth model is added to the code and three sections still say four.",
+      "analysis": {
+        "counts.json": "{\"n_models\": 5}"
+      },
+      "drafts": {
+        "giris.md": "We compare 4 models on the same split.\n"
+      },
+      "expect": [
+        {
+          "check": "manifest_mismatch",
+          "quantity": "n_models",
+          "stated": 4,
+          "manifest": 5
+        }
+      ]
+    },
+    {
+      "id": "003-cross-section-drift-without-a-manifest",
+      "comment": "No counts.json at all. The sections still contradict each other, and that is checkable without any external oracle — which is the point: the drift check must not depend on the manifest existing.",
+      "drafts": {
+        "giris.md": "The dataset comprises 5110 samples.\n",
+        "sonuclar.md": "Of the 4909 samples, the majority were negative.\n"
+      },
+      "expect": [
+        {
+          "check": "cross_section_drift",
+          "quantity": "n_samples"
+        }
+      ]
+    },
+    {
+      "id": "004-feature-count-drift",
+      "analysis": {
+        "counts.json": "{}"
+      },
+      "drafts": {
+        "yontem.md": "Eleven features were retained after selection.\n",
+        "bulgular.md": "The 12 features contribute unequally.\n"
+      },
+      "expect": [
+        {
+          "check": "cross_section_drift",
+          "quantity": "n_features"
+        }
+      ]
+    },
+    {
+      "id": "005-both-defects-at-once",
+      "comment": "A mismatch and a drift are independent findings; reporting only the first would let the second ship.",
+      "analysis": {
+        "counts.json": "{\"n_models\": 4}"
+      },
+      "drafts": {
+        "giris.md": "We evaluate 3 models.\n",
+        "sonuclar.md": "All 5 models converged.\n"
+      },
+      "expect": [
+        {
+          "check": "manifest_mismatch",
+          "quantity": "n_models",
+          "stated": 3
+        },
+        {
+          "check": "manifest_mismatch",
+          "quantity": "n_models",
+          "stated": 5
+        },
+        {
+          "check": "cross_section_drift",
+          "quantity": "n_models"
+        }
+      ]
+    },
+    {
+      "id": "101-prose-agrees-with-the-manifest",
+      "comment": "NEGATIVE. The passing case, and the one that must never be noisy — most sections of a correct manuscript look exactly like this.",
+      "analysis": {
+        "counts.json": "{\"n_samples\": 5110, \"n_models\": 4}"
+      },
+      "drafts": {
+        "yontem.md": "The study analysed 5110 records.\n",
+        "sonuclar.md": "All 4 models were trained on the same split.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "102-quantity-absent-from-the-manifest",
+      "comment": "NEGATIVE. counts.json declares n_samples only. Inventing an expectation for n_models — or treating 'not declared' as 'declared zero' — would fire on every project that measures fewer quantities than the checker knows about.",
+      "analysis": {
+        "counts.json": "{\"n_samples\": 5110}"
+      },
+      "drafts": {
+        "giris.md": "We compare 4 models.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "103-same-number-repeated-across-sections",
+      "comment": "NEGATIVE. Restating a figure in several sections is normal writing, not drift. Only DIFFERING values are a defect.",
+      "drafts": {
+        "giris.md": "The cohort holds 5110 records.\n",
+        "yontem.md": "All 5110 records passed the inclusion filter.\n",
+        "sonuclar.md": "The 5110 records split 80/20.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "104-numbers-inside-a-code-fence",
+      "comment": "NEGATIVE. A fenced snippet showing `n_samples = 4210` is code, not a narrated claim, and must be stripped before the check runs.",
+      "analysis": {
+        "counts.json": "{\"n_samples\": 5110}"
+      },
+      "drafts": {
+        "yontem.md": "The loader is configured as follows.\n\n```python\nn_samples = 4210  # 4210 records\n```\n\nThe study analysed 5110 records.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "105-bare-number-with-no-bound-noun",
+      "comment": "NEGATIVE. '4210' next to no quantity noun binds to nothing. A checker that guessed which quantity an unbound number referred to would be inventing the very link it exists to verify.",
+      "analysis": {
+        "counts.json": "{\"n_samples\": 5110}"
+      },
+      "drafts": {
+        "giris.md": "Figure 3 was generated at 4210 dpi and the review took 12 days.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "106-empty-project",
+      "comment": "NEGATIVE. No drafts and no manifest — day one of every project must not produce warnings.",
+      "expect": []
+    },
+    {
+      "id": "107-manifest-value-is-not-a-number",
+      "comment": "NEGATIVE. A manifest entry of null or 'pending' must be skipped rather than coerced into a comparison that would always fail.",
+      "analysis": {
+        "counts.json": "{\"n_samples\": null, \"n_models\": \"pending\"}"
+      },
+      "drafts": {
+        "giris.md": "We analysed 5110 records with 4 models.\n"
+      },
+      "expect": []
+    },
+    {
+      "id": "013-explicit-flow-counts-are-used-and-named",
+      "comment": "Iki kollu bir derlemede bir kolun tam metin dislamalari deftere hic girmez; defterden tureyen akis o zaman 'degerlendirilen 111, dislanan 11' der ve metnin dogru soyledigi 150/53'u YANLIS diye raporlar. Acik sayac dosyasi verildiginde onun kullanildigi ve KAYNAGININ ADI ciktida gorunur.",
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "a2020x",
+          "status": "included",
+          "stage": "fulltext"
+        }
+      ],
+      "prisma_counts": {
+        "counts": {
+          "identified": 1572,
+          "duplicates": 0,
+          "screened": 1572,
+          "excluded_screening": 1328,
+          "sought": 244,
+          "not_retrieved": 94,
+          "fulltext": 150,
+          "excluded_fulltext": 53,
+          "included": 97
+        }
+      },
+      "drafts": {
+        "yontem.md": "Toplam 1572 kayit tanimlandi. <!-- PRISMA: identified=1572 -->\nTam metinde 150 rapor degerlendirildi. <!-- PRISMA: fulltext=150 -->\nDoksan yedi calisma dahil edildi. <!-- PRISMA: included=97 -->\n"
+      },
+      "expect": [
+        {
+          "check": "prisma_source",
+          "source": "prisma-counts.json"
+        }
+      ]
+    },
+    {
+      "id": "014-flow-counts-that-break-the-identities-are-refused",
+      "comment": "Yazarin isaret ettigi bir dosyayla sessizce anlasan bir denetim, denetim degil aynadir. Kimlikleri cignemis sayaclar reddedilir ve reddedildigi kaynak adinda yazar. Beklenen BOS DEGIL: reddedilen kaynak da raporlanir — sessizce defterе dusen bir denetim, neye karsi karsilastirdigini soylemeyen denetimdir.",
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "a2020x",
+          "status": "included",
+          "stage": "fulltext"
+        }
+      ],
+      "prisma_counts": {
+        "counts": {
+          "identified": 1572,
+          "duplicates": 0,
+          "screened": 1572,
+          "excluded_screening": 1328,
+          "sought": 244,
+          "not_retrieved": 94,
+          "fulltext": 150,
+          "excluded_fulltext": 53,
+          "included": 999
+        }
+      },
+      "drafts": {
+        "yontem.md": "Toplam 1572 kayit tanimlandi. <!-- PRISMA: identified=1572 -->\nTam metinde 150 rapor degerlendirildi. <!-- PRISMA: fulltext=150 -->\nDoksan yedi calisma dahil edildi. <!-- PRISMA: included=97 -->\n"
+      },
+      "expect": [
+        {
+          "check": "prisma_source",
+          "source": "REDDEDILDI"
+        }
+      ]
+    },
+    {
+      "id": "015-english-grouped-thousands-read-whole",
+      "comment": "NEGATIVE. '1,572 records' is one thousand five hundred seventy-two. Without thousands support the pattern bound 572 and the manifest comparison ran against a number nobody wrote.",
+      "drafts": {
+        "bulgular.md": "In total 1,572 records were screened.\n"
+      },
+      "expect": [],
+      "analysis": {
+        "counts.json": "{\"n_samples\": 1572}"
+      }
+    },
+    {
+      "id": "016-turkish-grouped-thousands-read-whole",
+      "comment": "NEGATIVE. Turkish groups thousands with a POINT: '1.572 kayıt' is 1572, not the decimal 1.572. This is the checker's first language.",
+      "drafts": {
+        "bulgular.md": "Toplam 1.572 records taranmıştır.\n"
+      },
+      "expect": [],
+      "analysis": {
+        "counts.json": "{\"n_samples\": 1572}"
+      }
+    },
+    {
+      "id": "017-grouped-thousands-still-catch-a-real-mismatch",
+      "comment": "POSITIVE. Reading the number correctly must not mean agreeing with it: 1,572 against a manifest of 1,600 is still the defect.",
+      "drafts": {
+        "bulgular.md": "In total 1,572 records were screened.\n"
+      },
+      "expect": [
+        {
+          "check": "manifest_mismatch",
+          "quantity": "n_samples",
+          "stated": 1572,
+          "manifest": 1600
+        }
+      ],
+      "analysis": {
+        "counts.json": "{\"n_samples\": 1600}"
+      }
+    }
+  ],
+  "mutations": [
+    {
+      "id": "manifest-comparison-removed",
+      "breaks": "Prose that contradicts analysis/counts.json stops being reported, which is the check's primary reason to exist.",
+      "replace": [
+        [
+          "if n != expected:",
+          "if False:"
+        ]
+      ]
+    },
+    {
+      "id": "cross-section-drift-removed",
+      "breaks": "The same quantity stated with two different values across sections stops being reported, so a manuscript with no manifest loses the check entirely.",
+      "replace": [
+        [
+          "if len(distinct) > 1:",
+          "if False:"
+        ]
+      ]
+    },
+    {
+      "id": "manifest-type-guard-removed",
+      "breaks": "A manifest value of null or 'pending' is compared as if it were a number, so every prose figure contradicts it and a project with an incomplete manifest drowns in false warnings.",
+      "replace": [
+        [
+          "if not isinstance(expected, (int, float)) or isinstance(expected, bool):\n            continue",
+          "if False:\n            continue"
+        ]
+      ]
+    },
+    {
+      "id": "code-fence-stripping-removed",
+      "breaks": "Numbers inside fenced code count as narrated claims, so any draft that shows its own configuration reports a contradiction with itself.",
+      "replace": [
+        [
+          "text = _clean(f.read_text(encoding=\"utf-8\", errors=\"replace\"))",
+          "text = f.read_text(encoding=\"utf-8\", errors=\"replace\")"
+        ]
+      ]
+    },
+    {
+      "id": "explicit-prisma-counts-accepted-without-checking-identities",
+      "breaks": "Kimlikleri tutmayan bir sayac dosyasi kabul edilir, yani metin kendi uydurdugu akisla karsilastirilir ve her zaman tutar.",
+      "replace": [
+        [
+          "            if problems:",
+          "            if False:"
+        ]
+      ]
+    },
+    {
+      "id": "grouped-thousands-support-removed",
+      "breaks": "A grouped number is matched only from its last group, so '1,572 records' binds 572 and '1.572 kayıt' binds the decimal 1.572. The checker then reports a manifest mismatch that does not exist, or agrees with a figure the manuscript never stated.",
+      "replace": [
+        [
+          "_NUM = (r\"(?P<num>\" + _GROUPED_EN + r\"|\" + _GROUPED_TR",
+          "_NUM = (r\"(?P<num>\" + r\"(?!x)x\" + r\"|\" + r\"(?!x)x\""
+        ]
+      ]
+    }
+  ]
+}

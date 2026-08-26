@@ -1,0 +1,658 @@
+{
+  "task": "evidence_funnel",
+  "entrypoint": "evidence_funnel",
+  "description": "Labeled cases for evidence_funnel.py — the cards -> sources -> included -> cited -> bib funnel, and specifically its judgement about WHY a card never reached the prose. The distinction under test is orphan vs expected: a card from an INCLUDED source that no draft cites is extraction that never made it into the paper (the actionable signal), while an own-result card, or a card from a source deliberately excluded or marked duplicate, is uncited by design. A checker that collapsed the two would either bury the real signal in noise or report the author's own Results section as waste.",
+  "thresholds": {
+    "precision": 0.95,
+    "recall": 0.95
+  },
+  "cases": [
+    {
+      "id": "001-included-source-extracted-but-never-cited",
+      "comment": "The signal this tool exists for: a source was read, cards were written, and none of it reached the manuscript.",
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023deep",
+          "type": "finding",
+          "claim": "CNN beats SVM on bearing faults"
+        },
+        {
+          "id": "EV-0002",
+          "source": "demir2022vibration",
+          "type": "finding",
+          "claim": "Wavelet features improve recall"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "kaya2023deep",
+          "status": "included"
+        },
+        {
+          "id": "SRC-0002",
+          "bib_key": "demir2022vibration",
+          "status": "included"
+        }
+      ],
+      "drafts": {
+        "tartisma.md": "Derin ogrenme yaklasimlari one cikmaktadir [@kaya2023deep].\n"
+      },
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning},\n  author = {Kaya, A.},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n",
+      "expect": [
+        {
+          "check": "orphan_card",
+          "id": "EV-0002",
+          "source": "demir2022vibration"
+        }
+      ]
+    },
+    {
+      "id": "002-card-bound-by-registry-id-not-bib-key",
+      "comment": "Cards may name their source by registry id. Resolving that to the bib key is what keeps a genuinely cited source from being reported as an orphan.",
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "SRC-0001",
+          "type": "finding",
+          "claim": "CNN beats SVM"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "kaya2023deep",
+          "status": "included"
+        }
+      ],
+      "drafts": {
+        "tartisma.md": "Bu sonuc bildirilmistir [@kaya2023deep].\n"
+      },
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning},\n  author = {Kaya, A.},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "003-own-result-card-is-expected-uncited",
+      "comment": "A card holding this study's own measurement is presented in a figure or table, never [@key]-cited. Reporting it as waste would train the author to ignore the whole report.",
+      "cards": [
+        {
+          "id": "EV-0010",
+          "source": "own-analysis",
+          "type": "own-result",
+          "claim": "ROC-AUC 0.809 for LightGBM"
+        }
+      ],
+      "registry": [],
+      "drafts": {
+        "bulgular.md": "Tablo 1 model karsilastirmasini ozetlemektedir.\n"
+      },
+      "bib": "",
+      "expect": [
+        {
+          "check": "expected_uncited",
+          "id": "EV-0010",
+          "source": "own-analysis"
+        }
+      ]
+    },
+    {
+      "id": "004-card-from-an-excluded-source-is-expected-uncited",
+      "comment": "A retracted or screened-out paper is often discussed by name and deliberately not cited. Its cards being uncited is the intended outcome, not a gap.",
+      "cards": [
+        {
+          "id": "EV-0020",
+          "source": "geri2021cekilmis",
+          "type": "finding",
+          "claim": "Reported 0.99 accuracy"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0009",
+          "bib_key": "geri2021cekilmis",
+          "status": "excluded",
+          "reason": "retracted"
+        }
+      ],
+      "drafts": {
+        "tartisma.md": "Ayni veri setini kullanan bir calisma geri cekilmistir.\n"
+      },
+      "bib": "",
+      "expect": [
+        {
+          "check": "expected_uncited",
+          "id": "EV-0020",
+          "source": "geri2021cekilmis"
+        }
+      ]
+    },
+    {
+      "id": "005-duplicate-source-cards-are-expected-uncited",
+      "comment": "Same paper imported twice; the duplicate's cards are uncited because the other copy carries the citation.",
+      "cards": [
+        {
+          "id": "EV-0030",
+          "source": "kaya2023bearing",
+          "type": "finding",
+          "claim": "CNN beats SVM"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0002",
+          "bib_key": "kaya2023bearing",
+          "status": "duplicate"
+        }
+      ],
+      "drafts": {
+        "tartisma.md": "Bu sonuc bildirilmistir [@kaya2023deep].\n"
+      },
+      "bib": "@article{kaya2023deep,\n  title = {Deep learning},\n  author = {Kaya, A.},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n",
+      "expect": [
+        {
+          "check": "expected_uncited",
+          "id": "EV-0030",
+          "source": "kaya2023bearing"
+        }
+      ]
+    },
+    {
+      "id": "006-own-prefixed-source-without-a-card-type",
+      "comment": "The own-work exemption keys on either the card type or an `own`-prefixed source, because extraction pipelines write both shapes.",
+      "cards": [
+        {
+          "id": "EV-0040",
+          "source": "own-data",
+          "type": "statistic",
+          "claim": "5110 rows, 4.9% positive"
+        }
+      ],
+      "registry": [],
+      "drafts": {
+        "yontem.md": "Veri seti 5.110 satir icermektedir.\n"
+      },
+      "bib": "",
+      "expect": [
+        {
+          "check": "expected_uncited",
+          "id": "EV-0040",
+          "source": "own-data"
+        }
+      ]
+    },
+    {
+      "id": "007-every-card-reached-the-prose",
+      "comment": "NEGATIVE. The healthy shape: several cards per source, all of their sources cited.",
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023deep",
+          "type": "finding",
+          "claim": "CNN beats SVM"
+        },
+        {
+          "id": "EV-0002",
+          "source": "kaya2023deep",
+          "type": "method",
+          "claim": "CWRU preprocessing"
+        },
+        {
+          "id": "EV-0003",
+          "source": "demir2022vibration",
+          "type": "finding",
+          "claim": "Wavelets improve recall"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "kaya2023deep",
+          "status": "included"
+        },
+        {
+          "id": "SRC-0002",
+          "bib_key": "demir2022vibration",
+          "status": "included"
+        }
+      ],
+      "drafts": {
+        "tartisma.md": "Iki calisma bunu desteklemektedir [@kaya2023deep; @demir2022vibration].\n"
+      },
+      "bib": "@article{kaya2023deep,\n  title = {A},\n  author = {Kaya, A.},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n\n@article{demir2022vibration,\n  title = {B},\n  author = {Demir, C.},\n  journal = {JSV},\n  year = {2022},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "008-cards-with-no-source-are-skipped",
+      "comment": "NEGATIVE. A card with no source cannot be attributed to anything, so it cannot be an orphan of anything either. Guessing would invent a finding.",
+      "cards": [
+        {
+          "id": "EV-0050",
+          "type": "definition",
+          "claim": "Condition monitoring is defined as ..."
+        }
+      ],
+      "registry": [],
+      "drafts": {
+        "giris.md": "Tanim boludur.\n"
+      },
+      "bib": "",
+      "expect": []
+    },
+    {
+      "id": "009-empty-project",
+      "comment": "NEGATIVE. No cards, no registry, no drafts — a funnel with nothing in it reports nothing.",
+      "cards": [],
+      "registry": [],
+      "drafts": {},
+      "bib": "",
+      "expect": []
+    },
+    {
+      "id": "010-status-md-is-not-a-draft",
+      "comment": "NEGATIVE. A citation appearing only in the project's own STATUS.md must not count as cited — that would hide a genuine orphan behind the kit's bookkeeping.",
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "kaya2023deep",
+          "type": "finding",
+          "claim": "CNN beats SVM"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "kaya2023deep",
+          "status": "included"
+        }
+      ],
+      "drafts": {
+        "STATUS.md": "Siradaki is: [@kaya2023deep] kaynagini tartismaya islemek.\n",
+        "tartisma.md": "Bu kaynak taslakta anilmaktadir [@kaya2023deep].\n"
+      },
+      "bib": "@article{kaya2023deep,\n  title = {A},\n  author = {Kaya, A.},\n  journal = {MSSP},\n  year = {2023},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "011-included-study-reaches-no-analysis-at-all",
+      "comment": "The signal this axis exists for: a study passed eligibility, was read and carded, and has no row in the extraction table — so it is in the prose and in no stratum, no pooled estimate and no risk-of-bias summary. Found in a real review, where three landmark trials had been carded during a purposive phase and never re-extracted after the search was widened.",
+      "project": "# PROJECT.md\n- **Type:** systematic-review\n",
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "gulshan2016development",
+          "type": "finding",
+          "claim": "rDR sensitivity 90.3% on EyePACS-1"
+        },
+        {
+          "id": "EV-0002",
+          "source": "ting2017development",
+          "type": "finding",
+          "claim": "AUC 0.936 on SIDRP"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "gulshan2016development",
+          "status": "included",
+          "db_id": "PMID:27898976"
+        },
+        {
+          "id": "SRC-0002",
+          "bib_key": "ting2017development",
+          "status": "included",
+          "db_id": "PMID:29234807"
+        },
+        {
+          "id": "SRC-0003",
+          "bib_key": "page2021prisma",
+          "status": "included",
+          "scope": "background"
+        }
+      ],
+      "extraction": {
+        "29234807.json": {
+          "pmid": "29234807",
+          "cells": {
+            "tp": 1,
+            "fp": 1,
+            "fn": 1,
+            "tn": 1
+          }
+        }
+      },
+      "drafts": {
+        "sentez.md": "Iki calisma degerlendirildi [@gulshan2016development; @ting2017development]. Akis PRISMA 2020'ye gore raporlandi [@page2021prisma].\n"
+      },
+      "bib": "@article{gulshan2016development,\n  title = {Deep learning for DR},\n  author = {Gulshan, V.},\n  journal = {JAMA},\n  year = {2016},\n  verified = {true},\n}\n@article{ting2017development,\n  title = {DL system for DR},\n  author = {Ting, D.},\n  journal = {JAMA},\n  year = {2017},\n  verified = {true},\n}\n",
+      "expect": [
+        {
+          "check": "unextracted_included",
+          "source": "gulshan2016development"
+        }
+      ]
+    },
+    {
+      "id": "012-uncarded-but-extracted-is-not-a-coverage-gap",
+      "comment": "The negative that keeps the check usable. A review that pools keeps 2x2 cells in a table, not in cards; every study being uncarded is the NORMAL state there. Firing on it would make this a lint nobody reads.",
+      "project": "# PROJECT.md\n- **Type:** systematic-review\n",
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "gulshan2016development",
+          "type": "finding",
+          "claim": "rDR sensitivity 90.3%"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "gulshan2016development",
+          "status": "included",
+          "db_id": "PMID:27898976"
+        },
+        {
+          "id": "SRC-0002",
+          "bib_key": "ting2017development",
+          "status": "included",
+          "db_id": "PMID:29234807"
+        },
+        {
+          "id": "SRC-0003",
+          "bib_key": "page2021prisma",
+          "status": "included",
+          "scope": "background"
+        }
+      ],
+      "extraction": {
+        "27898976.json": {
+          "pmid": "27898976",
+          "cells": {
+            "tp": 1,
+            "fp": 1,
+            "fn": 1,
+            "tn": 1
+          }
+        },
+        "29234807.json": {
+          "pmid": "29234807",
+          "cells": {
+            "tp": 1,
+            "fp": 1,
+            "fn": 1,
+            "tn": 1
+          }
+        }
+      },
+      "drafts": {
+        "sentez.md": "Iki calisma degerlendirildi [@gulshan2016development; @ting2017development]. Akis PRISMA 2020'ye gore raporlandi [@page2021prisma].\n"
+      },
+      "bib": "@article{gulshan2016development,\n  title = {Deep learning for DR},\n  author = {Gulshan, V.},\n  journal = {JAMA},\n  year = {2016},\n  verified = {true},\n}\n@article{ting2017development,\n  title = {DL system for DR},\n  author = {Ting, D.},\n  journal = {JAMA},\n  year = {2017},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "013-background-source-is-not-an-included-study",
+      "comment": "A reporting guideline cited for method is scope:background — prisma_flow.py has always excluded it from the flow. Counting it as an included study made the coverage check name PRISMA 2020 and QUADAS-2 as studies that contributed nothing.",
+      "project": "# PROJECT.md\n- **Type:** systematic-review\n",
+      "cards": [],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "gulshan2016development",
+          "status": "included",
+          "db_id": "PMID:27898976"
+        },
+        {
+          "id": "SRC-0002",
+          "bib_key": "ting2017development",
+          "status": "included",
+          "db_id": "PMID:29234807"
+        },
+        {
+          "id": "SRC-0003",
+          "bib_key": "page2021prisma",
+          "status": "included",
+          "scope": "background"
+        }
+      ],
+      "extraction": {
+        "27898976.json": {
+          "pmid": "27898976",
+          "cells": {
+            "tp": 1,
+            "fp": 1,
+            "fn": 1,
+            "tn": 1
+          }
+        },
+        "29234807.json": {
+          "pmid": "29234807",
+          "cells": {
+            "tp": 1,
+            "fp": 1,
+            "fn": 1,
+            "tn": 1
+          }
+        }
+      },
+      "drafts": {
+        "sentez.md": "Iki calisma degerlendirildi [@gulshan2016development; @ting2017development]. Akis PRISMA 2020'ye gore raporlandi [@page2021prisma].\n"
+      },
+      "bib": "@article{gulshan2016development,\n  title = {Deep learning for DR},\n  author = {Gulshan, V.},\n  journal = {JAMA},\n  year = {2016},\n  verified = {true},\n}\n@article{ting2017development,\n  title = {DL system for DR},\n  author = {Ting, D.},\n  journal = {JAMA},\n  year = {2017},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "014-narrative-review-does-not-owe-every-included-source-data",
+      "comment": "Same facts as case 011, one word of PROJECT.md different. A narrative review cites sources it never extracts; reporting that as a gap would train the reader to skip the gap list. The judgement being scored is the paper type, not the file layout.",
+      "project": "# PROJECT.md\n- **Type:** narrative-review\n",
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "gulshan2016development",
+          "type": "finding",
+          "claim": "rDR sensitivity 90.3%"
+        },
+        {
+          "id": "EV-0002",
+          "source": "ting2017development",
+          "type": "finding",
+          "claim": "AUC 0.936"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "gulshan2016development",
+          "status": "included",
+          "db_id": "PMID:27898976"
+        },
+        {
+          "id": "SRC-0002",
+          "bib_key": "ting2017development",
+          "status": "included",
+          "db_id": "PMID:29234807"
+        },
+        {
+          "id": "SRC-0003",
+          "bib_key": "page2021prisma",
+          "status": "included",
+          "scope": "background"
+        }
+      ],
+      "extraction": {
+        "29234807.json": {
+          "pmid": "29234807",
+          "cells": {
+            "tp": 1,
+            "fp": 1,
+            "fn": 1,
+            "tn": 1
+          }
+        }
+      },
+      "drafts": {
+        "sentez.md": "Iki calisma degerlendirildi [@gulshan2016development; @ting2017development]. Akis PRISMA 2020'ye gore raporlandi [@page2021prisma].\n"
+      },
+      "bib": "@article{gulshan2016development,\n  title = {Deep learning for DR},\n  author = {Gulshan, V.},\n  journal = {JAMA},\n  year = {2016},\n  verified = {true},\n}\n@article{ting2017development,\n  title = {DL system for DR},\n  author = {Ting, D.},\n  journal = {JAMA},\n  year = {2017},\n  verified = {true},\n}\n",
+      "expect": []
+    },
+    {
+      "id": "015-extraction-record-for-a-study-the-register-never-heard-of",
+      "comment": "The other direction of the coverage question, and it caught a real one: a study was retrieved, read, extracted and deliberately kept out of the pool for a recorded reason, but its registration never ran. It was counted in no PRISMA box at all and the flow understated the review by one for days.",
+      "project": "# PROJECT.md\n- **Type:** systematic-review\n",
+      "cards": [],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "gulshan2016development",
+          "status": "included",
+          "db_id": "PMID:27898976"
+        }
+      ],
+      "extraction": {
+        "27898976.json": {
+          "pmid": "27898976",
+          "cells": {
+            "tp": 1,
+            "fp": 1,
+            "fn": 1,
+            "tn": 1
+          }
+        },
+        "42204606.json": {
+          "pmid": "42204606",
+          "cells": {
+            "tp": 1,
+            "fp": 1,
+            "fn": 1,
+            "tn": 1
+          }
+        }
+      },
+      "drafts": {
+        "sentez.md": "Bir calisma degerlendirildi [@gulshan2016development].\n"
+      },
+      "bib": "@article{gulshan2016development,\n  title = {Deep learning for DR},\n  author = {Gulshan, V.},\n  journal = {JAMA},\n  year = {2016},\n  verified = {true},\n}\n",
+      "expect": [
+        {
+          "check": "orphan_extraction",
+          "file": "42204606.json"
+        }
+      ]
+    },
+    {
+      "id": "016-extraction-matched-by-doi-is-not-an-orphan",
+      "comment": "The negative that keeps it honest. Projects name extraction files by whatever identifier they use; matching only on filename would report every DOI-named record as unregistered.",
+      "project": "# PROJECT.md\n- **Type:** systematic-review\n",
+      "cards": [],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "gulshan2016development",
+          "status": "included",
+          "db_id": "PMID:27898976",
+          "doi": "10.1001/jama.2016.17216"
+        }
+      ],
+      "extraction": {
+        "study-a.json": {
+          "doi": "10.1001/jama.2016.17216",
+          "cells": {
+            "tp": 1,
+            "fp": 1,
+            "fn": 1,
+            "tn": 1
+          }
+        }
+      },
+      "drafts": {
+        "sentez.md": "Bir calisma degerlendirildi [@gulshan2016development].\n"
+      },
+      "bib": "@article{gulshan2016development,\n  title = {Deep learning for DR},\n  author = {Gulshan, V.},\n  journal = {JAMA},\n  year = {2016},\n  verified = {true},\n}\n",
+      "expect": []
+    }
+  ],
+  "mutations": [
+    {
+      "id": "orphan-card-detection-removed",
+      "breaks": "A card from an included source that never reached the prose stops being reported, so extraction work that silently died is invisible — the one thing this tool is for.",
+      "replace": [
+        [
+          "            orphan_cards.append(rec)",
+          "            pass"
+        ]
+      ]
+    },
+    {
+      "id": "own-work-exemption-removed",
+      "breaks": "Every own-result card is reclassified as an orphan, so a paper's own Results section is reported as wasted extraction and the real orphans drown in it.",
+      "replace": [
+        [
+          "        is_own = c.get(\"type\") == \"own-result\" or src.lower().startswith(\"own\")",
+          "        is_own = False"
+        ]
+      ]
+    },
+    {
+      "id": "excluded-source-exemption-removed",
+      "breaks": "Cards from a deliberately excluded or duplicate source are reported as orphans, turning a correct screening decision into a list of complaints.",
+      "replace": [
+        [
+          "        if is_own or src_status.get(src) in (\"excluded\", \"duplicate\"):",
+          "        if is_own:"
+        ]
+      ]
+    },
+    {
+      "id": "registry-id-to-bib-key-resolution-broken",
+      "breaks": "A card naming its source by registry id no longer resolves to the bib key, so genuinely cited sources are reported as orphans across the whole project.",
+      "replace": [
+        [
+          "        if _resolve_bib_key(src, id_to_key) in cited:",
+          "        if src in cited:"
+        ]
+      ]
+    },
+    {
+      "id": "unextracted-included-detection-removed",
+      "breaks": "An included study with no row in the extraction table stops being reported, so a study that passed eligibility and reached no stratum, pool or QUADAS-2 table is invisible — while still counting in the PRISMA included box.",
+      "replace": [
+        [
+          "    unextracted_included = ([k for k in included if not _has_extraction(k)]",
+          "    unextracted_included = ([]"
+        ]
+      ]
+    },
+    {
+      "id": "background-scope-ignored-again",
+      "breaks": "Background citations (PRISMA 2020, QUADAS-2, the Reitsma bivariate paper) go back to counting as included studies, so the coverage check names reporting guidelines as studies that contributed no data and disagrees with prisma_flow.py about what 'included' means.",
+      "replace": [
+        [
+          "    registry = [r for r in registry if r.get(\"scope\") != \"background\"]",
+          "    registry = list(registry)"
+        ]
+      ]
+    },
+    {
+      "id": "paper-type-gate-always-on",
+      "breaks": "Coverage is demanded of every paper type, so a narrative review is told that the sources it cited for context but never extracted are a defect.",
+      "replace": [
+        [
+          "    coverage_is_required = (ptype in SYNTHESIS_TYPES) or not ptype",
+          "    coverage_is_required = True"
+        ]
+      ]
+    },
+    {
+      "id": "orphan-extraction-detection-removed",
+      "breaks": "An extraction record for a study the register never contained stops being reported, so a study that was read and extracted is counted in no PRISMA box and the flow silently understates the review.",
+      "replace": [
+        [
+          "            if not (ids & known):",
+          "            if False:"
+        ]
+      ]
+    }
+  ]
+}

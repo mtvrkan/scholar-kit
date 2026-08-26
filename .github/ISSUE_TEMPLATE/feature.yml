@@ -1,0 +1,45 @@
+name: Özellik önerisi / Feature request
+description: Yeni bir kontrol, araç, skill veya davranış.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Önce [POSITIONING.md](../../POSITIONING.md)'yi okuyun.** Kit yedi
+        mekanizmayı gerekçeleriyle **reddeder**; bunlardan birini isteyen bir
+        öneri özellik talebi değil, *kapsam değişikliği* talebidir ve süreci o
+        belgenin sonunda yazılı.
+
+        Read POSITIONING.md first: seven mechanisms are refused with reasons, and
+        asking for one is a scope-change request, not a feature request.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Hangi somut sorun? / What concrete problem?
+      description: |
+        Çözümü değil, karşılaştığınız durumu anlatın — hangi makalede, hangi
+        adımda, ne yanlış gitti. Describe the situation, not the solution.
+    validations: {required: true}
+  - type: textarea
+    id: today
+    attributes:
+      label: Şu an ne yapıyorsunuz? / What do you do today instead?
+    validations: {required: true}
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Ne tür? / What kind?
+      options:
+        - Yeni deterministik kontrol (script) / New deterministic check
+        - Mevcut bir script'e ekleme / Extension to an existing script
+        - Yeni skill veya komut / New skill or command
+        - Belge / Documentation
+        - Emin değilim / Not sure
+    validations: {required: true}
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Kapsam
+      options:
+        - label: "POSITIONING.md'deki reddedilen yedi mekanizmadan biri DEĞİL"
+          required: true

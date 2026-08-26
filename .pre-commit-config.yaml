@@ -1,0 +1,67 @@
+# Pre-commit — the fast subset of CI, and nothing else.
+#
+# Budget: under ten seconds. A hook that makes committing feel slow gets
+# bypassed with --no-verify, and a bypassed hook is worse than an absent one
+# because everyone believes it ran. So the slow, thorough checks stay in CI:
+# the full pytest suite (~4 min), the eval harness, the site build.
+#
+#   pip install pre-commit && pre-commit install
+#   pre-commit run --all-files        # first run, or after editing this file
+#   pre-commit autoupdate             # the maintenance path for the revs below
+#
+# ruff and bandit are `local` hooks on purpose. Mirrored remote versions would
+# be a SECOND place tool versions are declared, and the failure mode is the
+# quiet one: CI green on ruff 0.9, your commit rejected by ruff 0.11 for a rule
+# neither of you chose. These run the versions requirements-dev.txt pins, which
+# are the versions CI runs.
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff (config + rationale in ruff.toml)
+        entry: python -m ruff check --force-exclude
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+
+      - id: bandit
+        name: bandit (MEDIUM+ severity)
+        entry: python -m bandit -q -ll
+        language: system
+        files: ^(scripts|\.claude/hooks)/.*\.py$
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      # Scans the staged diff, not the working tree — which is the point: a key
+      # pasted into a draft and removed before commit is not a leak, and a key
+      # committed once is a leak forever regardless of what the next commit does.
+      - id: gitleaks
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: detect-private-key
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        # The committed site build (docs/og.png, ~65 KB) and the CSL styles
+        # (chicago-notes-bibliography.csl, 237 KB) are legitimately in-tree, so
+        # the threshold sits above them and below "someone committed a PDF
+        # corpus or a dataset dump", which is the actual accident.
+        args: [--maxkb=512]
+      # JSON/YAML/TOML parse checks: every one of these files is read by a hook,
+      # a workflow or a manifest at a moment when a syntax error reads as
+      # "feature absent" rather than "file broken".
+      - id: check-json
+        # .claude/settings.json and the plugin manifests are strict JSON; the
+        # eval manifests and gold sets are too.
+        exclude: ^web/tsconfig\.json$    # Astro's tsconfig carries comments (JSONC)
+      - id: check-yaml
+      - id: check-toml
+
+# Deliberately NOT here: end-of-file-fixer and trailing-whitespace. They were
+# tried, and on first run they rewrote 40+ skill files — prompt text, where a
+# trailing space is invisible and a diff is not. Neither can indicate a defect,
+# which is the same criterion ruff.toml applies to E501: a hook that produces a
+# large cosmetic diff on files nobody edited is how a pre-commit config gets
+# uninstalled.

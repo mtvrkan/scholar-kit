@@ -1,0 +1,353 @@
+{
+  "task": "temporal",
+  "entrypoint": "temporal_check",
+  "description": "Labeled cases for temporal_check.py: future-dated bibliography entries, fetched_at timestamps that predate their own publication year, and evidence cards that attribute a later year's development to an earlier source. Every case pins `today`, so the set measures the checker rather than the calendar. Negatives outnumber positives and are all near-misses — the boundary year, the uncorroborated source, the missing field — because those are the shapes a date checker fires on wrongly.",
+  "thresholds": {
+    "precision": 0.95,
+    "recall": 0.95
+  },
+  "cases": [
+    {
+      "id": "001-future-publication-year",
+      "today": "2026-08-13",
+      "bib": "@article{yilmaz2030,\n  author = {Yilmaz, Ayse},\n  title = {Stroke risk stratification},\n  journal = {IEEE Access},\n  year = {2030}\n}\n",
+      "expect": [
+        {
+          "kind": "future-year",
+          "key": "yilmaz2030",
+          "year": 2030
+        }
+      ]
+    },
+    {
+      "id": "002-transposed-digit-reads-as-future",
+      "comment": "The realistic origin of this defect: 2027 typed for 2017, not a preprint from the future.",
+      "today": "2026-08-13",
+      "bib": "@inproceedings{demir2027,\n  author = {Demir, Kemal},\n  title = {Gradient boosting for imbalanced clinical data},\n  year = {2027}\n}\n",
+      "expect": [
+        {
+          "kind": "future-year",
+          "key": "demir2027",
+          "year": 2027
+        }
+      ]
+    },
+    {
+      "id": "003-fetched-before-published",
+      "today": "2026-08-13",
+      "bib": "@article{kaya2024,\n  author = {Kaya, Selin},\n  title = {SHAP stability under class imbalance},\n  year = {2024},\n  fetched_at = {2021-03-04}\n}\n",
+      "expect": [
+        {
+          "kind": "fetched-before-published",
+          "key": "kaya2024",
+          "year": 2024,
+          "fetched_at": "2021-03-04"
+        }
+      ]
+    },
+    {
+      "id": "004-card-attributes-later-development",
+      "today": "2026-08-13",
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "bib_key": "ozturk2019",
+          "year": 2019,
+          "title": "Permutation importance revisited"
+        }
+      ],
+      "cards": [
+        {
+          "id": "EV-0007",
+          "source": "ozturk2019",
+          "type": "finding",
+          "claim": "Permutation importance was compared against the 2024 TreeSHAP revision",
+          "detail": "Reported as part of the same benchmark."
+        }
+      ],
+      "expect": [
+        {
+          "kind": "card-year-anachronism",
+          "card": "EV-0007",
+          "source": "ozturk2019",
+          "source_year": 2019,
+          "mentioned_year": 2024
+        }
+      ]
+    },
+    {
+      "id": "005-both-defects-in-one-project",
+      "comment": "A card anachronism and a future bib year are independent findings; the checker must report both, not stop at the first.",
+      "today": "2026-08-13",
+      "bib": "@article{arslan2029,\n  author = {Arslan, Deniz},\n  title = {Calibration under drift},\n  year = {2029}\n}\n",
+      "registry": [
+        {
+          "id": "SRC-0002",
+          "bib_key": "arslan2015",
+          "year": 2015,
+          "title": "Early calibration work"
+        }
+      ],
+      "cards": [
+        {
+          "id": "EV-0011",
+          "source": "arslan2015",
+          "type": "method",
+          "claim": "The 2022 recalibration protocol is applied to the same cohort"
+        }
+      ],
+      "expect": [
+        {
+          "kind": "future-year",
+          "key": "arslan2029",
+          "year": 2029
+        },
+        {
+          "kind": "card-year-anachronism",
+          "card": "EV-0011",
+          "mentioned_year": 2022
+        }
+      ]
+    },
+    {
+      "id": "101-current-year-is-not-future",
+      "comment": "NEGATIVE. The boundary. A paper published this year is the ordinary case and must never fire.",
+      "today": "2026-08-13",
+      "bib": "@article{sahin2026,\n  author = {Sahin, Burak},\n  title = {A 2026 study},\n  year = {2026}\n}\n",
+      "expect": []
+    },
+    {
+      "id": "102-fetched-same-year-as-published",
+      "comment": "NEGATIVE. fetched_at inside the publication year is normal; only fetching BEFORE publication is impossible.",
+      "today": "2026-08-13",
+      "bib": "@article{cetin2024,\n  author = {Cetin, Elif},\n  title = {Bootstrap intervals for AUC},\n  year = {2024},\n  fetched_at = {2024-01-02}\n}\n",
+      "expect": []
+    },
+    {
+      "id": "103-card-mentions-year-one-after-source",
+      "comment": "NEGATIVE. The +1 boundary. Online-first in one year, issue-assigned the next, is routine — the checker only fires above a one-year gap.",
+      "today": "2026-08-13",
+      "registry": [
+        {
+          "id": "SRC-0003",
+          "bib_key": "koc2020",
+          "year": 2020,
+          "title": "Imbalanced learning survey"
+        }
+      ],
+      "cards": [
+        {
+          "id": "EV-0021",
+          "source": "koc2020",
+          "type": "finding",
+          "claim": "Data collected through 2021 is described in the same paper"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "104-card-mentions-year-before-its-source",
+      "comment": "NEGATIVE. A 2020 paper citing 1998 data is scholarship working normally, not an anachronism. The check is directional and must stay that way.",
+      "today": "2026-08-13",
+      "registry": [
+        {
+          "id": "SRC-0004",
+          "bib_key": "aydin2020",
+          "year": 2020,
+          "title": "Historical cohort"
+        }
+      ],
+      "cards": [
+        {
+          "id": "EV-0031",
+          "source": "aydin2020",
+          "type": "finding",
+          "claim": "The cohort was enrolled in 1998 and followed for two decades"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "105-source-absent-from-registry",
+      "comment": "NEGATIVE. Without a recorded year there is nothing to compare against; guessing one would be exactly the fabrication the kit forbids.",
+      "today": "2026-08-13",
+      "registry": [
+        {
+          "id": "SRC-0005",
+          "bib_key": "baran2018",
+          "year": 2018,
+          "title": "Unrelated"
+        }
+      ],
+      "cards": [
+        {
+          "id": "EV-0041",
+          "source": "unregistered2010",
+          "type": "finding",
+          "claim": "Reports a 2024 architecture"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "106-registry-year-not-an-integer",
+      "comment": "NEGATIVE. A registry row with year 'in press' or null must be skipped, not coerced.",
+      "today": "2026-08-13",
+      "registry": [
+        {
+          "id": "SRC-0006",
+          "bib_key": "polat2023",
+          "year": "in press",
+          "title": "Forthcoming"
+        }
+      ],
+      "cards": [
+        {
+          "id": "EV-0051",
+          "source": "polat2023",
+          "type": "finding",
+          "claim": "Extends the 2025 benchmark"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "107-bib-entry-without-a-year",
+      "comment": "NEGATIVE. A missing year is bib_doctor's finding, not this checker's — two lints reporting the same defect teaches the author nothing twice.",
+      "today": "2026-08-13",
+      "bib": "@misc{nodate,\n  author = {Anonymous},\n  title = {Undated technical note}\n}\n",
+      "expect": []
+    },
+    {
+      "id": "108-malformed-fetched-at",
+      "comment": "NEGATIVE. A fetched_at that will not parse is a schema defect, deliberately left to bib_doctor rather than reported here as a temporal impossibility.",
+      "today": "2026-08-13",
+      "bib": "@article{tas2022,\n  author = {Tas, Murat},\n  title = {Note},\n  year = {2022},\n  fetched_at = {04/03/2023}\n}\n",
+      "expect": []
+    },
+    {
+      "id": "109-no-bib-and-no-cards",
+      "comment": "NEGATIVE. An empty project must report nothing rather than crash — the state every project is in on day one.",
+      "today": "2026-08-13",
+      "expect": []
+    },
+    {
+      "id": "015-tensor-dimension-is-not-a-year",
+      "comment": "NEGATIVE. 2048 is ResNet-50's Global Average Pooling width — the only power of two inside the retained 20xx range and the most common feature dimension in computer vision. A DL review meets it in almost every extraction card.",
+      "cards": [
+        {
+          "id": "EV-0001",
+          "source": "SRC-0001",
+          "claim": "ResNet-50 feature extraction",
+          "detail": "the GAP layer gives 2048 features per image"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0001",
+          "year": 2021
+        }
+      ],
+      "expect": [],
+      "today": "2026-08-21"
+    },
+    {
+      "id": "016-author-year-citation-is-not-an-anachronism",
+      "comment": "NEGATIVE. A card may name ANOTHER study. 'Polater & Isik 2024' inside a card whose own source is from 2021 is a cross-reference, not a claim the 2021 paper made about 2024.",
+      "cards": [
+        {
+          "id": "EV-0002",
+          "source": "SRC-0002",
+          "claim": "inherited labels",
+          "detail": "This mirrors Polater & Isik 2024, the same APTOS source"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0002",
+          "year": 2021
+        }
+      ],
+      "expect": [],
+      "today": "2026-08-21"
+    },
+    {
+      "id": "017-genuine-anachronism-still-caught",
+      "comment": "POSITIVE. The context guard must not blind the check to a real temporal claim: a 2019 source cannot report a 2024 revision.",
+      "cards": [
+        {
+          "id": "EV-0003",
+          "source": "SRC-0003",
+          "claim": "later guidance",
+          "detail": "the recommendation was revised in 2024 following the trial"
+        }
+      ],
+      "registry": [
+        {
+          "id": "SRC-0003",
+          "year": 2019
+        }
+      ],
+      "expect": [
+        {
+          "kind": "card-year-anachronism",
+          "card": "EV-0003",
+          "mentioned_year": 2024
+        }
+      ],
+      "today": "2026-08-21"
+    }
+  ],
+  "mutations": [
+    {
+      "id": "future-year-threshold-slackened",
+      "breaks": "A publication year up to five years in the future stops being questioned.",
+      "replace": [
+        [
+          "if year is not None and year > today.year:",
+          "if year is not None and year > today.year + 5:"
+        ]
+      ]
+    },
+    {
+      "id": "anachronism-gap-loosened",
+      "breaks": "The one-year tolerance disappears, so ordinary online-first-then-issue timing is reported as an anachronism.",
+      "replace": [
+        [
+          "if mentioned - src_year > 1:",
+          "if mentioned - src_year > 0:"
+        ]
+      ]
+    },
+    {
+      "id": "fetched-before-published-inverted",
+      "breaks": "The impossible direction is reversed, so a normal fetch is flagged and the real defect passes.",
+      "replace": [
+        [
+          "if fetched_year < year:",
+          "if fetched_year > year:"
+        ]
+      ]
+    },
+    {
+      "id": "year-context-guard-unwired",
+      "breaks": "The context guard stops being consulted in the card loop, so a tensor dimension ('2048 features') and an author-year cross-reference are both reported as anachronistic citations. The helper staying correct while nothing calls it is the failure this mutation exists to catch.",
+      "replace": [
+        [
+          "            if not _is_a_year_here(text, m):\n                continue\n",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "surname-stopword-guard-removed",
+      "breaks": "Any capitalised word before a year counts as an author surname, so 'The 2022 recalibration protocol' is exempted as a citation and a genuine anachronism goes unreported. An exemption that swallows true positives is the same defect as the false positive it removed, reversed.",
+      "replace": [
+        [
+          "    if cm and cm.group(\"surname\").lower() not in NOT_A_SURNAME:",
+          "    if cm:"
+        ]
+      ]
+    }
+  ]
+}

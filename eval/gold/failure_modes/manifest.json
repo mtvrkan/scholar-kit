@@ -1,0 +1,539 @@
+{
+ "task": "failure_modes",
+ "entrypoint": "failure_scan",
+ "description": "Labeled cases for failure_scan.py's machine-decidable modes (M1/M3/M5/M6/M7). Negatives carry the near-miss shapes each tell must NOT fire on — an ordinary metric value, a cited surprise, a corroborated hyperparameter — because a detector is only as good as what it declines to flag. M2 (delegated) and M4 (not automated) emit no findings by design and are covered by unit tests, not here.",
+ "thresholds": {
+  "precision": 0.95,
+  "recall": 0.95
+ },
+ "cases": [
+  {
+   "id": "001-m1-exact-round-metric",
+   "drafts": {
+    "results.md": "The model reached an accuracy of 1.00 on the test set."
+   },
+   "expect": [
+    {
+     "mode": "M1",
+     "signal": "exact-round-metric"
+    }
+   ]
+  },
+  {
+   "id": "002-m1-zero-variance",
+   "drafts": {
+    "results.md": "Performance was stable across seeds (0.812 ± 0.00)."
+   },
+   "expect": [
+    {
+     "mode": "M1",
+     "signal": "zero-variance"
+    }
+   ]
+  },
+  {
+   "id": "003-m1-one-value-many-metrics",
+   "drafts": {
+    "results.md": "Accuracy was 0.873, precision 0.873, and recall 0.873."
+   },
+   "expect": [
+    {
+     "mode": "M1",
+     "signal": "one-value-many-metrics"
+    }
+   ]
+  },
+  {
+   "id": "004-m1-turkish-metric-word-ascii-folded",
+   "drafts": {
+    "bulgular.md": "Modelin dogruluk degeri 1.00 olarak olculmustur."
+   },
+   "expect": [
+    {
+     "mode": "M1",
+     "signal": "exact-round-metric"
+    }
+   ]
+  },
+  {
+   "id": "005-clean-ordinary-metric-value",
+   "drafts": {
+    "results.md": "The model reached an accuracy of 0.873 on the test set."
+   },
+   "analysis": {
+    "metrics.csv": "acc\n0.873\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "006-clean-one-metric-restated-across-sections",
+   "drafts": {
+    "abstract.md": "We report an accuracy of 0.873.",
+    "results.md": "Accuracy reached 0.873.",
+    "discussion.md": "The accuracy of 0.873 exceeds the baseline."
+   },
+   "analysis": {
+    "metrics.csv": "acc\n0.873\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "007-m3-unbacked-number",
+   "drafts": {
+    "results.md": "The improvement reached 12.4 points."
+   },
+   "analysis": {
+    "counts.json": "{\"n_models\": 4}"
+   },
+   "expect": [
+    {
+     "mode": "M3",
+     "value": "12.4"
+    }
+   ]
+  },
+  {
+   "id": "008-m3-prose-more-precise-than-artefact",
+   "drafts": {
+    "results.md": "Accuracy was 0.8712 overall."
+   },
+   "analysis": {
+    "metrics.csv": "acc\n0.87\n"
+   },
+   "expect": [
+    {
+     "mode": "M3",
+     "value": "0.8712"
+    }
+   ]
+  },
+  {
+   "id": "009-clean-prose-rounds-artefact",
+   "drafts": {
+    "results.md": "Accuracy was 0.87 overall."
+   },
+   "analysis": {
+    "metrics.csv": "acc\n0.8712\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "010-clean-cited-number-is-literature",
+   "drafts": {
+    "results.md": "Prior work reports 0.91 accuracy [@kaya2023]."
+   },
+   "analysis": {
+    "counts.json": "{}"
+   },
+   "expect": []
+  },
+  {
+   "id": "011-clean-table-pointer-exempts",
+   "drafts": {
+    "results.md": "Table 3 lists the 12.4 point gain."
+   },
+   "analysis": {
+    "counts.json": "{}"
+   },
+   "expect": []
+  },
+  {
+   "id": "012-clean-integers-are-not-measurements",
+   "drafts": {
+    "results.md": "We evaluated 4 models across 2023 and 2024."
+   },
+   "analysis": {
+    "counts.json": "{}"
+   },
+   "expect": []
+  },
+  {
+   "id": "013-m5-unanchored-surprise-en",
+   "drafts": {
+    "discussion.md": "Surprisingly, the effect reversed under load."
+   },
+   "expect": [
+    {
+     "mode": "M5"
+    }
+   ]
+  },
+  {
+   "id": "014-m5-unanchored-surprise-tr-ascii-folded",
+   "drafts": {
+    "tartisma.md": "Beklenenin aksine, etki yuk altinda tersine dondu."
+   },
+   "expect": [
+    {
+     "mode": "M5"
+    }
+   ]
+  },
+  {
+   "id": "015-clean-surprise-anchored-in-same-sentence",
+   "drafts": {
+    "discussion.md": "Surprisingly, the effect reversed under load [@kaya2023]."
+   },
+   "expect": []
+  },
+  {
+   "id": "016-clean-surprise-anchored-by-previous-sentence",
+   "drafts": {
+    "discussion.md": "Earlier work predicted a monotone increase [@kaya2023]. Unexpectedly, the effect reversed under load."
+   },
+   "expect": []
+  },
+  {
+   "id": "017-m6-hyperparameter-drift-name-first",
+   "drafts": {
+    "methods.md": "We trained with a learning rate of 0.003."
+   },
+   "analysis": {
+    "config.json": "{\"learning_rate\": 0.01}"
+   },
+   "expect": [
+    {
+     "mode": "M6",
+     "value": "0.003"
+    }
+   ]
+  },
+  {
+   "id": "018-m6-hyperparameter-drift-value-first",
+   "drafts": {
+    "methods.md": "We trained for 50 epochs."
+   },
+   "analysis": {
+    "config.json": "{\"epochs\": 30}"
+   },
+   "expect": [
+    {
+     "mode": "M6",
+     "value": "50"
+    }
+   ]
+  },
+  {
+   "id": "019-clean-hyperparameter-corroborated",
+   "drafts": {
+    "methods.md": "We trained with a learning rate of 0.003 for 30 epochs."
+   },
+   "analysis": {
+    "config.json": "{\"learning_rate\": 0.003, \"epochs\": 30}"
+   },
+   "expect": []
+  },
+  {
+   "id": "020-clean-hyperparameter-outside-methods",
+   "comment": "M6 is a Methods-section check. The value is present in the artefact so M3 stays silent too — otherwise this case would trip M3 legitimately and stop isolating M6's file scoping.",
+   "drafts": {
+    "results.md": "The learning rate of 0.003 was the best of the sweep."
+   },
+   "analysis": {
+    "config.json": "{\"learning_rate\": 0.003}"
+   },
+   "expect": []
+  },
+  {
+   "id": "021-m7-hindsight-en",
+   "drafts": {
+    "discussion.md": "In hindsight, a different split would have been preferable."
+   },
+   "expect": [
+    {
+     "mode": "M7"
+    }
+   ]
+  },
+  {
+   "id": "022-m7-hindsight-tr-ascii-folded",
+   "drafts": {
+    "tartisma.md": "Sonradan fark ettigimiz uzere, bolunme orani dardi."
+   },
+   "expect": [
+    {
+     "mode": "M7"
+    }
+   ]
+  },
+  {
+   "id": "023-clean-no-tells-at-all",
+   "drafts": {
+    "discussion.md": "The findings align with the framework set out earlier [@kaya2023]."
+   },
+   "analysis": {
+    "counts.json": "{}"
+   },
+   "expect": []
+  },
+  {
+   "id": "024-clean-code-fence-not-prose",
+   "drafts": {
+    "results.md": "Setup follows the reference implementation.\n\n```\naccuracy = 1.00\n```\n"
+   },
+   "analysis": {
+    "counts.json": "{}"
+   },
+   "expect": []
+  },
+  {
+   "id": "025-clean-heading-not-an-assertion",
+   "drafts": {
+    "discussion.md": "## Surprisingly strong results\n\nDetails follow [@kaya2023].\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "026-type-filter-silences-quantitative-modes",
+   "type": "theoretical",
+   "drafts": {
+    "results.md": "The construct reached a value of 1.00."
+   },
+   "analysis": {
+    "counts.json": "{}"
+   },
+   "expect": []
+  },
+  {
+   "id": "027-type-filter-keeps-narrative-modes",
+   "type": "qualitative",
+   "drafts": {
+    "discussion.md": "Surprisingly, the framing collapsed."
+   },
+   "expect": [
+    {
+     "mode": "M5"
+    }
+   ]
+  },
+  {
+   "id": "002b-m1-zero-variance-sd-spelling",
+   "comment": "The mutation harness showed one zero-variance case was not enough to hold the detector: removing it entirely left recall at 0.92, above threshold, so the set passed with the check gone. The regex accepts several spellings and each needs a case.",
+   "drafts": {
+    "results.md": "Across ten seeds the standard deviation was SD = 0.000.\n"
+   },
+   "expect": [
+    {
+     "mode": "M1",
+     "signal": "zero-variance"
+    }
+   ]
+  },
+  {
+   "id": "002c-m1-zero-variance-turkish",
+   "comment": "The Turkish spellings (SS, varyans) are in the same pattern and were exercised by nothing.",
+   "drafts": {
+    "bulgular.md": "On tekrar boyunca varyans: 0,00 olarak raporlanmıştır.\n"
+   },
+   "expect": [
+    {
+     "mode": "M1",
+     "signal": "zero-variance"
+    }
+   ]
+  },
+  {
+   "id": "102-small-but-real-variance",
+   "comment": "NEGATIVE. A genuinely small standard deviation is a result, not an impossibility. The detector must fire on exactly zero and nothing near it.",
+   "drafts": {
+    "results.md": "Performance was stable across seeds (0.812 ± 0.004).\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "031-grouped-record-count-is-not-an-own-result",
+   "comment": "NEGATIVE. '1.572 kayıt' is the integer 1572, not the decimal 1.572. Read as a decimal it slips past the 'integers are counts and years' skip and is reported as an unbacked measurement — while the artefact holding 1572 sits in analysis/.",
+   "paper_type": "systematic-review",
+   "drafts": {
+    "bulgular.md": "Uluslararası kolda tanımlanan 1.572 kaydın 1.328'i elemede dışlandı.\n"
+   },
+   "analysis": {
+    "counts.json": "{\"identified\": 1572, \"excluded_screening\": 1328}"
+   },
+   "expect": []
+  },
+  {
+   "id": "032-english-grouped-count-likewise",
+   "comment": "NEGATIVE. The same number under the English convention.",
+   "paper_type": "systematic-review",
+   "drafts": {
+    "bulgular.md": "In total 1,572 records were identified.\n"
+   },
+   "analysis": {
+    "counts.json": "{\"identified\": 1572}"
+   },
+   "expect": []
+  },
+  {
+   "id": "016-unbacked-measurement-still-flagged",
+   "comment": "POSITIVE. Reading counts correctly must not blind M3 to a real unbacked measurement.",
+   "paper_type": "systematic-review",
+   "drafts": {
+    "bulgular.md": "Havuzlanmış duyarlılık 0.937 olarak bulunmuştur.\n"
+   },
+   "analysis": {
+    "counts.json": "{\"identified\": 1572}"
+   },
+   "expect": [
+    {
+     "mode": "M3",
+     "value": "0.937"
+    }
+   ]
+  },
+  {
+   "id": "033-cited-perfect-metric-is-a-literature-number",
+   "comment": "NEGATIVE. A review's job includes REPORTING an implausible 1.0 someone else published. scan_m3 already exempts cited sentences; M1 does the same.",
+   "paper_type": "systematic-review",
+   "drafts": {
+    "bulgular.md": "Bir çalışmada beş sınıfın tamamında duyarlılık 1,0 olarak bildirilmiştir [@cavli2023yapay].\n"
+   },
+   "expect": []
+  },
+  {
+   "id": "017-uncited-perfect-metric-still-flagged",
+   "comment": "POSITIVE. An own result carries no citation key.",
+   "paper_type": "systematic-review",
+   "drafts": {
+    "bulgular.md": "Modelimiz test kümesinde 1,0 duyarlılık elde etmiştir.\n"
+   },
+   "expect": [
+    {
+     "mode": "M1",
+     "signal": "exact-round-metric"
+    }
+   ]
+  },
+  {
+   "id": "040-saturated-pool-is-not-a-clear",
+   "comment": "NEGATIVE-ISH. A pool that backs every two-decimal value cannot clear anything; M3 must report INSUFFICIENT EVIDENCE, not CLEAR.",
+   "drafts": {
+    "results.md": "The correlation was 0.22 overall.\n"
+   },
+   "analysis": {
+    "big.csv": "v\n0.0199\n0.0299\n0.0399\n0.0499\n0.0599\n0.0699\n0.0799\n0.0899\n0.0999\n0.1099\n0.1199\n0.1299\n0.1399\n0.1499\n0.1599\n0.1699\n0.1799\n0.1899\n0.1999\n0.2099\n0.2199\n0.2299\n0.2399\n0.2499\n0.2599\n0.2699\n0.2799\n0.2899\n0.2999\n0.3099\n0.3199\n0.3299\n0.3399\n0.3499\n0.3599\n0.3699\n0.3799\n0.3899\n0.3999\n0.4099\n0.4199\n0.4299\n0.4399\n0.4499\n0.4599\n0.4699\n0.4799\n0.4899\n0.4999\n0.5099\n0.5199\n0.5299\n0.5399\n0.5499\n0.5599\n0.5699\n0.5799\n0.5899\n0.5999\n0.6099\n0.6199\n0.6299\n0.6399\n0.6499\n0.6599\n0.6699\n0.6799\n0.6899\n0.6999\n0.7099\n0.7199\n0.7299\n0.7399\n0.7499\n0.7599\n0.7699\n0.7799\n0.7899\n0.7999\n0.8099\n0.8199\n0.8299\n0.8399\n0.8499\n0.8599\n0.8699\n0.8799\n0.8899\n0.8999\n0.9099\n0.9199\n0.9299\n0.9399\n0.9499\n0.9599\n0.9699\n0.9799\n0.9899\n0.9999"
+   },
+   "expect": [],
+   "expect_status": {
+    "M3": "INSUFFICIENT EVIDENCE"
+   }
+  },
+  {
+   "id": "041-small-pool-still-clears",
+   "comment": "NEGATIVE. The saturation caveat must not fire on an ordinary project: a few artefacts back almost nothing they did not produce.",
+   "drafts": {
+    "results.md": "Accuracy was 0.87 overall.\n"
+   },
+   "analysis": {
+    "metrics.csv": "acc\n0.8712\n"
+   },
+   "expect": [],
+   "expect_status": {
+    "M3": "CLEAR"
+   }
+  },
+  {
+   "id": "042-saturation-never-hides-a-finding",
+   "comment": "POSITIVE. A saturated pool downgrades a CLEAR, never a FLAGGED.",
+   "drafts": {
+    "results.md": "The delta was 12.4 points.\n"
+   },
+   "analysis": {
+    "big.csv": "v\n0.0199\n0.0299\n0.0399\n0.0499\n0.0599\n0.0699\n0.0799\n0.0899\n0.0999\n0.1099\n0.1199\n0.1299\n0.1399\n0.1499\n0.1599\n0.1699\n0.1799\n0.1899\n0.1999\n0.2099\n0.2199\n0.2299\n0.2399\n0.2499\n0.2599\n0.2699\n0.2799\n0.2899\n0.2999\n0.3099\n0.3199\n0.3299\n0.3399\n0.3499\n0.3599\n0.3699\n0.3799\n0.3899\n0.3999\n0.4099\n0.4199\n0.4299\n0.4399\n0.4499\n0.4599\n0.4699\n0.4799\n0.4899\n0.4999\n0.5099\n0.5199\n0.5299\n0.5399\n0.5499\n0.5599\n0.5699\n0.5799\n0.5899\n0.5999\n0.6099\n0.6199\n0.6299\n0.6399\n0.6499\n0.6599\n0.6699\n0.6799\n0.6899\n0.6999\n0.7099\n0.7199\n0.7299\n0.7399\n0.7499\n0.7599\n0.7699\n0.7799\n0.7899\n0.7999\n0.8099\n0.8199\n0.8299\n0.8399\n0.8499\n0.8599\n0.8699\n0.8799\n0.8899\n0.8999\n0.9099\n0.9199\n0.9299\n0.9399\n0.9499\n0.9599\n0.9699\n0.9799\n0.9899\n0.9999"
+   },
+   "expect": [
+    {
+     "mode": "M3",
+     "value": "12.4"
+    }
+   ],
+   "expect_status": {
+    "M3": "FLAGGED"
+   }
+  },
+  {
+   "id": "043-saturation-caveat-applies-to-m6-too",
+   "comment": "M6 uses the same backed() rule against the same pool, so it inherits the same blindness and must inherit the same caveat.",
+   "drafts": {
+    "methods.md": "We report the setup in full.\n"
+   },
+   "analysis": {
+    "big.csv": "v\n0.0199\n0.0299\n0.0399\n0.0499\n0.0599\n0.0699\n0.0799\n0.0899\n0.0999\n0.1099\n0.1199\n0.1299\n0.1399\n0.1499\n0.1599\n0.1699\n0.1799\n0.1899\n0.1999\n0.2099\n0.2199\n0.2299\n0.2399\n0.2499\n0.2599\n0.2699\n0.2799\n0.2899\n0.2999\n0.3099\n0.3199\n0.3299\n0.3399\n0.3499\n0.3599\n0.3699\n0.3799\n0.3899\n0.3999\n0.4099\n0.4199\n0.4299\n0.4399\n0.4499\n0.4599\n0.4699\n0.4799\n0.4899\n0.4999\n0.5099\n0.5199\n0.5299\n0.5399\n0.5499\n0.5599\n0.5699\n0.5799\n0.5899\n0.5999\n0.6099\n0.6199\n0.6299\n0.6399\n0.6499\n0.6599\n0.6699\n0.6799\n0.6899\n0.6999\n0.7099\n0.7199\n0.7299\n0.7399\n0.7499\n0.7599\n0.7699\n0.7799\n0.7899\n0.7999\n0.8099\n0.8199\n0.8299\n0.8399\n0.8499\n0.8599\n0.8699\n0.8799\n0.8899\n0.8999\n0.9099\n0.9199\n0.9299\n0.9399\n0.9499\n0.9599\n0.9699\n0.9799\n0.9899\n0.9999"
+   },
+   "expect": [],
+   "expect_status": {
+    "M6": "INSUFFICIENT EVIDENCE"
+   }
+  },
+  {
+   "id": "044-cited-perfect-metric-is-literature-not-own-result",
+   "comment": "NEGATIVE. A review that REPORTS someone else's implausible 1.00 — and says whose it is — must not be flagged for doing its job. Second such case on purpose: one alone left the citation exemption's removal above the precision threshold, i.e. the suite could not tell the exemption had been deleted.",
+   "drafts": {
+    "discussion.md": "A validation cohort reported a sensitivity of 1.00 [@smith2024deep], which the authors attribute to label leakage.\n"
+   },
+   "expect": []
+  }
+ ],
+ "mutations": [
+  {
+   "id": "zero-variance-detector-disabled",
+   "breaks": "A reported standard deviation of exactly 0.00 stops being flagged as the impossible-result tell it is.",
+   "replace": [
+    [
+     "if ZERO_VARIANCE_RE.search(sent):",
+     "if (lambda *_a, **_k: None)(sent):"
+    ]
+   ]
+  },
+  {
+   "id": "surprise-detector-disabled",
+   "breaks": "An uncorroborated 'surprisingly' stops being flagged — the HARKing tell that mode exists for.",
+   "replace": [
+    [
+     "m = SURPRISE_RE.search(sent)",
+     "m = None"
+    ]
+   ]
+  },
+  {
+   "id": "suspicious-exact-values-emptied",
+   "breaks": "The suspicious-exact-metric set is emptied, so a reported accuracy of exactly 1 stops being questioned.",
+   "replace": [
+    [
+     "SUSPICIOUS_EXACT = {\"0\", \"0.5\", \"1\", \"2\", \"100\"}",
+     "SUSPICIOUS_EXACT = set()"
+    ]
+   ]
+  },
+  {
+   "id": "grouped-thousands-normalisation-removed",
+   "breaks": "A grouped record count reads as a decimal, so it is treated as a measurement and reported as an own result with no artefact behind it — while the artefact holding the integer sits in analysis/.",
+   "replace": [
+    [
+     "    if _GROUPED_EN_RE.match(tok):\n        tok = tok.replace(\",\", \"\")\n    elif _GROUPED_TR_RE.match(tok):\n        tok = tok.replace(\".\", \"\").replace(\",\", \".\")\n",
+     ""
+    ]
+   ]
+  },
+  {
+   "id": "m1-citation-exemption-removed",
+   "breaks": "A metric value inside a sentence that cites a source is scored as this paper's own result, so a review that REPORTS someone else's implausible 1.0 — and diagnoses the leakage in the next clause — is flagged for doing its job.",
+   "replace": [
+    [
+     "        if CITE_RE.search(sent):\n            continue\n        for m in METRIC_VALUE_RE.finditer(sent):",
+     "        for m in METRIC_VALUE_RE.finditer(sent):"
+    ]
+   ]
+  },
+  {
+   "id": "saturation-measure-disabled",
+   "breaks": "The backing-saturation measure stops downgrading a meaningless CLEAR. This is the defect it was written for: on a real review the pool backed 100% of two-decimal values and M3 reported CLEAR over a paragraph produced by no script at all.",
+   "replace": [
+    [
+     "                if sat > SATURATION_LIMIT and not hits:",
+     "                if False and sat > SATURATION_LIMIT and not hits:"
+    ]
+   ]
+  }
+ ]
+}

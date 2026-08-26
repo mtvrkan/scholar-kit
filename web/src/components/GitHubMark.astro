@@ -1,0 +1,26 @@
+---
+/**
+ * GitHub’s mark — the one third-party logo on the site, on the one button
+ * whose whole job is to say where the download comes from.
+ *
+ * It is deliberately not in `Icon.astro` with the other twenty-one, and the
+ * reason is mechanical rather than tidy: every icon in that set is a 24×24
+ * `stroke="currentColor"` outline drawn on `fill="none"`, and this is a solid
+ * silhouette. A filled path inside a stroked set comes out as a hollow
+ * octocat, or forces a per-icon exception on a set whose value is that it has
+ * none.
+ *
+ * It is a component rather than two copies of a 700-character path because
+ * there are two "get the kit" buttons on the page and for three rounds only
+ * the hero’s had the mark — the same action, drawn two different ways, a
+ * screen apart.
+ */
+interface Props {
+  class?: string;
+}
+const { class: cls = '' } = Astro.props;
+---
+
+<svg class={cls} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+  <path d="M12 .5C5.73.5.75 5.48.75 11.75c0 4.96 3.22 9.16 7.68 10.64.56.1.77-.24.77-.54v-2.1c-3.13.68-3.79-1.34-3.79-1.34-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.94.1-.73.39-1.22.71-1.5-2.5-.29-5.13-1.25-5.13-5.57 0-1.23.44-2.24 1.16-3.03-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.09 1.16.9-.25 1.86-.37 2.82-.38.96 0 1.92.13 2.82.38 2.15-1.46 3.09-1.16 3.09-1.16.61 1.54.23 2.68.11 2.96.72.79 1.16 1.8 1.16 3.03 0 4.33-2.64 5.28-5.15 5.56.4.35.77 1.04.77 2.1v3.11c0 .3.2.65.78.54 4.45-1.49 7.67-5.68 7.67-10.64C23.25 5.48 18.27.5 12 .5Z" />
+</svg>

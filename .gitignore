@@ -1,0 +1,95 @@
+# ANCHORED, and the leading slash is the whole point. A bare `data/` matches a
+# directory of that name at ANY depth, and it did: `web/src/data/site.ts` — the
+# site's single source of truth, and the file `tests/test_governance_docs.py`
+# re-derives the published counts from — was silently untracked for as long as
+# the site has existed. Nothing local said so, because the maintainer's working
+# copy had it; a fresh clone failed six governance tests with FileNotFoundError
+# and could not build the site at all. Same lesson the `/sources/` rule below
+# already learned, applied late.
+#
+# `evidence/` is anchored for the same reason before it costs anything:
+# `project-template/evidence/` is shipped content, and a new file added there
+# would have disappeared exactly as quietly.
+#
+# `build/` and `exports/` further down stay UNANCHORED — depth-matching IS what
+# those two want, because a `build/` anywhere holds output. But the same rule
+# swallowed `project-template/build/`, which is not output: it is the shipped
+# skeleton `/new-project` copies into a new paper project, and without it a
+# clean clone produced a project with no `build/` at all (caught by
+# `tests/test_first_run.py::test_project_skeleton_directories_exist`). Its
+# marker is re-included below, contents still ignored — the same
+# ignore-the-contents-keep-the-directory idiom `project-template/sources/pdf/`
+# already uses.
+/data/
+/evidence/
+# Top-level sources/ is a working/test artifact in the kit repo (the shipped
+# template lives under project-template/sources/, which this anchored rule
+# leaves untouched). Without this, a stray sources/venues.jsonl written by a
+# live venue_check.py run sits untracked and a careless `git add -A` would
+# commit it — same class of leak the evidence/ rule above already closes.
+/sources/
+project-template/sources/pdf/*
+!project-template/sources/pdf/.gitkeep
+test-run/
+# Real projects run WITH the kit, from inside the kit's own checkout — which is
+# where they have to live while scholar-kit is not installed as a plugin, since
+# /new-project only resolves from a directory that carries .claude/skills/.
+# One roof rather than one line per project: these are the showcase runs across
+# different fields, and a rule per run would turn this file into a listing of
+# them. Each holds a full copy of the runtime (/new-project makes projects
+# self-contained), so none of it belongs in this repository's history — what
+# ships is the finished artifacts, hand-picked into examples/showcase/.
+runs/
+# A user's own screening labels, and only that file: `eval/screening/README.md`
+# and `gold.example.jsonl` are shipped documentation. Anchored per the lesson
+# above. Ignored rather than merely absent because a gold set committed here
+# would be scored by anyone who cloned the kit, against decisions made on
+# somebody else's topic — and `test_screening_score.py` asserts it never ships.
+/eval/screening/gold.jsonl
+__pycache__/
+*.pyc
+.pytest_cache/
+build/
+exports/
+# Re-include the shipped skeleton directory only — its contents stay ignored.
+# The directory itself has to be un-ignored first: git does not descend into an
+# ignored directory, so a bare `!project-template/build/.gitkeep` would never be
+# reached.
+!project-template/build/
+project-template/build/*
+!project-template/build/.gitkeep
+*.aux
+*.log
+*.log.latex
+.env*
+hocamdan/
+# `<path>.lock` sidecars from lib_common.file_lock() — runtime artifacts of the
+# cross-process write lock, never content. Scoped to the extensions the kit
+# actually locks (registry/cards/venues/search-log .jsonl, references.bib,
+# verify-status.json) instead of a bare `*.lock`, which also swallowed
+# uv.lock/poetry.lock/Cargo.lock — dependency lockfiles that a repository is
+# supposed to commit, and whose absence is a reproducibility defect rather than
+# a tidy working tree.
+*.jsonl.lock
+*.bib.lock
+*.json.lock
+/pytest_run_output.txt
+# Coverage data. `.coverage.*` is the parallel-mode per-process file: with
+# subprocess measurement on (see .coveragerc) one lands per script invocation,
+# so a run leaves hundreds of them behind until the parent combines.
+.coverage
+.coverage.*
+htmlcov/
+
+# Site build toolchain. `web/` is the SOURCE; the built site is committed to
+# docs/ (GitHub Pages serves it from there, which is what keeps the deploy free
+# of a CI workflow). node_modules and Astro's caches are never committed.
+web/node_modules/
+web/.astro/
+web/dist/
+# `astro dev` drops two of its own caches into outDir, which is docs/: the
+# content-layer store and the update-check preferences. Neither is site content
+# and neither is produced by `astro build`, so they only ever appear when the
+# dev server has been run — a dirty tree that says nothing about the site.
+docs/data-store.json
+docs/settings.json

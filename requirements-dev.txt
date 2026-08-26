@@ -1,0 +1,11 @@
+-r requirements.txt
+# Every dev dependency is capped by major, for the reason stated once here: a
+# tool that judges this repo must not change its judgement without a commit
+# saying so. That argument was originally written for ruff and bandit only,
+# which left pytest — the tool the whole suite's meaning rests on — uncapped;
+# a major bump that changed collection or fixture semantics could have turned
+# CI red, or worse quietly green, with nothing in the history to point at.
+pytest>=8.0,<9
+pytest-cov>=5.0,<8
+ruff>=0.9,<1
+bandit>=1.8,<2

@@ -1,0 +1,386 @@
+---
+import Base from '../layouts/Base.astro';
+import Pipeline from '../components/Pipeline.astro';
+import Icon from '../components/Icon.astro';
+import GitHubMark from '../components/GitHubMark.astro';
+import T from '../components/T.astro';
+import { SITE, GH, GATES } from '../data/site';
+
+/**
+ * One page, and now a short one.
+ *
+ * It used to be four reference chapters — every command with its gate, every
+ * one of the sixty-eight tools with its refusal, the hook table, the subagent
+ * table, the attestation specimen, three runs with their file indexes. Twenty
+ * thousand pixels of it, and all of it also in the README, where a reader who
+ * wants that level of detail already goes. A site that repeats the README is
+ * two documents to keep in step, and one of them drifts.
+ *
+ * So this is an introduction: what the kit refuses to do, how it is built, how
+ * to install it, and what it has actually produced — each in the smallest form
+ * that is still true, each ending in a link to the document that carries the
+ * detail.
+ *
+ * Every count still comes from SITE, which the test suite re-derives from the
+ * repository, so no number here is written by hand.
+ */
+const desc =
+  'Claude Code için akademik araştırma, makale ve tez üretim kiti: ' +
+  SITE.agents + ' subagent, ' + SITE.commands + ' komut, ' + SITE.tools +
+  ' deterministik araç, üç zorlayıcı kapı ve sıfır-uydurma atıf disiplini.';
+
+/** One mark per gate, in the order GATES declares them. */
+const GATE_ICONS = ['circle-check', 'shield-check', 'file-check'];
+
+/** The five layers a tool call passes through, in order. */
+const LAYERS = [
+  { icon: 'bot',
+    t: { tr: 'Ana oturum', en: 'The main session' },
+    d: { tr: 'Yazar ve yönetir. Taslak ve sentez asla devredilmez — bir metnin sorumluluğu devredilemez.',
+         en: 'Writes and directs. Drafting and synthesis are never delegated: responsibility cannot be.' } },
+  { icon: 'search',
+    t: { tr: 'Subagentlar', en: 'Subagents' },
+    d: { tr: 'Ağır okuma işi kendi penceresinde biter; geriye yüzlerce ham sonuç değil, kısa bir rapor döner.',
+         en: 'Read-heavy work finishes in its own window; what returns is a short report, not raw hits.' } },
+  { icon: 'terminal',
+    t: { tr: 'Script katmanı', en: 'The script layer' },
+    d: { tr: 'Kurala bağlanabilen her şey modelden alınmıştır. Çıktı daima tek bir JSON nesnesi.',
+         en: 'Everything a rule can settle is taken off the model. The output is always one JSON object.' } },
+  { icon: 'zap',
+    t: { tr: 'Hooklar', en: 'Hooks' },
+    d: { tr: 'Araç çağrısı katmanında çalışır, yani bir adım atlansa bile kapı yerinde durur.',
+         en: 'They run at the tool-call layer, so they hold even when a step is skipped.' } },
+  { icon: 'database',
+    t: { tr: 'Disk', en: 'Disk' },
+    d: { tr: 'Durum dosyada yaşar. Yedi veri dosyası yalnızca kendi scriptiyle, başka hiçbir yoldan yazılmaz.',
+         en: 'State lives in files. Seven data files can be written only by the script that owns them.' } },
+];
+
+/**
+ * The FAQ is authored once and rendered twice: as the visible accordion and as
+ * the FAQPage graph. `test_the_structured_faq_matches_the_visible_one` reads
+ * the built page and requires every marked-up question to appear on it,
+ * because marking up questions a page does not answer is cloaking.
+ */
+const FAQ = [
+  {
+    q: { tr: 'Plugin kurdum ama garantileri almadım, neden?',
+         en: 'I installed the plugin but got none of the guarantees. Why?' },
+    a: { tr: 'Plugin komutları, skilleri ve ajanları taşır; deterministik script katmanı ve zorlayıcı hooklar projenizin içinde yaşamak zorundadır. /new-project bunları projeye kopyalar. O çalıştırılmadığında kitin kendi hooku oturum başında ENFORCEMENT ABSENT başlığıyla o an yürürlükte olmayan garantileri tek tek yazar.',
+         en: 'The plugin ships commands, skills and agents; the deterministic script layer and the enforcing hooks have to live inside your project. /new-project materialises them. Until it runs, the kit’s own hook prints an ENFORCEMENT ABSENT notice at session start naming every guarantee that is not in force.' },
+  },
+  {
+    q: { tr: 'Kit makaleyi benim yerime yazar mı?',
+         en: 'Does the kit write the paper for me?' },
+    a: { tr: 'Hayır, ve bu bilinçli bir ret. Onaysız uçtan uca üretim, araştırmacıyı kendi çalışmasının yazarı olmaktan çıkarıp yapay zekâ çıktısının hakemi haline getirir. Kit iskeleti onaylatır, bölümü sizinle yazar, atfı doğrular ve hakem simülasyonunu koşar; imza sizde kalır.',
+         en: 'No, and that is a deliberate refusal. Unapproved end-to-end production turns the researcher from the author of their own work into the reviewer of AI output. The kit gets the outline approved, drafts with you, verifies the citations and runs the review simulation; the signature stays yours.' },
+  },
+  {
+    q: { tr: 'Uydurma atıfı gerçekten engelliyor mu?',
+         en: 'Does it really stop fabricated citations?' },
+    a: { tr: 'Künye hiçbir zaman modelin hafızasından gelmez: yalnızca DOI içerik müzakeresiyle çekilir ya da verified=false damgasını taşır. Doğrulama PASS vermeden hakem turu ve biçimlendirme kilitlidir, ve bu kilit prompt değil hook seviyesindedir. Gerçek bir koşuda geri çekilmiş bir çalışma da bu yolla yakalandı.',
+         en: 'A reference never comes from the model’s memory: it is fetched by DOI content negotiation or carries a verified=false stamp. Until verification passes, the review round and formatting stay locked — at the hook layer, not in a prompt. On a real run this is also how a retracted study was caught.' },
+  },
+  {
+    q: { tr: 'Türkçe tez için uygun mu?',
+         en: 'Is it suitable for a Turkish thesis?' },
+    a: { tr: 'Türkçe birinci sınıf vatandaş: YÖK ön sayfa sırası, Özet ile Abstract eşdeğerliği, TR Dizin ve DergiPark taraması, ve Türkçe akademik yazımın kontrol edilebilir kısmını deterministik olarak denetleyen bir lint. Konvansiyonun gerçekten bölündüğü yerlerde script karışımı işaretler, tercihi asla.',
+         en: 'Turkish is first-class: YÖK front-matter order, Özet↔Abstract equivalence, TR Dizin and DergiPark searching, and a lint that deterministically checks the checkable half of Turkish academic style. Where the convention is genuinely divided, the script flags the mixture and never the choice.' },
+  },
+  {
+    q: { tr: 'Ücretli mi, verim dışarı çıkıyor mu?',
+         en: 'Does it cost anything, and does my data leave the machine?' },
+    a: { tr: 'MIT lisanslı ve ücretsiz. Ağa çıkan dört host var ve gönderilen tek şeyler DOI, ISSN ve dergi adı; taslaklarınız, verileriniz, kanıt kartlarınız ve kimliğiniz asla gönderilmez. Telemetri yok, ve bu iddiayı bir test doğruluyor: belgelenmemiş bir ağ çağrısı belirirse build kırılır.',
+         en: 'MIT-licensed and free. Four hosts are contacted and the only things sent are a DOI, an ISSN or a journal name; your drafts, data, evidence cards and identity never are. No telemetry — and a test enforces the claim: an undocumented network call breaks the build.' },
+  },
+];
+
+const faqGraph = {
+  '@type': 'FAQPage',
+  '@id': SITE.url + '/#faq',
+  mainEntity: FAQ.map((f) => ({
+    '@type': 'Question',
+    name: f.q.tr,
+    acceptedAnswer: { '@type': 'Answer', text: f.a.tr },
+  })),
+};
+---
+
+<Base title="Scholar-Kit — akademik makale ve tez üretim kiti"
+      description={desc}
+      page="index.html"
+      ogTitle="Scholar-Kit — akademik makale ve tez üretim kiti"
+      ogDescription="Künye modelin hafızasından gelmez: DOI ile yayıncının kendi kaydından çekilir. Üç zorlayıcı kapı taslağı, hakem turunu ve biçimlendirmeyi sırayla açar."
+      jsonld={[faqGraph]}>
+
+  {/* The first screen holds the hero and nothing else. Anything peeking over
+      the fold reads as the start of a list the reader has to get through, and
+      the one job of this screen is a single sentence and a way to act on it. */}
+  <section class="hero" id="overview">
+    <div class="wrap hero-in">
+      {/* Four versions, and the last one was too small rather than too vague.
+          "Makale ve tezinizi Claude Code ile yazın" is clear and it draws a
+          box around writing — while the kit also does grant proposals and
+          their progress reports, ethics applications and consent forms, data
+          management plans, referee reports, promotion dossiers, syllabi and
+          accreditation matrices. A visitor whose problem is a TÜBİTAK proposal
+          reads that headline and leaves. The title now names the scope and the
+          sentence under it names the range, with the guarantee kept where a
+          claim belongs: after the reader knows what is making it. */}
+      <div class="hero-copy">
+        <h1 class="hero-title tr" lang="tr">Akademik çalışmanın tamamı<br /><span class="shiny">Claude Code içinde</span></h1>
+        <h1 class="hero-title en" lang="en">Every part of academic work<br /><span class="shiny">inside Claude Code</span></h1>
+
+        <p class="lede tr" lang="tr">Makale ve tezden proje önerisine, etik başvurusundan
+          hakem raporuna. Her künye yayıncının kendi kaydından gelir.</p>
+        <p class="lede en" lang="en">From papers and theses to grant proposals, ethics
+          applications and referee reports. Every reference comes from the
+          publisher’s own record.</p>
+
+        <div class="cta-row">
+          <a class="pill" href={SITE.repo}>
+            <GitHubMark />
+            <span class="tr" lang="tr">Kiti indir</span><span class="en" lang="en">Get the kit</span>
+            <Icon name="chevron-right" size={16} class="chev" />
+          </a>
+          <a class="pill pill-ghost" href="#gates">
+            <span class="tr" lang="tr">Nasıl çalışır</span><span class="en" lang="en">How it works</span>
+            <Icon name="chevron-right" size={16} class="chev" />
+          </a>
+        </div>
+      </div>
+
+      {/* Back beside the headline. It spent one round under it, which read
+          cleanly and cost the page its argument: the claim and the artefact
+          that proves it were a scroll apart, so the first screen was an
+          assertion with nothing next to it. */}
+      <div class="hero-panel"><Pipeline /></div>
+    </div>
+  </section>
+
+  <!-- ── the figures ──────────────────────────────────────────────────── -->
+  <section class="band band-figs">
+    <div class="wrap">
+      {/* The watermarks are back, and what was wrong with them the first time
+          was one line of CSS rather than the idea. Three of the four sat in
+          neutral ink and the fourth was tinted with the pass colour and lifted
+          to nine per cent, so it was the only one that resolved and the strip
+          read as four cells one of which had something in it. They are all the
+          same ink at the same alpha now. The strip keeps one thing to say and
+          each cell still says which count it is before the eye gets down to the
+          label. */}
+      <div class="figs reveal">
+        <div class="fig">
+          <Icon name="terminal" size={17} />
+          <b>{SITE.commands}</b>
+          <span><span class="tr" lang="tr">komut</span><span class="en" lang="en">commands</span></span>
+        </div>
+        <div class="fig">
+          <Icon name="wrench" size={17} />
+          <b>{SITE.tools}</b>
+          <span><span class="tr" lang="tr">deterministik araç</span><span class="en" lang="en">deterministic tools</span></span>
+        </div>
+        <div class="fig">
+          <Icon name="circle-check" size={17} />
+          <b>{SITE.tests}</b>
+          <span><span class="tr" lang="tr">geçen test</span><span class="en" lang="en">passing tests</span></span>
+        </div>
+        <div class="fig mark">
+          <Icon name="shield-check" size={17} />
+          <b>0</b>
+          <span><span class="tr" lang="tr">uydurma künye</span><span class="en" lang="en">fabricated entries</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── the gates ────────────────────────────────────────────────────── -->
+  <section class="band" id="gates">
+    <div class="wrap">
+      <header class="band-h reveal">
+        <p class="kicker"><span class="tr" lang="tr">Disiplin</span><span class="en" lang="en">Discipline</span></p>
+        <h2><span class="tr" lang="tr">Üç zorlayıcı kapı</span><span class="en" lang="en">Three enforcing gates</span></h2>
+        <p class="band-lede tr" lang="tr">Sırayla açılır ve atlanamaz. Bir kapı kapalıyken
+          sonraki aşama başlamaz — kural prompt metninde değil, araç çağrısı
+          katmanında.</p>
+        <p class="band-lede en" lang="en">They open in order and cannot be skipped. While a gate
+          is shut, the next stage does not begin — and the rule lives at the tool-call
+          layer, not in prompt text.</p>
+      </header>
+
+      <div class="cards reveal">
+        {GATES.map((g, i) => (
+          <article class="card">
+            <div class="card-top">
+              <span class="card-n">{String(i + 1).padStart(2, '0')}</span>
+              <Icon name={GATE_ICONS[i]} size={22} class="card-i" />
+            </div>
+            <h3>{g.name}</h3>
+            <p><T tr={g.tr} en={g.en} /></p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── how it is built ──────────────────────────────────────────────── -->
+  <section class="band band-tight" id="how-it-works">
+    <div class="wrap">
+      <header class="band-h reveal">
+        <p class="kicker"><span class="tr" lang="tr">Mimari</span><span class="en" lang="en">Architecture</span></p>
+        <h2><span class="tr" lang="tr">Beş katman</span><span class="en" lang="en">Five layers</span></h2>
+        <p class="band-lede tr" lang="tr">Her araç çağrısı bu beş katmandan geçer. Dördüncüsünde
+          projeye kayıtlı {SITE.hooks} hook durur; onlar atlanamadığı için kapılar da
+          atlanamaz.</p>
+        <p class="band-lede en" lang="en">Every tool call passes through these five. The fourth
+          holds the {SITE.hooks} hooks registered in the project, and because they
+          cannot be skipped, neither can the gates.</p>
+      </header>
+
+      <ol class="layers reveal">
+        {LAYERS.map((l, i) => (
+          <li>
+            <span class="layer-n">{String(i + 1).padStart(2, '0')}</span>
+            <Icon name={l.icon} size={20} class="layer-i" />
+            <h3><T tr={l.t.tr} en={l.t.en} /></h3>
+            <p><T tr={l.d.tr} en={l.d.en} /></p>
+          </li>
+        ))}
+      </ol>
+
+      <p class="more reveal">
+        {/* Two anchors, not one with a translated label: the READMEs are two
+            files now — `README.md` is English and `README.tr.md` Turkish — and
+            sending a Turkish reader to the English one is the kind of link that
+            technically resolves and still fails the person following it. */}
+        <span class="tr" lang="tr">
+          <a href={GH + '/README.tr.md'}>
+            {SITE.commands} komutun, {SITE.tools} aracın ve {SITE.agents} subagentın tamamı READMEde
+            <Icon name="chevron-right" size={15} />
+          </a>
+        </span>
+        <span class="en" lang="en">
+          <a href={GH + '/README.md'}>
+            All {SITE.commands} commands, {SITE.tools} tools and {SITE.agents} subagents are in the README
+            <Icon name="chevron-right" size={15} />
+          </a>
+        </span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ── installation ─────────────────────────────────────────────────── -->
+  <section class="band" id="install">
+    <div class="wrap">
+      <header class="band-h reveal">
+        <p class="kicker"><span class="tr" lang="tr">Başlangıç</span><span class="en" lang="en">Getting started</span></p>
+        <h2><span class="tr" lang="tr">Kurulum</span><span class="en" lang="en">Installation</span></h2>
+        <p class="band-lede tr" lang="tr">Python 3.10 ve Claude Code yeterli. Word ve PDF çıktısı
+          ayrıca pandoc ve bir TeX dağıtımı ister; Excel ve veri hattı onlarsız da
+          çalışır.</p>
+        <p class="band-lede en" lang="en">Python 3.10 and Claude Code are enough. Word and PDF
+          output also need pandoc and a TeX distribution; Excel and the data pipeline
+          work without either.</p>
+      </header>
+
+      <ol class="steps reveal">
+        <li>
+          <span class="step-n">01</span>
+          <p><T tr="Eklentiyi kurun. Komutlar, skiller ve ajanlar bu adımda projeye gelir."
+                en="Install the plugin. The commands, the skills and the agents arrive with it." /></p>
+          <code class="cmd">/plugin marketplace add mtvrkan/scholar-kit</code>
+          <code class="cmd">/plugin install scholar-kit</code>
+        </li>
+        <li>
+          <span class="step-n">02</span>
+          <p><T tr="Projeyi açın. Script katmanını ve hookları kuran adım budur; onsuz yönlendirme var, garanti yok."
+                en="Open the project. This step installs the script layer and the hooks — the guarantees come from it, not from advice." /></p>
+          <code class="cmd">/new-project makale</code>
+        </li>
+        <li>
+          <span class="step-n">03</span>
+          <p><T tr="Taramayla başlayın. Sonrası kendiliğinden gelir: kanıt kartları, iskelet, taslak, doğrulama."
+                en="Start with the search. The rest follows on its own: evidence cards, outline, draft, verification." /></p>
+          <code class="cmd">/lit-review --systematic --lang both</code>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  {/* A showcase band stood here: three cards, one per end-to-end run, each
+      printing its own verified-citation count out of `examples/`. It has gone
+      with the runs themselves. Two of the three never reached a result the
+      author was willing to stand behind, and a showcase is a claim about
+      finished work — three cards of partial results argue the opposite of what
+      they are there to argue. What the kit refuses, how it is built and how to
+      install it are claims it can keep. */}
+
+  <!-- ── questions ────────────────────────────────────────────────────── -->
+  <section class="band" id="faq">
+    <div class="wrap">
+      <header class="band-h reveal">
+        <p class="kicker"><span class="tr" lang="tr">SSS</span><span class="en" lang="en">FAQ</span></p>
+        <h2><span class="tr" lang="tr">Sık sorulanlar</span><span class="en" lang="en">Frequently asked</span></h2>
+      </header>
+
+      <div class="faq reveal">
+        {FAQ.map((f) => (
+          <details>
+            <summary>
+              <span class="faq-q"><span class="tr" lang="tr">{f.q.tr}</span><span class="en" lang="en">{f.q.en}</span></span>
+              <Icon name="chevron-right" size={16} class="faq-chev" />
+            </summary>
+            <p><span class="tr" lang="tr">{f.a.tr}</span><span class="en" lang="en">{f.a.en}</span></p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── closing ──────────────────────────────────────────────────────── -->
+  {/* This band was one heading and one run-on sentence about four hosts, a DOI,
+      an ISSN and a journal name — three separate promises folded into a clause
+      each, which is how a reader ends up with none of them. One point per line,
+      one mark per point. */}
+  <section class="band band-close">
+    <div class="wrap">
+      <div class="close reveal">
+        <p class="kicker"><span class="tr" lang="tr">Lisans ve gizlilik</span><span class="en" lang="en">Licence and privacy</span></p>
+        <h2><span class="tr" lang="tr">Ücretsiz ve açık kaynak</span><span class="en" lang="en">Free and open source</span></h2>
+
+        <ul class="points cards">
+          <li class="card">
+            <span class="point-i"><Icon name="scale" size={20} /></span>
+            <b><span class="tr" lang="tr">MIT lisansı</span><span class="en" lang="en">MIT licence</span></b>
+            <span class="tr" lang="tr">Ticari kullanım, kurumsal dağıtım ve türev çalışma serbest.</span>
+            <span class="en" lang="en">Commercial use, institutional distribution and derivative work are all permitted.</span>
+          </li>
+          <li class="card">
+            <span class="point-i"><Icon name="lock" size={20} /></span>
+            <b><span class="tr" lang="tr">Veriniz sizde kalır</span><span class="en" lang="en">Your data stays with you</span></b>
+            <span class="tr" lang="tr">Taslaklarınız, verileriniz ve kanıt kartlarınız makinenizden çıkmaz.</span>
+            <span class="en" lang="en">Your drafts, data and evidence cards never leave your machine.</span>
+          </li>
+          <li class="card">
+            <span class="point-i"><Icon name="shield-check" size={20} /></span>
+            <b><span class="tr" lang="tr">Telemetri yok</span><span class="en" lang="en">No telemetry</span></b>
+            <span class="tr" lang="tr">Ağa yalnızca bir DOI, bir ISSN ya da bir dergi adı gider.</span>
+            <span class="en" lang="en">The only things sent over the network are a DOI, an ISSN or a journal name.</span>
+          </li>
+        </ul>
+
+        <div class="cta-row">
+          <a class="pill" href={SITE.repo}>
+            <GitHubMark />
+            <span class="tr" lang="tr">Kiti indir</span><span class="en" lang="en">Get the kit</span>
+            <Icon name="chevron-right" size={16} class="chev" />
+          </a>
+          <a class="pill pill-ghost" href={GH + '/POSITIONING.md'}>
+            <span class="tr" lang="tr">Kapsam ve sınırlar</span><span class="en" lang="en">Scope and boundaries</span>
+            <Icon name="chevron-right" size={16} class="chev" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

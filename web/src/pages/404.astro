@@ -1,0 +1,140 @@
+---
+/**
+ * The page GitHub Pages serves for anything that is not `/`.
+ *
+ * Deliberately NOT built on Base.astro. Base carries the full navigation, and
+ * that navigation is five in-page anchors — on a 404 there is no `#komutlar` to
+ * scroll to, so every item in it would be a link that silently does nothing.
+ * A wrong destination is worse than no destination, so this page offers exactly
+ * one: the way back.
+ *
+ * It shares the stylesheet rather than inlining anything, which keeps
+ * `style-src 'self'` intact and means the page looks like the site it belongs
+ * to without a second copy of the design to maintain.
+ */
+import { SITE } from '../data/site';
+import Icon from '../components/Icon.astro';
+import GitHubMark from '../components/GitHubMark.astro';
+import '../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="referrer" content="no-referrer" />
+  <title>404 — Scholar-Kit</title>
+  <meta name="description" content="Bu adres yok · This address does not exist." />
+  <!-- A 404 must never be indexed, and must never be treated as a canonical
+       destination for the URL that produced it. -->
+  <meta name="robots" content="noindex, follow" />
+
+  {/* A 404 is not indexed, and it is still shared: somebody pastes a broken
+      link into a chat and the unfurl is the first thing anyone sees of this
+      project. Without these the card is a bare URL. `og:url` points at the
+      site's root rather than at the address that failed, because the failing
+      address is by definition not a page worth linking to — and the card the
+      reader gets should take them somewhere that exists. */}
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={SITE.url + '/'} />
+  <meta property="og:site_name" content="Scholar-Kit" />
+  <meta property="og:title" content="Scholar-Kit — bu adres yok · this address does not exist" />
+  <meta property="og:description"
+        content="Site tek sayfa; aradığınız bölüm oradadır. · The site is a single page — the section you want is on it." />
+  <meta property="og:locale" content="tr_TR" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:image" content={SITE.url + '/og.png'} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Scholar-Kit — bu adres yok · this address does not exist" />
+  <meta name="twitter:image" content={SITE.url + '/og.png'} />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href={'data:image/svg+xml,' + encodeURIComponent(
+    /* The wordmark's own glyph, not a generic document icon — and in the
+       palette the site actually uses. It had been carrying the warm paper
+       and archival teal of two directions ago, which is the kind of thing
+       nobody sees because a favicon is 16px and everybody sees because it
+       is the one piece of the design that sits in a browser tab all day. */
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">' +
+    '<rect width="256" height="256" rx="56" fill="#000"/>' +
+    '<g fill="#fff" transform="translate(28 28) scale(0.78)">' +
+    '<path d="M 0 128 C 70.692 128 128 185.308 128 256 L 64 256 C 64 220.654 35.346 192 0 192 Z ' +
+    'M 256 192 C 220.654 192 192 220.654 192 256 L 128 256 C 128 185.308 185.308 128 256 128 Z ' +
+    'M 128 0 C 128 70.692 70.692 128 0 128 L 0 64 C 35.346 64 64 35.346 64 0 Z ' +
+    'M 192 0 C 192 35.346 220.654 64 256 64 L 256 128 C 185.308 128 128 70.692 128 0 Z"/>' +
+    '</g></svg>')} />
+</head>
+<body class="page-404">
+  <main class="notfound">
+    <div class="notfound-head">
+    <a class="brand" href="index.html" aria-label="Scholar-Kit">
+      <svg viewBox="0 0 256 256" fill="currentColor" width="22" height="22" aria-hidden="true">
+        <path d="M 0 128 C 70.692 128 128 185.308 128 256 L 64 256 C 64 220.654 35.346 192 0 192 Z M 256 192 C 220.654 192 192 220.654 192 256 L 128 256 C 128 185.308 185.308 128 256 128 Z M 128 0 C 128 70.692 70.692 128 0 128 L 0 64 C 35.346 64 64 35.346 64 0 Z M 192 0 C 192 35.346 220.654 64 256 64 L 256 128 C 185.308 128 128 70.692 128 0 Z" />
+      </svg>
+      <span class="brand-mark">Scholar<i>·</i>Kit</span>
+    </a>
+    <div class="lang" id="lang" role="group" aria-label="Dil / Language">
+      <button type="button" data-set-lang="tr" aria-pressed="true">TR</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+    </div>
+
+    <h1 class="notfound-title">
+      <span class="tr" lang="tr">Bu adres <i>yok</i>.</span>
+      <span class="en" lang="en">This address <i>does not exist</i>.</span>
+    </h1>
+
+    <p class="notfound-lede">
+      <span class="tr" lang="tr">Site tek sayfa; aradığınız bölüm oradadır.</span>
+      <span class="en" lang="en">The site is a single page — the section you want is on it.</span>
+    </p>
+
+    <p class="notfound-actions">
+      <a class="pill" href="index.html">
+        <Icon name="arrow-left" size={16} />
+        <span class="tr" lang="tr">Siteye dön</span><span class="en" lang="en">Back to the site</span>
+      </a>
+      <a class="pill pill-ghost" href={SITE.repo} rel="noopener">
+        <GitHubMark />
+        <span>GitHub</span>
+      </a>
+    </p>
+  </main>
+
+  <script is:inline>
+    /* The same language toggle the rest of the site runs, and it has to be here
+       rather than inherited: this page is deliberately not built on Base, so it
+       inherits nothing. Without it a 404 shows Turkish and English stacked on
+       top of each other — which is what it did — and the one page a lost reader
+       lands on is the one page that ignores the language they chose.
+       Same storage key, so the choice made on the site is the choice here. */
+    (function () {
+      var root = document.documentElement;
+      var box = document.getElementById('lang');
+      var btns = box ? box.querySelectorAll('[data-set-lang]') : [];
+      function apply(lang) {
+        root.setAttribute('data-lang', lang);
+        root.setAttribute('lang', lang === 'en' ? 'en' : 'tr');
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].setAttribute('aria-pressed',
+            btns[i].getAttribute('data-set-lang') === lang ? 'true' : 'false');
+        }
+        try { localStorage.setItem('sk-lang', lang); } catch (e) {}
+      }
+      var saved = null;
+      try { saved = localStorage.getItem('sk-lang'); } catch (e) {}
+      apply(saved || ((navigator.language || 'tr').toLowerCase().indexOf('tr') === 0 ? 'tr' : 'en'));
+      for (var j = 0; j < btns.length; j++) {
+        btns[j].addEventListener('click', function () {
+          apply(this.getAttribute('data-set-lang'));
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

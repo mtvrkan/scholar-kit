@@ -1,0 +1,66 @@
+% YÖK-uyumlu Türkçe tez iskeleti — scholar-kit
+% Derleme: bash scripts/latex_build.sh templates/thesis-tr/main.tex build
+% Kurum kılavuzu templates/institution/ altında kayıtlıysa onun kuralları önceliklidir
+% (TEMPLATE SUPREMACY — bkz. thesis-structure skill, reference/yok-tr.md).
+\documentclass[12pt,a4paper,oneside]{report}
+
+% --- Dil ve yazı tipi ---
+\usepackage[utf8]{inputenc}      % pdflatex için; xelatex kullanılıyorsa fontspec'e geçin
+\usepackage[T1]{fontenc}
+\usepackage[turkish,shorthands=:!]{babel}  % shorthands çakışmalarını önler
+\usepackage{times}               % kurum kılavuzu farklı font isterse değiştirin
+
+% --- Sayfa düzeni (tipik YÖK: sol 3.5cm, diğerleri 2.5cm) ---
+\usepackage[left=3.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{setspace}\onehalfspacing
+
+% --- Kaynakça: tek kaynak bib/references.bib; stil PROJECT.md'den ---
+\usepackage[backend=biber,style=apa,language=turkish]{biblatex}
+\addbibresource{../../bib/references.bib}
+
+% --- Şekil/tablo/çapraz referans ---
+\usepackage{graphicx,booktabs,caption,subcaption}
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalise]{cleveref}  % cleveref has no "turkish" language option — see below
+% cleveref ships no Turkish translations; define them manually (bkz. thesis-structure skill)
+\crefname{chapter}{bölüm}{bölüm}     \Crefname{chapter}{Bölüm}{Bölüm}
+\crefname{section}{kısım}{kısım}     \Crefname{section}{Kısım}{Kısım}
+\crefname{figure}{şekil}{şekil}      \Crefname{figure}{Şekil}{Şekil}
+\crefname{table}{tablo}{tablo}       \Crefname{table}{Tablo}{Tablo}
+\crefname{equation}{denklem}{denklem} \Crefname{equation}{Denklem}{Denklem}
+\crefname{page}{sayfa}{sayfa}        \Crefname{page}{Sayfa}{Sayfa}
+
+\begin{document}
+
+% ===== ÖN SAYFALAR (YÖK sırası — yok-tr.md) =====
+% 1. İç kapak
+\input{frontmatter/ic-kapak}
+% 2. Onay sayfası
+\input{frontmatter/onay}
+% 3. Etik beyan
+\input{frontmatter/etik-beyan}
+% 4. Teşekkür
+\input{frontmatter/tesekkur}
+% 5. Özet (TR) — Abstract ile yapısal eşdeğer olmalı
+\input{frontmatter/ozet}
+% 6. Abstract (EN)
+\input{frontmatter/abstract}
+% 7-9. İçindekiler, tablo/şekil/simge listeleri
+\tableofcontents
+\listoftables
+\listoffigures
+% \input{frontmatter/simgeler}
+
+% ===== BÖLÜMLER (5 bölümlü klasik yapı — thesis-structure skill) =====
+\input{chapters/01-giris}          % RQ'lar burada tanımlanır (RQ1, RQ2, ...)
+\input{chapters/02-literatur}
+\input{chapters/03-yontem}
+\input{chapters/04-bulgular}       % Başlıklar RQ'larla 1:1 eşleşmeli (--rq-trace)
+\input{chapters/05-sonuc}
+
+\printbibliography[title={Kaynakça}]
+
+% \appendix
+% \input{appendices/ek-a}
+
+\end{document}

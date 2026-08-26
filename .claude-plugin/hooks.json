@@ -1,0 +1,12 @@
+{
+  "SessionStart": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python \"${CLAUDE_PLUGIN_ROOT}/.claude/hooks/enforcement_notice.py\" || python3 \"${CLAUDE_PLUGIN_ROOT}/.claude/hooks/enforcement_notice.py\""
+        }
+      ]
+    }
+  ]
+}
