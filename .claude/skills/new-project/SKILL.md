@@ -31,9 +31,11 @@ This skill creates a new project directory and guides you through the initial sc
 
 ### 2. Copy Template — projects are SELF-CONTAINED
 
-A project must work as its own Claude Code workspace, so it needs the kit runtime,
-not just the data skeleton. Locate the kit root (the directory containing this
-skill: walk up from `.claude/skills/new-project/` — call it $KIT).
+A project must work as its own Claude Code (or Codex) workspace, so it needs the kit runtime,
+not just the data skeleton. Locate the kit root — call it $KIT: walk up from
+this skill's own directory (`.claude/skills/new-project/`, or
+`codex/skills/new-project/` under Codex) to the directory that contains
+`project-template/`.
 
 1. Target: `<subdir>/` if provided (`mkdir -p <subdir>`), else the current directory.
    The target must NOT be inside $KIT/project-template.
@@ -65,9 +67,23 @@ skill: walk up from `.claude/skills/new-project/` — call it $KIT).
    ```
    Use whichever of `python` / `python3` / `py` actually launched the command.
    Skip only when step 4 applied (the kit root is already patched).
-6. Confirm: "Project initialized at `<path>` (self-contained: runtime + templates
-   copied, hooks wired to `<interpreter>`). Open Claude Code IN this directory
-   for all project work."
+6. **Wire the Codex side to the same interpreter.** From the target directory:
+   ```bash
+   python scripts/codex_sync.py --project --python <python|python3|py>
+   ```
+   Run it whichever harness you are in, so the project works in both. It
+   GENERATES, from the `.claude/` and `templates/` just copied, everything
+   OpenAI Codex reads at its fixed project paths: `AGENTS.md` (the same
+   constitution), `.codex/hooks.json` + the adapter (the same gates),
+   `.codex/agents/`, `.codex/rules/` and `.agents/skills/`. Do not copy
+   `$KIT/codex/` instead — that folder is the kit's own layout, not a
+   project's. Skip only when step 4 applied.
+7. Confirm: "Project initialized at `<path>` (self-contained: runtime + templates
+   copied, hooks wired to `<interpreter>`). Open Claude Code or Codex IN this
+   directory for all project work." When running under Codex, add: "Codex runs
+   a hook only after you have reviewed it — trust this project, then open
+   `/hooks` once and approve the Scholar-Kit gates. Until then the phase gates
+   and data-file protection are guidance, not gates."
 
 ### 3. Run Interactive Wizard
 

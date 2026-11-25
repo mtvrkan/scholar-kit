@@ -46,7 +46,7 @@ are written here instead:
 
 Change record: DECISIONS.md (D-085, § D-085d) holds the full reasoning,
 including why this hook is NOT registered in .claude/settings.json and why it
-warns rather than blocks. Behaviour is locked by
+warns rather than blocks; D-099 adds `--harness codex`. Behaviour is locked by
 tests/test_enforcement_notice_hook.py — see `hooks` in tests/README.md.
 """
 import json
@@ -70,8 +70,24 @@ REQUIRED = (
 )
 
 
-def missing_layers(root: Path) -> list[str]:
-    return [p.as_posix() for p in REQUIRED if not (root / p).is_file()]
+# Under Codex the same two layers are required, plus the file that wires the
+# gates to that harness: a project materialised before the kit spoke Codex has
+# scripts/ and .claude/hooks/ and is still ungated there, because nothing tells
+# Codex to run them. Selected by `--harness codex` on the command line (the
+# Codex plugin manifest passes it); with no flag the behaviour is unchanged.
+CODEX_REQUIRED = REQUIRED + (Path(".codex") / "hooks.json",)
+
+
+def _harness() -> str:
+    argv = sys.argv[1:]
+    if "--harness" in argv[:-1] and argv[argv.index("--harness") + 1] == "codex":
+        return "codex"
+    return "claude"
+
+
+def missing_layers(root: Path, harness: str = "claude") -> list[str]:
+    required = CODEX_REQUIRED if harness == "codex" else REQUIRED
+    return [p.as_posix() for p in required if not (root / p).is_file()]
 
 
 def main():
@@ -86,7 +102,8 @@ def main():
         # report — it is simply somebody else's directory.
         if not (root / "PROJECT.md").is_file():
             sys.exit(0)
-        missing = missing_layers(root)
+        harness = _harness()
+        missing = missing_layers(root, harness)
         if not missing:
             sys.exit(0)
         print("=== scholar-kit: ENFORCEMENT ABSENT ===")
@@ -98,9 +115,17 @@ def main():
         print("  · the phase gates (outline approved before drafting; Major=0 before build)")
         print("  · script-ownership of sources/registry.jsonl and evidence/cards.jsonl")
         print("")
-        print("Fix: run /new-project in this directory (it materialises scripts/,")
-        print("templates/ and .claude/hooks/, and wires the hooks to your Python),")
-        print("or install the kit classically with INSTALL.sh / INSTALL.ps1.")
+        if harness == "codex":
+            print("Fix: run $new-project in this directory (it materialises scripts/,")
+            print("templates/, .claude/hooks/ and .codex/, and wires the hooks to your")
+            print("Python). A project that already has scripts/ needs only:")
+            print("  python scripts/codex_sync.py --project --python <python|python3|py>")
+            print("Then trust the project and review the gates once in /hooks —")
+            print("Codex skips a hook until you have.")
+        else:
+            print("Fix: run /new-project in this directory (it materialises scripts/,")
+            print("templates/ and .claude/hooks/, and wires the hooks to your Python),")
+            print("or install the kit classically with INSTALL.sh / INSTALL.ps1.")
     except Exception:
         # Fail-open, and silently: this hook exists to prevent a false sense of
         # enforcement. Turning its own failure into a session-blocking error

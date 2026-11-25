@@ -7,7 +7,7 @@
 <p align="center">
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/lisans-MIT-000?style=flat-square" /></a>
   <a href="CITATION.cff"><img alt="v1.0.0" src="https://img.shields.io/badge/s%C3%BCr%C3%BCm-1.0.0-000?style=flat-square" /></a>
-  <a href="CONTRIBUTING.md"><img alt="test" src="https://img.shields.io/badge/test-2390%20ge%C3%A7iyor-000?style=flat-square" /></a>
+  <a href="CONTRIBUTING.md"><img alt="test" src="https://img.shields.io/badge/test-2509%20ge%C3%A7iyor-000?style=flat-square" /></a>
   <a href="https://scholar.mtvrkan.com"><img alt="site" src="https://img.shields.io/badge/site-scholar.mtvrkan.com-000?style=flat-square" /></a>
 </p>
 
@@ -17,7 +17,7 @@
 
 Claude Code için akademik araştırma, makale ve tez üretim kiti:
 10 uzman subagent, 54 skill: 43 komut ve 11 bilgi skill'i, araç çağrısı
-katmanında çalışan 6 hook ve deterministik bir Python katmanı (68 araç).
+katmanında çalışan 6 hook ve deterministik bir Python katmanı (69 araç).
 Makalenin çevresindeki işleri de kapsar — proje önerisi ve
 raporu, etik kurul başvurusu, veri yönetim planı, hakem raporu, atama dosyası,
 ders izlencesi ve akreditasyon matrisi.
@@ -67,9 +67,21 @@ o an yürürlükte olmayan garantileri tek tek yazar.
 yorumlayıcı yaması, indeks veri setleri, MCP sunucuları. Kiti geliştirecekseniz
 bu yolu seçin.
 
+**OpenAI Codex** — aynı kit, aynı dosyalardan:
+
+```text
+codex plugin marketplace add mtvrkan/scholar-kit
+codex plugin add scholar-kit@scholar-kit
+```
+
+Orada komutlar beceridir: `$new-project makale`, `$draft yöntem`. Aynı uyarı
+geçerlidir ve bir ek vardır — Codex bir hooku ancak siz onayladıktan sonra
+çalıştırır; projede bir kez `/hooks` ekranını açın. Neyin neye karşılık geldiği
+ve Codex altında neyin daha zayıf olduğu: [`docs/CODEX.md`](docs/CODEX.md).
+
 ### Gereksinimler
 
-- Python 3.10+, [Claude Code](https://claude.com/claude-code), `pip install -r requirements.txt`
+- Python 3.10+, [Claude Code](https://claude.com/claude-code) veya [Codex](https://developers.openai.com/codex), `pip install -r requirements.txt`
 - **bash** — her iki çıktı üreticisi de kabuk scripti. macOS/Linux'ta kurulu
   gelir; Windows'ta Git for Windows'tan gelir (`winget install --id Git.Git`).
   Yoksa pandoc ve TeX kurulu olsa bile DOCX/PDF build adımı düşer.
@@ -193,9 +205,10 @@ görevinizdir; kitin neden benzerlik skoru üretmeyi reddettiği
 [`CONTRIBUTING.md`](CONTRIBUTING.md) üzerinde nasıl çalışılır ·
 [`CHANGELOG.md`](CHANGELOG.md) her değişiklik ·
 [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) neden maliyet tablosu yayımlanmıyor ·
+[`docs/CODEX.md`](docs/CODEX.md) kit OpenAI Codex altında ·
 [`docs/RELEASING.md`](docs/RELEASING.md) sürüm ve DOI
 
-**Testler:** `python -m pytest` (2390 test geçer, 8'i canlı ağ testi olarak
+**Testler:** `python -m pytest` (2509 test geçer, 8'i canlı ağ testi olarak
 varsayılanda atlanır; dahil etmek için `RUN_LIVE=1`).
 
 **Site:** tek sayfa, beş bölüm, Astro ile derlenir. İndirilecek hiçbir

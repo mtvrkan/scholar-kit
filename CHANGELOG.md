@@ -1,5 +1,46 @@
 # Changelog
 
+## Unreleased
+
+### Added — kit artık OpenAI Codex altında da çalışıyor (D-099)
+
+- Kit tek bir gövde, iki harness: beceriler, ajanlar, hooklar ve anayasa bir kez,
+  Claude Code biçimlerinde `.claude/` altında yazılıyor; Codex'in okuduğu her şey
+  `scripts/codex_sync.py` tarafından onlardan ÜRETİLİYOR ve tek bir klasörde,
+  `codex/` altında duruyor. `--check` bayat bir dosyada testi düşürüyor; `codex/`
+  içinde elle yazılmış tek satır yok. [2026-11-25]
+- `.codex-plugin/plugin.json` + `.agents/plugins/marketplace.json`: aynı depo
+  artık bir Codex plugini de (Codex'in kökte istediği iki sabit yol; geri kalanı
+  `codex/` içinde). `codex/skills/`, `.claude/skills/`'in bayt bayt kopyası;
+  `disable-model-invocation: true` taşıyan 43 komutun yanına üretilen
+  `agents/openai.yaml` aynı sözü Codex'e veriyor (komut adıyla çağrılınca
+  çalışır, kendiliğinden değil). 11 bilgi becerisi iki tarafta da örtük yüklenir.
+- `templates/codex/codex_adapter.py`: Codex dosyaları tek bir araçla,
+  `apply_patch` ile düzenler ve yükünde `file_path` yoktur — yalnızca yama metni.
+  Uyarlanmamış bir kapı bu çağrıya sıfır baytla cevap verir; "denetlendi,
+  kapılanacak bir şey yok" ile ayırt edilemez. Adaptör yamanın dokunduğu her yol
+  için aynı kapıya bir kez sorar; tek ret tüm yamayı reddeder. Kapılar
+  değiştirilmedi ve kopyalanmadı: tek yaptırım katmanı `.claude/hooks/`.
+- Codex'te alt ajanların araç listesi yoktur. Adaptör, frontmatter'ında yazma
+  aracı bulunmayan her ajanı `agent_write_scope` için boş kapsamla (salt-okunur)
+  tutar — liste ajan dosyalarından türetilir, elle yazılmaz.
+- `codex/agents/` (10 ajan, rol metni harfi harfine), `codex/hooks/hooks.json`
+  (aynı altı kapı), `codex/rules/scholar-kit.rules` (Bash ret listesi →
+  `forbidden`), `codex/AGENTS.md` (kısa bir okuma kılavuzunun altında
+  `CLAUDE.md` aynen). Model adı YAZILMAZ: `opus/sonnet/haiku` → akıl yürütme
+  çabası `high/medium/low`.
+- `/new-project`, `codex_sync.py --project` ile aynı dosyaları Codex'in bir
+  PROJEDE aradığı sabit yollara üretiyor; `INSTALL.sh` / `INSTALL.ps1` `codex/`
+  klasörünü aynı yorumlayıcıya üretiyor ve MCP sunucularını kurulu olan her iki
+  CLI'ye ekliyor. `enforcement_notice.py` `--harness codex` ile, Claude için
+  kapılı ama Codex için kablosuz bir projeyi de adıyla söylüyor.
+- Codex altında neyin daha ZAYIF olduğu `docs/CODEX.md`'de açıkça yazılı:
+  kapılar ancak kullanıcı `/hooks` ekranında onaylayınca çalışır; salt-okunur
+  ajan araç setiyle değil sözleşme + hook ile salt-okunurdur; `Read(./.env)`
+  retleri ve `permissions.allow` bilerek aktarılmadı.
+- 2390 -> **2509** test (README.md, README.tr.md, CONTRIBUTING.md,
+  web/src/data/site.ts); 68 -> **69** araç.
+
 ## 1.0.0 — 2026-08-26
 
 > **Sürüm numaraları yeniden düzenlendi.** Bu, kitin ilk KAMUYA duyurulan

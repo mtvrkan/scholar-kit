@@ -30,6 +30,15 @@ patch_hooks() {
     *'"changed": true'*) echo "  [ok] hooks now use: $PY" ;;
     *) echo "  [ok] hooks already use: $PY" ;;
   esac
+  # The Codex side is generated, not patched: codex/ is rewritten from .claude/
+  # (skills, agents, hook wiring for the same interpreter, command rules,
+  # AGENTS.md). Run for every install — a kit used only from Claude Code loses
+  # nothing by having it current.
+  if $PY scripts/codex_sync.py --python "$PY" >/dev/null 2>&1; then
+    echo "  [ok] Codex files generated (codex/) for: $PY"
+  else
+    echo "  [warn] Codex files not generated — run: $PY scripts/codex_sync.py --python $PY"
+  fi
 }
 
 check_deps() {
@@ -54,8 +63,13 @@ check_deps() {
   # in the dependency list at all rather than being assumed.
   if command -v bash >/dev/null 2>&1; then echo "  [ok] bash (runs the DOCX/PDF build scripts)"
   else echo "  [optional-MISSING] bash (DOCX/PDF builds run scripts/*.sh) — Windows: Git for Windows (winget install --id Git.Git)"; fi
-  if command -v claude >/dev/null 2>&1; then echo "  [ok] claude code CLI"
-  else echo "  [MISSING] Claude Code CLI — https://claude.com/claude-code"; missing=1; fi
+  # Either harness runs the kit; only having NEITHER is a missing dependency.
+  local have_agent=0
+  if command -v claude >/dev/null 2>&1; then echo "  [ok] claude code CLI"; have_agent=1; fi
+  if command -v codex >/dev/null 2>&1; then echo "  [ok] codex CLI"; have_agent=1; fi
+  if [ "$have_agent" -eq 0 ]; then
+    echo "  [MISSING] Claude Code CLI (https://claude.com/claude-code) or Codex CLI (https://developers.openai.com/codex)"; missing=1
+  fi
   echo
   $PY scripts/validate_kit.py >/dev/null 2>&1 \
     && echo "  [ok] kit structure valid (scripts/validate_kit.py)" \
@@ -70,8 +84,11 @@ update_data() {
 
 setup_mcp() {
   echo "== MCP servers (optional — kit degrades to WebSearch without them) =="
-  command -v claude >/dev/null 2>&1 || { echo "  claude CLI not found; skipping"; return; }
-  echo "  Suggested servers (nothing installs without your confirmation):"
+  if ! command -v claude >/dev/null 2>&1 && ! command -v codex >/dev/null 2>&1; then
+    echo "  neither claude nor codex CLI found; skipping"; return
+  fi
+  echo "  Suggested servers (nothing installs without your confirmation; with"
+  echo "  Codex installed the same servers are added there as: codex mcp add ...):"
   echo "   1) semantic-scholar : 200M+ papers, citation graph (free API key recommended)"
   echo "      claude mcp add semantic-scholar -- uvx semantic-scholar-mcp"
   echo "   2) paper-search     : arXiv/PubMed/OpenAlex/Crossref/PMC/DOAJ/CORE + PDF download"
@@ -83,10 +100,18 @@ setup_mcp() {
   read -r -p "  Run these now? [y/N] " yn
   case "$yn" in
     [Yy]*)
-      claude mcp add semantic-scholar -- uvx semantic-scholar-mcp || true
-      claude mcp add paper-search -- uvx paper-search-mcp || true
-      claude mcp add --transport http scholar-sidekick https://scholar-sidekick.com/api/apps/mcp || true
-      echo "  Connection test:"; claude mcp list || true
+      if command -v claude >/dev/null 2>&1; then
+        claude mcp add semantic-scholar -- uvx semantic-scholar-mcp || true
+        claude mcp add paper-search -- uvx paper-search-mcp || true
+        claude mcp add --transport http scholar-sidekick https://scholar-sidekick.com/api/apps/mcp || true
+        echo "  Connection test:"; claude mcp list || true
+      fi
+      if command -v codex >/dev/null 2>&1; then
+        codex mcp add semantic-scholar -- uvx semantic-scholar-mcp || true
+        codex mcp add paper-search -- uvx paper-search-mcp || true
+        codex mcp add scholar-sidekick --url https://scholar-sidekick.com/api/apps/mcp || true
+        echo "  Connection test (Codex):"; codex mcp list || true
+      fi
       ;;
     *) echo "  Skipped. Re-run: bash INSTALL.sh --mcp" ;;
   esac
@@ -106,5 +131,6 @@ case "$MODE" in
     setup_mcp
     echo
     echo "Done. Start a new paper with:  claude  ->  /new-project makale"
+    echo "                    or (Codex):  codex   ->  \$new-project makale   (then approve the gates once in /hooks)"
     ;;
 esac
