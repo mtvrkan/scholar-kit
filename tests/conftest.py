@@ -38,6 +38,7 @@ AREAS = {
     "hooks": [
         "test_agent_write_scope_hook.py",
         "test_cite_warn_hook.py",
+        "test_codex_adapter.py",
         "test_degrade_visibility.py",
         "test_enforcement_notice_hook.py",
         "test_hook_change_records.py",
@@ -151,6 +152,7 @@ AREAS = {
     ],
     "kitmeta": [
         "test_changelog_scope.py",
+        "test_codex_sync.py",
         "test_enforcement_notice_hook.py",
         "test_first_run.py",
         "test_governance_docs.py",

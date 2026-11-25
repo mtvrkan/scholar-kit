@@ -213,7 +213,12 @@ keyword parity, contents vs the body's headings, lists vs its figures) ·
 overlap_check.py (text recycling against YOUR OWN earlier files, offline:
 locations, never a percentage; does not replace an institutional tool) ·
 prisma_flow.py · pdf2md.py · qa_inspect.py · update_data.py ·
-patch_hook_interpreter.py · docx_style_check.py · make_reference_docx.py ·
+patch_hook_interpreter.py ·
+codex_sync.py (generates everything OpenAI Codex reads — skills, agents, hook
+wiring, command rules, AGENTS.md — from the .claude/ half, into codex/ in the kit
+or, with --project, into a project's fixed Codex paths; `--check` fails when a
+generated file is stale) ·
+docx_style_check.py · make_reference_docx.py ·
 template_compliance.py (built document vs the machine-readable template-rules
 block in template-profile.md; WARN-only, wired into both build scripts —
 reports `unchecked`/`unbound` rather than counting an unverified rule as

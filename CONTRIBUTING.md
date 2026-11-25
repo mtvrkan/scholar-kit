@@ -19,7 +19,7 @@ ideas in the wrong project. Five minutes there saves an afternoon here.
 
 ## Where to start reading
 
-The repository is large — 68 tools, 54 skills, 10 agents, 2390 tests — and
+The repository is large — 69 tools, 54 skills, 10 agents, 2509 tests — and
 almost none of it is load-bearing for a first change. These twelve files are.
 Read them in this order and you will have the whole design; everything else is
 an application of it.

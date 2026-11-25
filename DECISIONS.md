@@ -3,8 +3,9 @@
 Log of deviations from SCHOLAR-KIT-PLAN.md, with rationale. Newest first.
 
 <details>
-<summary>Contents (51 entries — click to expand)</summary>
+<summary>Contents (52 entries — click to expand)</summary>
 
+- [2026-11-25 — One kit, two harnesses: Codex without a fork (D-099)](#2026-11-25--one-kit-two-harnesses-codex-without-a-fork-d-099)
 - [2026-08-15 — The other three axes of an academic's job (D-098)](#2026-08-15--the-other-three-axes-of-an-academics-job-d-098)
 - [2026-08-14 — The empirical chain, closed; and the paper that already exists (D-097)](#2026-08-14--the-empirical-chain-closed-and-the-paper-that-already-exists-d-097)
 - [2026-08-14 — The job that starts when the manuscript ends (D-096)](#2026-08-14--the-job-that-starts-when-the-manuscript-ends-d-096)
@@ -58,6 +59,87 @@ Log of deviations from SCHOLAR-KIT-PLAN.md, with rationale. Newest first.
 - [2026-07-02 — Phase 0](#2026-07-02--phase-0)
 
 </details>
+
+## 2026-11-25 — One kit, two harnesses: Codex without a fork (D-099)
+
+The kit was a Claude Code plugin. The request was that it also be an OpenAI Codex
+plugin, with both kept. The obvious way to do that is a converted copy: a
+`skills/` tree with Codex frontmatter, rewritten hooks, a second constitution.
+That was refused, for the reason every "an earlier version of this hook…" note in
+this repository exists: two copies of an enforcement layer are two layers, and
+the one nobody is looking at is the one that rots.
+
+- **D-099a · One source, one generated folder.** Skills, agents, hooks and the
+  constitution stay authored in Claude Code's formats under `.claude/`.
+  `scripts/codex_sync.py` derives everything Codex reads into `codex/`
+  (`skills/`, `agents/`, `hooks/`, `rules/`, `AGENTS.md`) and `--check` fails the
+  suite when a file there is stale or has no source. Only two Codex files sit
+  outside it, because Codex fixes their paths: `.codex-plugin/plugin.json` and
+  `.agents/plugins/marketplace.json`.
+
+  The first version of this change kept ONE copy of the skills: the Codex
+  manifest pointed at `.claude/skills/` and the generator dropped an
+  `agents/openai.yaml` beside each command there. It worked, and it was
+  replaced, because it put Codex files inside the Claude half — a reader of
+  `.claude/skills/draft/` found a file no Claude tool reads, and the question
+  "what does Codex load?" had five answers scattered over the tree. The skills
+  are now copied byte for byte into `codex/skills/`. A second copy is exactly
+  what the opening paragraph refuses, with one difference that decides it: this
+  one is generated and checked, so it cannot be edited into disagreement.
+  `SKILL.md` itself is not rewritten — Codex ignores frontmatter keys it does not
+  know.
+
+  A project cannot use `codex/` as it stands, since Codex reads a project's
+  files at fixed paths. `codex_sync.py --project` writes the same files there
+  (`AGENTS.md`, `.codex/`, `.agents/skills/`) from the project's own `.claude/`.
+
+- **D-099b · The gates are adapted, not ported.** Codex's hook contract turned
+  out to be nearly Claude's (same events, same `permissionDecision` reply, shell
+  as `Bash`, `agent_type` for a subagent) with one difference that silently
+  disables everything: file edits arrive as `apply_patch` carrying patch text and
+  no `file_path`. `templates/codex/codex_adapter.py` expands a patch into one
+  Write/Edit-shaped payload per touched path and calls the existing gate
+  in-process. The gates are imported from `.claude/hooks/`, never copied — the
+  skills are duplicated (D-099a), the enforcement layer is not.
+  Rejected: adding an `apply_patch` branch to each of the five hooks — five
+  places to keep a patch parser in step, and five files whose test suites assume
+  one harness.
+
+- **D-099c · Read-only agents, derived.** Claude enforces `tools: Read, Grep` by
+  granting nothing else. A Codex custom agent inherits the session's tools and
+  `sandbox_mode` in an agent file is ignored. The adapter therefore gives
+  `agent_write_scope` an empty scope for every agent whose frontmatter grants no
+  write tool. `AGENT_SCOPES` in the hook itself is untouched: under Claude those
+  agents cannot write at all, and adding them there would change behaviour that
+  needs no change.
+
+- **D-099d · What was deliberately not mirrored.** A model name (Claude's
+  `opus/sonnet/haiku` becomes a reasoning effort; a model id would be a claim
+  that goes stale each release). `permissions.allow` (a Codex `allow` rule runs
+  the command outside the sandbox unprompted — wider than Claude's). `Read(...)`
+  denies (they need a Codex permission profile, which would replace the user's
+  own sandbox choice; `docs/CODEX.md` gives the snippet). Each is a place where
+  mirroring would have made a guarantee look present that is not.
+
+- **D-099e · The hook command is guarded.** Codex has no `$CLAUDE_PROJECT_DIR`;
+  hooks run in the session's working directory. `python <missing file>` exits 2,
+  and Codex reads exit 2 as BLOCK — so an unguarded command, started from a
+  subdirectory, would deny every tool call in the session. The generated command
+  tests for the adapter first and is a no-op without it. That means a session
+  started below the project root is ungated, which is also what the Claude side
+  does (`_project_scope.py` checks the working directory only).
+
+- **D-099f · The limit that cannot be closed from inside the kit.** Codex runs a
+  hook only after the user has approved it in `/hooks`, and nothing a hook or
+  skill can read says whether that happened. The constitution's Codex preamble,
+  `/new-project`'s closing message, the plugin's `ENFORCEMENT ABSENT` notice and
+  `docs/CODEX.md` all say it; none of them can detect it. Verified live against
+  Codex 0.172: plugin install, skill discovery (11 implicit, 43 by name), agent
+  discovery, `AGENTS.md` loading, and `execpolicy` evaluation of the generated
+  rules. The hooks were exercised against Codex's documented payloads and its
+  embedded schema, not in a live trusted session.
+
+Tests: `tests/test_codex_adapter.py`, `tests/test_codex_sync.py`.
 
 ## 2026-08-15 — The other three axes of an academic's job (D-098)
 

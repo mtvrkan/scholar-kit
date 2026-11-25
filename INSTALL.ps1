@@ -51,8 +51,13 @@ function Test-Deps {
     # "bash is not recognized", after every other check had said [ok].
     if (Get-Command bash -ErrorAction SilentlyContinue) { Write-Host "  [ok] bash (runs the DOCX/PDF build scripts)" }
     else { Write-Host "  [optional-MISSING] bash (DOCX/PDF builds run scripts/*.sh) - Git for Windows: winget install --id Git.Git" }
-    if (Get-Command claude -ErrorAction SilentlyContinue) { Write-Host "  [ok] claude code CLI" }
-    else { Write-Host "  [MISSING] Claude Code CLI - https://claude.com/claude-code"; $missing = 1 }
+    # Either harness runs the kit; only having NEITHER is a missing dependency.
+    $haveAgent = $false
+    if (Get-Command claude -ErrorAction SilentlyContinue) { Write-Host "  [ok] claude code CLI"; $haveAgent = $true }
+    if (Get-Command codex -ErrorAction SilentlyContinue) { Write-Host "  [ok] codex CLI"; $haveAgent = $true }
+    if (-not $haveAgent) {
+        Write-Host "  [MISSING] Claude Code CLI (https://claude.com/claude-code) or Codex CLI (https://developers.openai.com/codex)"; $missing = 1
+    }
     if ($py) {
         & $py scripts/validate_kit.py *>$null
         if ($LASTEXITCODE -eq 0) { Write-Host "  [ok] kit structure valid (scripts/validate_kit.py)" }
@@ -75,6 +80,12 @@ function Update-HookInterpreter {
     } else {
         Write-Host "  [ok] hooks already use: $py"
     }
+    # The Codex side is generated, not patched: codex/ is rewritten from
+    # .claude/ (skills, agents, hook wiring for the same interpreter, command
+    # rules, AGENTS.md). Mirrors INSTALL.sh.
+    & $py scripts/codex_sync.py --python $py *>$null
+    if ($LASTEXITCODE -eq 0) { Write-Host "  [ok] Codex files generated (codex/) for: $py" }
+    else { Write-Host "  [warn] Codex files not generated - run: $py scripts/codex_sync.py --python $py" }
 }
 
 function Update-Data {
@@ -87,19 +98,30 @@ function Update-Data {
 
 function Setup-Mcp {
     Write-Host "== MCP servers (optional - kit degrades to WebSearch without them) =="
-    if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
-        Write-Host "  claude CLI not found; skipping"; return
+    $haveClaude = [bool](Get-Command claude -ErrorAction SilentlyContinue)
+    $haveCodex = [bool](Get-Command codex -ErrorAction SilentlyContinue)
+    if (-not $haveClaude -and -not $haveCodex) {
+        Write-Host "  neither claude nor codex CLI found; skipping"; return
     }
+    Write-Host "  (with Codex installed the same servers are added there as: codex mcp add ...)"
     Write-Host "  1) semantic-scholar : claude mcp add semantic-scholar -- uvx semantic-scholar-mcp"
     Write-Host "  2) paper-search     : claude mcp add paper-search -- uvx paper-search-mcp"
     Write-Host "  3) scholar-sidekick : claude mcp add --transport http scholar-sidekick https://scholar-sidekick.com/api/apps/mcp"
     Write-Host "  4) zotero (optional): claude mcp add zotero -- uvx zotero-mcp"
     $yn = Read-Host "  Run 1-3 now? [y/N]"
     if ($yn -match '^[Yy]') {
-        claude mcp add semantic-scholar -- uvx semantic-scholar-mcp
-        claude mcp add paper-search -- uvx paper-search-mcp
-        claude mcp add --transport http scholar-sidekick https://scholar-sidekick.com/api/apps/mcp
-        Write-Host "  Connection test:"; claude mcp list
+        if ($haveClaude) {
+            claude mcp add semantic-scholar -- uvx semantic-scholar-mcp
+            claude mcp add paper-search -- uvx paper-search-mcp
+            claude mcp add --transport http scholar-sidekick https://scholar-sidekick.com/api/apps/mcp
+            Write-Host "  Connection test:"; claude mcp list
+        }
+        if ($haveCodex) {
+            codex mcp add semantic-scholar -- uvx semantic-scholar-mcp
+            codex mcp add paper-search -- uvx paper-search-mcp
+            codex mcp add scholar-sidekick --url https://scholar-sidekick.com/api/apps/mcp
+            Write-Host "  Connection test (Codex):"; codex mcp list
+        }
     } else {
         Write-Host "  Skipped. Re-run: .\INSTALL.ps1 -Mcp"
     }
@@ -116,3 +138,4 @@ if ($yn -match '^[Yy]') { Update-Data } else { Write-Host "Skipped. Re-run: .\IN
 Setup-Mcp
 Write-Host ""
 Write-Host "Done. Start a new paper with:  claude  ->  /new-project makale"
+Write-Host "                    or (Codex):  codex   ->  `$new-project makale   (then approve the gates once in /hooks)"

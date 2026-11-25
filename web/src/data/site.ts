@@ -16,8 +16,8 @@ export const SITE = {
   // Passing tests on a default `python -m pytest` (live-network tests excluded).
   // Derived from a real collection run by test_governance_docs.py, which is what
   // stops this from becoming the stale number it was before.
-  tests: 2390,
-  tools: 68,
+  tests: 2509,
+  tools: 69,
   agents: 10,
   commands: 43,
   knowledge: 11,

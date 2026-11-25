@@ -1,0 +1,53 @@
+{
+  "name": "scholar-kit",
+  "version": "1.0.0",
+  "description": "End-to-end academic research, paper and thesis production for Codex — Turkish and English as equal first-class targets. Zero-fabrication citation discipline, evidence-card chain, claim-strength auditing, and a 7-mode AI-research failure-mode scan. Run $new-project first: it materialises the script layer, the enforcement hooks and the agents into your project.",
+  "author": {
+    "name": "Mehmet Türkan",
+    "url": "https://github.com/mtvrkan"
+  },
+  "homepage": "https://github.com/mtvrkan/scholar-kit",
+  "repository": "https://github.com/mtvrkan/scholar-kit",
+  "license": "MIT",
+  "keywords": [
+    "academic-writing",
+    "literature-review",
+    "systematic-review",
+    "citation-verification",
+    "research-integrity",
+    "thesis",
+    "turkish-academic-writing"
+  ],
+  "skills": "./codex/skills/",
+  "hooks": {
+    "hooks": {
+      "SessionStart": [
+        {
+          "hooks": [
+            {
+              "type": "command",
+              "command": "python \"${PLUGIN_ROOT}/.claude/hooks/enforcement_notice.py\" --harness codex || python3 \"${PLUGIN_ROOT}/.claude/hooks/enforcement_notice.py\" --harness codex"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "interface": {
+    "displayName": "Scholar-Kit",
+    "shortDescription": "Academic research, writing and thesis production",
+    "longDescription": "43 workflow commands and 11 knowledge skills for the whole life of a paper or thesis: literature review, evidence cards, outline, drafting, citation verification, peer-review simulation and submission. A reference never comes from the model's memory; every empirical claim binds to an evidence card; the phase gates run as hooks. Run $new-project first — the gates, scripts and agents live inside your project.",
+    "developerName": "Mehmet Türkan",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://scholar.mtvrkan.com",
+    "defaultPrompt": [
+      "Start a new paper with $new-project paper",
+      "Run $status to see where this project stands",
+      "Run $verify-citations on the current draft"
+    ]
+  }
+}

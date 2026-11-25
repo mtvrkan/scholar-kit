@@ -7,7 +7,7 @@
 <p align="center">
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-000?style=flat-square" /></a>
   <a href="CITATION.cff"><img alt="v1.0.0" src="https://img.shields.io/badge/version-1.0.0-000?style=flat-square" /></a>
-  <a href="CONTRIBUTING.md"><img alt="tests" src="https://img.shields.io/badge/tests-2390%20passing-000?style=flat-square" /></a>
+  <a href="CONTRIBUTING.md"><img alt="tests" src="https://img.shields.io/badge/tests-2509%20passing-000?style=flat-square" /></a>
   <a href="https://scholar.mtvrkan.com"><img alt="site" src="https://img.shields.io/badge/site-scholar.mtvrkan.com-000?style=flat-square" /></a>
 </p>
 
@@ -17,7 +17,7 @@
 
 Academic research, writing and thesis production for Claude Code:
 10 specialist subagents, 43 commands, 11 knowledge skills, 6 enforcement hooks
-and a deterministic Python layer (68 tools). It also covers the work around the
+and a deterministic Python layer (69 tools). It also covers the work around the
 manuscript — grant
 proposals and reports, ethics applications, data management plans, referee
 reports, promotion dossiers, syllabi and accreditation matrices.
@@ -66,9 +66,21 @@ session start, naming each guarantee that is not in force.
 **Clone** — `INSTALL.sh` / `INSTALL.ps1`: dependency check, hook interpreter
 patching, index datasets, MCP servers. Prefer this to develop the kit itself.
 
+**OpenAI Codex** — the same kit, from the same files:
+
+```text
+codex plugin marketplace add mtvrkan/scholar-kit
+codex plugin add scholar-kit@scholar-kit
+```
+
+Commands are skills there: `$new-project paper`, `$draft methods`. The same
+caveat applies, with one addition — Codex runs a hook only after you have
+approved it, so open `/hooks` once in the project. What maps to what, and what
+is weaker under Codex, is in [`docs/CODEX.md`](docs/CODEX.md).
+
 ### Requirements
 
-- Python 3.10+, [Claude Code](https://claude.com/claude-code), `pip install -r requirements.txt`
+- Python 3.10+, [Claude Code](https://claude.com/claude-code) or [Codex](https://developers.openai.com/codex), `pip install -r requirements.txt`
 - **bash** — both output builders are shell scripts. Present on macOS/Linux; on
   Windows it comes from Git for Windows (`winget install --id Git.Git`). Without
   it the DOCX/PDF build step fails even with pandoc and TeX installed.
@@ -192,9 +204,10 @@ refuses to produce a similarity score.
 [`CONTRIBUTING.md`](CONTRIBUTING.md) how to work on it ·
 [`CHANGELOG.md`](CHANGELOG.md) every change ·
 [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) why no cost table is published ·
+[`docs/CODEX.md`](docs/CODEX.md) the kit under OpenAI Codex ·
 [`docs/RELEASING.md`](docs/RELEASING.md) release and DOI
 
-**Tests:** `python -m pytest` (2390 pass; 8 live-network tests are skipped by
+**Tests:** `python -m pytest` (2509 pass; 8 live-network tests are skipped by
 default; add `RUN_LIVE=1` to include them).
 
 **Site:** one page, five sections, built with Astro. No JavaScript file is
